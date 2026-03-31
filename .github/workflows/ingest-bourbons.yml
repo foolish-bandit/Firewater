@@ -1,0 +1,64 @@
+name: Ingest Bourbon Data
+
+on:
+  schedule:
+    - cron: '0 0 * * 0' # Every Sunday at midnight UTC
+  workflow_dispatch: {} # Allow manual trigger
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run bourbon ingestion
+        run: npx tsx scripts/ingest-bourbons.ts
+
+      - name: Check for new bourbons
+        id: check
+        run: |
+          if [ -s data/abc-bourbons-new.json ] && [ "$(jq length data/abc-bourbons-new.json)" -gt 0 ]; then
+            echo "has_new=true" >> "$GITHUB_OUTPUT"
+            echo "count=$(jq length data/abc-bourbons-new.json)" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_new=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create PR with new bourbon data
+        if: steps.check.outputs.has_new == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="data/bourbon-ingest-$(date +%Y%m%d)"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add data/
+          git commit -m "data: add ${{ steps.check.outputs.count }} new bourbons from state ABC sources"
+          git push -u origin "$BRANCH"
+          gh pr create \
+            --title "Add ${{ steps.check.outputs.count }} new bourbons from state ABC data" \
+            --body "## Automated Bourbon Ingestion
+
+Found **${{ steps.check.outputs.count }}** new bourbon products not currently in our catalog.
+
+### Sources
+- Iowa Alcoholic Beverages Division (SODA API)
+- Pennsylvania PLCB Spirits Catalog
+
+### Files
+- \`data/abc-bourbons-new.json\` — net new bourbons only
+- \`data/abc-bourbons-all.json\` — full deduplicated dataset
+
+Review the new entries and merge to add them to the catalog pipeline."
