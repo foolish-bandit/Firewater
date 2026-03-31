@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Bottle body: sleek tall silhouette -->
+  <path d="M44 30 L44 14 L56 14 L56 30 L56 33 L66 40 L66 88 C66 93 60 96 50 96 C40 96 34 93 34 88 L34 40 L44 33 Z" />
+  <!-- Bottle cap -->
+  <rect x="43" y="8" width="14" height="6" rx="2" stroke-width="1.5" />
+  <!-- Neck ring -->
+  <line x1="42" y1="30" x2="58" y2="30" stroke-width="1.5" />
+  <!-- Label area -->
+  <rect x="40" y="55" width="20" height="18" rx="1" stroke-width="1" stroke-dasharray="3 2" opacity="0.5" />
+  <!-- Outer flames: large, sweeping -->
+  <path d="M30 42 C28 32 34 22 32 12 C38 22 40 16 42 8 C44 18 46 14 48 6 C50 16 52 14 54 8 C56 16 58 20 62 12 C60 22 66 28 68 38" stroke="#C89B3C" stroke-width="2" fill="none" opacity="0.85" />
+  <!-- Mid flames: tighter to bottle -->
+  <path d="M36 40 C35 34 38 28 37 20 C40 28 42 22 44 16 C46 24 48 20 50 14 C52 20 54 24 56 16 C58 22 60 28 63 20 C62 28 65 34 64 40" stroke="#C89B3C" stroke-width="1.5" fill="none" opacity="0.55" />
+  <!-- Inner flame glow -->
+  <path d="M42 38 C42 32 46 26 45 20 C48 26 50 22 52 18 C54 24 56 30 56 36" stroke="#E8C56D" stroke-width="1" fill="none" opacity="0.4" />
+  <!-- Bottle shine -->
+  <path d="M38 42 L38 84" stroke-width="1" opacity="0.3" stroke-dasharray="8 4" />
+</svg>
