@@ -1,0 +1,138 @@
+import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { del } from "@vercel/blob";
+import { sql } from "@vercel/postgres";
+import { getAdminEmail, checkRateLimit, RATE_LIMITS, logger } from "./_helpers";
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const action = req.query.action as string;
+
+  try {
+    // GET /api/photos?action=bourbon&bourbonId=xxx
+    if (req.method === "GET" && action === "bourbon") {
+      if (!checkRateLimit(req, res, RATE_LIMITS.read, "photos:bourbon")) return;
+      const bourbonId = req.query.bourbonId as string;
+      if (!bourbonId) {
+        res.status(400).json({ error: "Missing bourbonId query parameter" });
+        return;
+      }
+      const result = await sql`
+        SELECT * FROM photos WHERE bourbon_id = ${bourbonId} AND status = 'approved' ORDER BY created_at DESC
+      `;
+      res.json(result.rows);
+      return;
+    }
+
+    // GET /api/photos?action=pending
+    if (req.method === "GET" && action === "pending") {
+      if (!checkRateLimit(req, res, RATE_LIMITS.read, "photos:pending")) return;
+      const adminEmail = await getAdminEmail(req);
+      if (!adminEmail) {
+        res.status(403).json({ error: "Admin access required" });
+        return;
+      }
+      const result = await sql`SELECT * FROM photos WHERE status = 'pending' ORDER BY created_at DESC`;
+      res.json(result.rows);
+      return;
+    }
+
+    // POST /api/photos?action=approve
+    if (req.method === "POST" && action === "approve") {
+      if (!checkRateLimit(req, res, RATE_LIMITS.write, "photos:approve")) return;
+      const adminEmail = await getAdminEmail(req);
+      if (!adminEmail) {
+        res.status(403).json({ error: "Admin access required" });
+        return;
+      }
+      const { photoId } = req.body;
+      if (!photoId) {
+        res.status(400).json({ error: "Missing photoId" });
+        return;
+      }
+      const result = await sql`
+        UPDATE photos SET status = 'approved', reviewed_at = NOW(), reviewed_by = ${adminEmail}
+        WHERE id = ${photoId} AND status = 'pending' RETURNING *
+      `;
+      if (result.rowCount === 0) {
+        res.status(404).json({ error: "Photo not found or already reviewed" });
+        return;
+      }
+      res.json(result.rows[0]);
+      return;
+    }
+
+    // POST /api/photos?action=reject
+    if (req.method === "POST" && action === "reject") {
+      if (!checkRateLimit(req, res, RATE_LIMITS.write, "photos:reject")) return;
+      const adminEmail = await getAdminEmail(req);
+      if (!adminEmail) {
+        res.status(403).json({ error: "Admin access required" });
+        return;
+      }
+      const { photoId } = req.body;
+      if (!photoId) {
+        res.status(400).json({ error: "Missing photoId" });
+        return;
+      }
+      const photo = await sql`SELECT * FROM photos WHERE id = ${photoId} AND status = 'pending'`;
+      if (photo.rowCount === 0) {
+        res.status(404).json({ error: "Photo not found or already reviewed" });
+        return;
+      }
+      const blobUrl = photo.rows[0].blob_url;
+      await sql`
+        UPDATE photos SET status = 'rejected', reviewed_at = NOW(), reviewed_by = ${adminEmail} WHERE id = ${photoId}
+      `;
+      try { await del(blobUrl); } catch { /* non-fatal */ }
+      res.json({ success: true });
+      return;
+    }
+
+    // GET /api/photos?action=batch&ids=id1,id2,id3
+    if (req.method === "GET" && action === "batch") {
+      if (!checkRateLimit(req, res, RATE_LIMITS.read, "photos:batch")) return;
+      const ids = ((req.query.ids as string) || "").split(",").filter(Boolean);
+      if (ids.length === 0) {
+        res.json({});
+        return;
+      }
+      const result = await sql`
+        SELECT DISTINCT ON (bourbon_id) bourbon_id, blob_url
+        FROM photos
+        WHERE bourbon_id = ANY(${ids}) AND status = 'approved'
+        ORDER BY bourbon_id, created_at DESC
+      `;
+      const map: Record<string, string> = {};
+      result.rows.forEach((r) => {
+        map[r.bourbon_id] = r.blob_url;
+      });
+      res.json(map);
+      return;
+    }
+
+    // POST /api/photos?action=setup
+    if (req.method === "POST" && action === "setup") {
+      const adminEmail = await getAdminEmail(req);
+      if (!adminEmail) {
+        res.status(403).json({ error: "Admin access required" });
+        return;
+      }
+      await sql`
+        CREATE TABLE IF NOT EXISTS photos (
+          id TEXT PRIMARY KEY, bourbon_id TEXT NOT NULL, user_id TEXT NOT NULL,
+          user_email TEXT NOT NULL, user_name TEXT, blob_url TEXT NOT NULL,
+          status TEXT NOT NULL DEFAULT 'pending', created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          reviewed_at TIMESTAMPTZ, reviewed_by TEXT
+        )
+      `;
+      await sql`CREATE INDEX IF NOT EXISTS idx_photos_bourbon_status ON photos(bourbon_id, status)`;
+      await sql`CREATE INDEX IF NOT EXISTS idx_photos_status ON photos(status)`;
+      res.json({ success: true, message: "Photos table created successfully" });
+      return;
+    }
+
+    res.status(404).json({ error: "Unknown action" });
+  } catch (error: any) {
+    logger.error("Photos API error", error, { endpoint: `photos:${action}`, method: req.method || "?" });
+    res.status(500).json({ error: "Operation failed: " + error.message });
+  }
+}
