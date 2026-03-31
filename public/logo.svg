@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Bourbon bottle body: narrow neck, angled shoulders, straight sides -->
+  <path d="M44 28 L44 10 L56 10 L56 28 L56 32 L70 42 L70 90 C70 94 64 96 50 96 C36 96 30 94 30 90 L30 42 L44 32 Z" />
+  <!-- Label with dashed border for vintage feel -->
+  <rect x="36" y="52" width="28" height="24" rx="1" stroke-width="1.5" stroke-dasharray="3 2" />
+  <!-- Cork/Cap detail -->
+  <rect x="43" y="5" width="14" height="5" rx="1" stroke-width="1.5" />
+  <!-- Neck ring -->
+  <line x1="42" y1="28" x2="58" y2="28" stroke-width="1.5" />
+  <!-- Simple 'shine' or reflection line -->
+  <path d="M34 44 L34 85" stroke-width="1" opacity="0.6" stroke-dasharray="10 5" />
+</svg>
