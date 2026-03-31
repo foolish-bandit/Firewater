@@ -1,0 +1,19 @@
+{
+  "name": "FIREWATER",
+  "short_name": "FIREWATER",
+  "description": "A watering hole for bourbon drinkers. Find bottles, read honest reviews, track your journey.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#141210",
+  "theme_color": "#141210",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["food", "lifestyle", "social"]
+}
