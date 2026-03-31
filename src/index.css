@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Cormorant Garamond", ui-serif, Georgia, serif;
+  --color-vintage-bg: #141210;
+  --color-vintage-text: #EAE4D9;
+  --color-vintage-accent: #C89B3C;
+  --color-vintage-border: rgba(234, 228, 217, 0.15);
+}
+
+body {
+  background-color: var(--color-vintage-bg);
+  color: var(--color-vintage-text);
+  font-family: var(--font-sans);
+}
+
+/* Vintage utility classes */
+.vintage-border {
+  border: 1px solid var(--color-vintage-border);
+}
+
+.vintage-border-b {
+  border-bottom: 1px solid var(--color-vintage-border);
+}
+
+.vintage-border-t {
+  border-top: 1px solid var(--color-vintage-border);
+}
+
+.vintage-border-r {
+  border-right: 1px solid var(--color-vintage-border);
+}
+
+.vintage-border-l {
+  border-left: 1px solid var(--color-vintage-border);
+}
+
+.micro-label {
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 500;
+  color: rgba(234, 228, 217, 0.6);
+}
+
+.oval-mask {
+  mask-image: radial-gradient(ellipse at center, black 60%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 60%, transparent 100%);
+}
