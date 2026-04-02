@@ -80,7 +80,7 @@ export default function App() {
   const { toasts, showToast, dismissToast } = useToast();
   const { wantToTry, tried, toggleWantToTry, toggleTried } = useLiquorLists(user, showToast);
   const { reviews, addReview, editReview, deleteReview, getReviewsForLiquor } = useReviews(user, showToast);
-  const { allLiquors, handleAddLiquor } = useCustomLiquors();
+  const { allLiquors, handleAddLiquor, deleteCustomLiquor } = useCustomLiquors();
   const { isAdmin } = useAdmin(user);
   const isOnline = useOnlineStatus();
 
@@ -409,6 +409,8 @@ export default function App() {
               onDeleteReview={deleteReview}
               user={user}
               liquors={allLiquors}
+              deleteCustomLiquor={deleteCustomLiquor}
+              showToast={showToast}
             />
           } />
           <Route path="/lists" element={
@@ -427,6 +429,7 @@ export default function App() {
                 user={user}
                 isAdmin={isAdmin}
                 liquors={allLiquors}
+                deleteCustomLiquor={deleteCustomLiquor}
               />
             ) : <RouterNavigate to="/" replace />
           } />
