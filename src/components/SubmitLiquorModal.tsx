@@ -534,6 +534,10 @@ export default function SubmitLiquorModal({ onClose, onSubmit, onSelectExisting,
                 </div>
               </div>
 
+              <p className="text-on-surface-muted text-xs font-serif italic">
+                Community submissions are stored locally in your browser. You can remove them from your lists at any time.
+              </p>
+
               <div className="flex justify-end pt-6 border-t border-[var(--color-vintage-border)] gap-4">
                 <button
                   onClick={() => setStep('input')}

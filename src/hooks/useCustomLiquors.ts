@@ -68,5 +68,9 @@ export function useCustomLiquors() {
     return resultId;
   }, []);
 
-  return { allLiquors, customLiquors, handleAddLiquor };
+  const deleteCustomLiquor = useCallback((id: string) => {
+    setCustomLiquors(prev => prev.filter(l => l.id !== id));
+  }, []);
+
+  return { allLiquors, customLiquors, handleAddLiquor, deleteCustomLiquor };
 }

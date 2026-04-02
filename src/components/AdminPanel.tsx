@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle, X, Shield, ImageIcon, Database } from 'lucide-react';
+import { CheckCircle, X, Shield, ImageIcon, Database, Users, Trash2 } from 'lucide-react';
 import { User } from '../types';
 import { Liquor } from '../data';
 import { usePhotos } from '../hooks/usePhotos';
@@ -10,9 +10,10 @@ interface AdminPanelProps {
   user: User | null;
   isAdmin: boolean;
   liquors: Liquor[];
+  deleteCustomLiquor: (id: string) => void;
 }
 
-export default function AdminPanel({ user, isAdmin, liquors }: AdminPanelProps) {
+export default function AdminPanel({ user, isAdmin, liquors, deleteCustomLiquor }: AdminPanelProps) {
   const navigate = useNavigate();
   const { pendingPhotos, fetchPending, approvePhoto, rejectPhoto } = usePhotos();
 
@@ -144,6 +145,54 @@ export default function AdminPanel({ user, isAdmin, liquors }: AdminPanelProps) 
           ))}
         </div>
       )}
+
+      {/* Community Submissions */}
+      {(() => {
+        const communityLiquors = liquors.filter(l => l.source === 'community');
+        return (
+          <div className="surface-raised p-6 space-y-4">
+            <div className="flex items-center gap-3">
+              <Users size={18} className="text-on-surface-accent" />
+              <h2 className="font-display text-xl text-on-surface">Community Submissions</h2>
+            </div>
+            <p className="micro-label text-on-surface-muted">
+              {communityLiquors.length} community submission{communityLiquors.length !== 1 ? 's' : ''}
+            </p>
+            {communityLiquors.length === 0 ? (
+              <div className="vintage-border border-dashed p-8 text-center">
+                <p className="text-on-surface-muted font-serif italic">No community submissions yet.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {communityLiquors.map(l => (
+                  <div key={l.id} className="flex items-center justify-between p-4 bg-surface-base vintage-border">
+                    <div className="min-w-0 flex-1">
+                      <button
+                        onClick={() => navigate(`/liquor/${l.id}`)}
+                        className="font-serif text-on-surface hover:text-on-surface-accent transition-colors text-left text-lg"
+                      >
+                        {l.name}
+                      </button>
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1">
+                        <span className="micro-label text-on-surface-muted">{l.distillery || 'Unknown'}</span>
+                        <span className="micro-label text-on-surface-muted">{l.submissionCount || 1} submission{(l.submissionCount || 1) !== 1 ? 's' : ''}</span>
+                        <span className="micro-label text-on-surface-accent">community</span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => deleteCustomLiquor(l.id)}
+                      className="btn btn-ghost text-red-400 hover:text-red-300 hover:bg-red-400/10 text-xs font-sans font-semibold tracking-widest uppercase flex items-center gap-2 ml-4 shrink-0"
+                    >
+                      <Trash2 size={14} />
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* Database Migrations */}
       <div className="surface-raised p-6 space-y-4">

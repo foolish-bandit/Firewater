@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Star, Heart, CheckCircle, ChevronLeft, Share2, Edit2, Trash2, MapPin, Flame, Clock, DollarSign } from 'lucide-react';
+import { Star, Heart, CheckCircle, ChevronLeft, Share2, Edit2, Trash2, MapPin, Flame, Clock, DollarSign, XCircle } from 'lucide-react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts';
 import { Liquor } from '../data';
 import { Review, User } from '../types';
@@ -29,6 +29,8 @@ interface DetailViewProps {
   onDeleteReview: (reviewId: string) => void;
   user: User | null;
   liquors: Liquor[];
+  deleteCustomLiquor?: (id: string) => void;
+  showToast?: (msg: string) => void;
 }
 
 function getTopFlavors(liquor: Liquor, count: number = 3): string[] {
@@ -37,7 +39,7 @@ function getTopFlavors(liquor: Liquor, count: number = 3): string[] {
   return entries.slice(0, count).map(([key]) => key.charAt(0).toUpperCase() + key.slice(1));
 }
 
-export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTried, getReviewsForLiquor, onAddReview, onEditReview, onDeleteReview, user, liquors }: DetailViewProps) {
+export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTried, getReviewsForLiquor, onAddReview, onEditReview, onDeleteReview, user, liquors, deleteCustomLiquor, showToast }: DetailViewProps) {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const liquor = liquors.find((b: Liquor) => b.id === id);
@@ -237,6 +239,20 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
                   <span className="hidden xs:inline">{copied ? 'Copied!' : 'Share'}</span>
                 </button>
               </div>
+
+              {liquor.source === 'community' && deleteCustomLiquor && (
+                <button
+                  onClick={() => {
+                    deleteCustomLiquor(id);
+                    showToast?.('Submission removed');
+                    navigate('/catalog');
+                  }}
+                  className="btn btn-ghost text-red-400 hover:text-red-300 hover:bg-red-400/10 text-xs font-sans font-semibold tracking-widest uppercase flex items-center gap-2"
+                >
+                  <XCircle size={14} />
+                  Remove this submission
+                </button>
+              )}
 
               <div className="mt-2">
                 <PhotoUpload liquorId={id} user={user} />
