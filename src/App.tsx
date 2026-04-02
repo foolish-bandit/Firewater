@@ -393,6 +393,7 @@ export default function App() {
               liquors={allLiquors}
               wantToTry={wantToTry}
               tried={tried}
+              reviews={reviews}
             />
           } />
           <Route path="/feed" element={

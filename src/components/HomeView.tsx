@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Heart, ChevronRight, Sparkles, BookOpen, Users, Flame, Wheat, FlaskConical, DollarSign, Layers, Camera } from 'lucide-react';
 import { SignUpButton } from '@clerk/react';
-import { User } from '../types';
+import { User, Review } from '../types';
 import { Liquor } from '../data';
 
 interface HomeViewProps {
@@ -10,6 +10,7 @@ interface HomeViewProps {
   liquors: Liquor[];
   wantToTry: string[];
   tried: string[];
+  reviews: Review[];
 }
 
 const PLACEHOLDERS = [
@@ -29,7 +30,7 @@ const CATEGORIES = [
   { label: 'Full Catalog', icon: BookOpen, filter: 'all', color: '#C89B3C' },
 ];
 
-export default function HomeView({ user, liquors, wantToTry, tried }: HomeViewProps) {
+export default function HomeView({ user, liquors, wantToTry, tried, reviews }: HomeViewProps) {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
@@ -72,14 +73,45 @@ export default function HomeView({ user, liquors, wantToTry, tried }: HomeViewPr
   const communityPicks = useMemo(() => {
     if (liquors.length === 0) return [];
     const daysSinceEpoch = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+    const interestingTerms = /single barrel|small batch|barrel proof|cask strength|limited|special|reserve/i;
+
+    const scoreLiquor = (l: Liquor) => {
+      let score = 0;
+      if (l.price <= 60) score++;
+      if (l.proof >= 90) score++;
+      const text = `${l.type} ${l.name} ${l.description}`;
+      if (interestingTerms.test(text)) score++;
+      return score;
+    };
+
+    const priorityPool = liquors.filter(l => scoreLiquor(l) >= 2);
+    const pool = priorityPool.length >= 8 ? priorityPool : liquors;
+
     const picks: Liquor[] = [];
     const used = new Set<number>();
-    for (let i = 0; i < Math.min(8, liquors.length); i++) {
-      let idx = (daysSinceEpoch * 7 + i * 13) % liquors.length;
-      while (used.has(idx)) idx = (idx + 1) % liquors.length;
+    for (let i = 0; i < Math.min(8, pool.length); i++) {
+      let idx = (daysSinceEpoch * 7 + i * 13) % pool.length;
+      while (used.has(idx)) idx = (idx + 1) % pool.length;
       used.add(idx);
-      picks.push(liquors[idx]);
+      picks.push(pool[idx]);
     }
+
+    // If priority pool was too small, fill remainder from general pool
+    if (priorityPool.length < 8 && priorityPool.length > 0) {
+      const pickedIds = new Set(picks.map(p => p.id));
+      const remaining = priorityPool.filter(l => !pickedIds.has(l.id));
+      const general = liquors.filter(l => !pickedIds.has(l.id) && !remaining.includes(l));
+      // Replace non-priority picks with priority ones where possible
+      const priorityPicks: Liquor[] = [];
+      const generalPicks: Liquor[] = [];
+      for (const p of picks) {
+        if (scoreLiquor(p) >= 2) priorityPicks.push(p);
+        else generalPicks.push(p);
+      }
+      picks.length = 0;
+      picks.push(...priorityPicks, ...generalPicks);
+    }
+
     return picks;
   }, [liquors]);
 
@@ -97,6 +129,19 @@ export default function HomeView({ user, liquors, wantToTry, tried }: HomeViewPr
     entries.sort((a, b) => b[1] - a[1]);
     return entries[0][0].charAt(0).toUpperCase() + entries[0][0].slice(1);
   };
+
+  const reviewsByLiquor = useMemo(() => {
+    const map = new Map<string, Review>();
+    for (const r of reviews) {
+      const text = r.text || r.nose || r.palate || r.finish || '';
+      if (!text.trim()) continue;
+      const existing = map.get(r.liquorId);
+      if (!existing || r.rating > existing.rating) {
+        map.set(r.liquorId, r);
+      }
+    }
+    return map;
+  }, [reviews]);
 
   return (
     <div className="flex flex-col min-h-[80vh] animate-in fade-in duration-700">
@@ -223,6 +268,17 @@ export default function HomeView({ user, liquors, wantToTry, tried }: HomeViewPr
                   <span className="font-serif text-sm text-on-surface-secondary">${liquor.price}</span>
                   <span className="text-[10px] text-on-surface-muted uppercase tracking-widest font-sans">{liquor.proof}pf</span>
                 </div>
+                {(() => {
+                  const review = reviewsByLiquor.get(liquor.id);
+                  if (!review) return null;
+                  const text = review.text || review.nose || review.palate || review.finish || '';
+                  const snippet = text.length > 60 ? text.slice(0, 60).trimEnd() + '…' : text;
+                  return (
+                    <p className="text-[10px] font-serif italic text-on-surface-muted line-clamp-2 mt-1.5">
+                      ★ {review.rating} — {snippet}
+                    </p>
+                  );
+                })()}
               </div>
             </button>
           ))}
