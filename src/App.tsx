@@ -15,7 +15,7 @@ import ProfileView from './components/ProfileView';
 import FeedView from './components/FeedView';
 
 const AdminPanel = React.lazy(() => import('./components/AdminPanel'));
-import UserSearch from './components/UserSearch';
+import UnifiedSearch from './components/UnifiedSearch';
 import AuthModal from './components/AuthModal';
 import { ToastStack } from './components/Toast';
 import InstallPrompt from './components/InstallPrompt';
@@ -96,6 +96,18 @@ export default function App() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
+
+  // Cmd+K / Ctrl+K to open search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setShowUserSearch(prev => !prev);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const toggleWantToTryWithToast = useCallback((id: string) => {
     const removing = wantToTry.includes(id);
@@ -244,7 +256,7 @@ export default function App() {
             <button
               onClick={() => setShowUserSearch(true)}
               className="text-on-surface-muted hover:text-on-surface-accent transition-colors"
-              title="Find People"
+              title="Search (⌘K)"
             >
               <Search size={16} />
             </button>
@@ -521,9 +533,9 @@ export default function App() {
         />
       )}
 
-      {/* User Search Modal */}
+      {/* Unified Search Modal */}
       {showUserSearch && (
-        <UserSearch onClose={() => setShowUserSearch(false)} />
+        <UnifiedSearch onClose={() => setShowUserSearch(false)} liquors={allLiquors} />
       )}
 
       {/* Auth Modal */}
