@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, X, Plus, Camera, ChevronDown } from 'lucide-react';
+import { Search, X, Plus, Camera, ChevronDown, Sparkles } from 'lucide-react';
 import { Liquor } from '../data';
 import { levenshteinDistance } from '../utils/stringUtils';
 import LiquorCard from './LiquorCard';
@@ -336,16 +336,6 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
           <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
             <button
               type="button"
-              onClick={() => {
-                const randomLiquor = liquors[Math.floor(Math.random() * liquors.length)];
-                if (randomLiquor) navigate(`/liquor/${randomLiquor.id}`);
-              }}
-              className="inline-flex items-center justify-center gap-2 btn btn-primary px-5 py-3"
-            >
-              Random Discovery
-            </button>
-            <button
-              type="button"
               onClick={onOpenScanner}
               className="inline-flex items-center justify-center gap-2 btn btn-secondary px-5 py-3"
             >
@@ -559,21 +549,30 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
             </div>
             <div>
               <h3 className="text-xl font-serif text-on-surface mb-2">No bottles matched this discovery view</h3>
-              <p className="text-on-surface-muted max-w-md mx-auto mb-6">Try broadening your filters, changing your search words, or trying a random discovery for a fresh path.</p>
+              <p className="text-on-surface-muted max-w-md mx-auto mb-6">Try broadening your filters or changing your search words.</p>
               <div className="flex flex-wrap items-center justify-center gap-4">
-                <button
-                  onClick={onOpenSubmit}
-                  className="btn btn-primary px-6 py-3 rounded inline-flex items-center gap-2"
-                >
-                  <Plus size={16} /> Add it to the database
-                </button>
                 <button
                   onClick={resetAllFilters}
                   className="btn btn-secondary px-6 py-3"
                 >
                   Clear Filters
                 </button>
+                <button
+                  onClick={() => {
+                    const randomLiquor = liquors[Math.floor(Math.random() * liquors.length)];
+                    if (randomLiquor) navigate(`/liquor/${randomLiquor.id}`);
+                  }}
+                  className="btn btn-secondary px-6 py-3 inline-flex items-center gap-2"
+                >
+                  <Sparkles size={16} /> Random Discovery
+                </button>
               </div>
+              <button
+                onClick={onOpenSubmit}
+                className="text-xs font-sans text-on-surface-muted hover:text-on-surface-accent transition-colors mt-2"
+              >
+                or submit a new bottle
+              </button>
             </div>
           </div>
         )}
@@ -606,6 +605,31 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
           </div>
         </div>
       )}
+
+      {/* Bottom fallback CTA */}
+      <div className="pt-4">
+        <div className="section-divider mb-8" />
+        <div className="text-center space-y-4">
+          <p className="font-serif text-on-surface-muted">Didn't find what you're looking for?</p>
+          <button
+            onClick={() => {
+              const randomLiquor = liquors[Math.floor(Math.random() * liquors.length)];
+              if (randomLiquor) navigate(`/liquor/${randomLiquor.id}`);
+            }}
+            className="btn btn-secondary px-6 py-3 inline-flex items-center gap-2"
+          >
+            <Sparkles size={16} /> Random Discovery
+          </button>
+          <p>
+            <button
+              onClick={onOpenSubmit}
+              className="text-xs font-sans text-on-surface-muted hover:text-on-surface-accent transition-colors"
+            >
+              or submit a new bottle
+            </button>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
