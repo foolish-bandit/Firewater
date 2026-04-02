@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Heart, ChevronRight, Sparkles, BookOpen, Users, Flame, Wheat, FlaskConical, DollarSign, Layers, Camera } from 'lucide-react';
+import { SignUpButton } from '@clerk/react';
 import { User } from '../types';
 import { Liquor } from '../data';
 
@@ -135,38 +136,6 @@ export default function HomeView({ user, liquors, wantToTry, tried }: HomeViewPr
                   Firewater helps you find bottles that match your palate, track what you've tasted, and build a personal shelf — whether you're just getting started or deep into the journey.
                 </p>
 
-                <div className="flex flex-col sm:flex-row gap-3 mb-5">
-                  <button
-                    onClick={() => navigate('/catalog')}
-                    className="inline-flex items-center justify-center gap-2 btn btn-primary px-6 py-4 hover:-translate-y-0.5 gold-glow"
-                  >
-                    <BookOpen size={18} /> Browse Catalog
-                  </button>
-                  <button
-                    onClick={() => {
-                      const randomLiquor = liquors[Math.floor(Math.random() * liquors.length)];
-                      if (randomLiquor) navigate(`/liquor/${randomLiquor.id}`);
-                    }}
-                    className="inline-flex items-center justify-center gap-2 btn btn-secondary px-6 py-4"
-                  >
-                    <Sparkles size={18} /> Random Discovery
-                  </button>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <button
-                    onClick={() => inputRef.current?.focus()}
-                    className="inline-flex items-center justify-center gap-2 btn btn-ghost px-4 py-3"
-                  >
-                    <Search size={16} className="text-on-surface-accent" /> Search the Catalog
-                  </button>
-                  <button
-                    onClick={() => navigate('/catalog?scan=1')}
-                    className="inline-flex items-center justify-center gap-2 btn btn-ghost px-4 py-3"
-                  >
-                    <Camera size={16} className="text-on-surface-accent" /> Scan a Bottle
-                  </button>
-                </div>
               </div>
 
               <div className="bg-surface-base/80 border border-border-subtle p-5 md:p-6 space-y-4">
@@ -198,19 +167,19 @@ export default function HomeView({ user, liquors, wantToTry, tried }: HomeViewPr
                     </div>
                   </div>
                 </form>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
-                  <div className="border border-border-subtle bg-surface-raised/70 p-3">
-                    <p className="micro-label text-on-surface-accent mb-1">1</p>
-                    <p className="text-sm text-on-surface font-serif">Search the catalog</p>
-                  </div>
-                  <div className="border border-border-subtle bg-surface-raised/70 p-3">
-                    <p className="micro-label text-on-surface-accent mb-1">2</p>
-                    <p className="text-sm text-on-surface font-serif">Filter by flavor or budget</p>
-                  </div>
-                  <div className="border border-border-subtle bg-surface-raised/70 p-3">
-                    <p className="micro-label text-on-surface-accent mb-1">3</p>
-                    <p className="text-sm text-on-surface font-serif">Save the bottles you like</p>
-                  </div>
+                <div className="flex flex-col gap-3">
+                  <button
+                    onClick={() => navigate('/catalog?scan=1')}
+                    className="inline-flex items-center justify-center gap-2 btn btn-primary px-5 py-3 w-full gold-glow"
+                  >
+                    <Camera size={16} /> Scan a Bottle
+                  </button>
+                  <button
+                    onClick={() => inputRef.current?.focus()}
+                    className="inline-flex items-center justify-center gap-2 btn btn-secondary px-5 py-3 w-full"
+                  >
+                    <Search size={16} /> Search the Catalog
+                  </button>
                 </div>
               </div>
             </div>
@@ -346,81 +315,46 @@ export default function HomeView({ user, liquors, wantToTry, tried }: HomeViewPr
         </div>
       </div>
 
-      <div className="w-full max-w-5xl mx-auto px-4 mb-subsection">
+      <div className="w-full max-w-5xl mx-auto px-4 pb-12">
         <div className="section-divider mb-8" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="flex flex-col sm:flex-row gap-3 mb-4">
+          <button
+            onClick={() => navigate('/catalog')}
+            className="flex-1 inline-flex items-center justify-center gap-2 btn btn-primary px-6 py-4 hover:-translate-y-0.5 gold-glow"
+          >
+            <BookOpen size={18} /> Browse Full Catalog
+          </button>
           <button
             onClick={() => {
               const randomLiquor = liquors[Math.floor(Math.random() * liquors.length)];
               if (randomLiquor) navigate(`/liquor/${randomLiquor.id}`);
             }}
-            className="p-5 surface-raised hover:border-border-accent-strong card-elevated card-elevated-hover transition-all group text-left hover:-translate-y-0.5 duration-300 flex items-start gap-4"
+            className="flex-1 inline-flex items-center justify-center gap-2 btn btn-secondary px-6 py-4 hover:-translate-y-0.5"
           >
-            <div className="w-10 h-10 rounded-full bg-on-surface-accent/10 flex items-center justify-center flex-shrink-0 group-hover:bg-on-surface-accent/20 transition-colors">
-              <Sparkles size={18} className="text-on-surface-accent" />
-            </div>
-            <div>
-              <h3 className="font-serif text-lg text-on-surface mb-1">Try something random</h3>
-              <p className="text-xs text-on-surface-muted font-serif italic leading-relaxed">
-                Let us pick a bottle at random — a great way to discover something new.
-              </p>
-            </div>
-          </button>
-
-          <button
-            onClick={() => navigate('/catalog')}
-            className="p-5 surface-raised hover:border-border-accent-strong card-elevated card-elevated-hover transition-all group text-left hover:-translate-y-0.5 duration-300 flex items-start gap-4"
-          >
-            <div className="w-10 h-10 rounded-full bg-on-surface-accent/10 flex items-center justify-center flex-shrink-0 group-hover:bg-on-surface-accent/20 transition-colors">
-              <Search size={18} className="text-on-surface-accent" />
-            </div>
-            <div>
-              <h3 className="font-serif text-lg text-on-surface mb-1">Refine in the catalog</h3>
-              <p className="text-xs text-on-surface-muted font-serif italic leading-relaxed">
-                Search, sort, and filter the shelf with plain-language discovery tools.
-              </p>
-            </div>
-          </button>
-
-          <button
-            onClick={() => navigate('/lists')}
-            className="p-5 surface-raised hover:border-border-accent-strong card-elevated card-elevated-hover transition-all group text-left hover:-translate-y-0.5 duration-300 flex items-start gap-4"
-          >
-            <div className="w-10 h-10 rounded-full bg-on-surface-accent/10 flex items-center justify-center flex-shrink-0 group-hover:bg-on-surface-accent/20 transition-colors">
-              <BookOpen size={18} className="text-on-surface-accent" />
-            </div>
-            <div>
-              <h3 className="font-serif text-lg text-on-surface mb-1">Save what stands out</h3>
-              <p className="text-xs text-on-surface-muted font-serif italic leading-relaxed">
-                Keep a running list of bottles to try next and bottles you've already explored.
-              </p>
-            </div>
+            <Sparkles size={18} /> Random Discovery
           </button>
         </div>
-      </div>
-
-      <div className="w-full max-w-5xl mx-auto px-4 pb-12">
-        <div className="flex gap-3">
-          <button
-            onClick={() => {
-              const randomLiquor = liquors[Math.floor(Math.random() * liquors.length)];
-              navigate(`/liquor/${randomLiquor.id}`);
-            }}
-            className="flex-1 py-3.5 px-5 bg-on-surface-accent hover:bg-on-surface-accent hover:brightness-110 transition-all duration-300 flex items-center justify-center gap-3 hover:-translate-y-0.5 gold-glow active:scale-[0.97] active:shadow-none"
-          >
-            <Sparkles size={16} className="text-on-surface-invert" />
-            <span className="font-sans text-sm font-semibold text-on-surface-invert uppercase tracking-widest">Random Discovery</span>
-          </button>
-          {totalListed > 0 && (
+        {!user && (
+          <p className="text-center text-sm text-on-surface-muted font-serif italic">
+            Create an account to save bottles and track what you've tasted.{' '}
+            <SignUpButton mode="modal">
+              <button className="text-on-surface-accent hover:underline font-sans font-semibold tracking-wider uppercase text-xs">
+                Sign Up
+              </button>
+            </SignUpButton>
+          </p>
+        )}
+        {user && totalListed > 0 && (
+          <div className="flex justify-center">
             <button
               onClick={() => navigate('/lists')}
-              className="py-3.5 px-5 vintage-border hover:border-border-accent-strong transition-all duration-300 flex items-center justify-center gap-2 hover:-translate-y-0.5"
+              className="py-2.5 px-5 vintage-border hover:border-border-accent-strong transition-all duration-300 flex items-center justify-center gap-2 hover:-translate-y-0.5"
             >
               <Heart size={14} className="text-on-surface-accent" />
-              <span className="font-sans text-xs font-semibold text-on-surface-secondary uppercase tracking-widest">{totalListed}</span>
+              <span className="font-sans text-xs font-semibold text-on-surface-secondary uppercase tracking-widest">{totalListed} saved</span>
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
