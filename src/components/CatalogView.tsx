@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, X, Plus, Camera } from 'lucide-react';
+import { Search, X, Plus, Camera, ChevronDown, Sparkles } from 'lucide-react';
 import { Liquor } from '../data';
 import { levenshteinDistance } from '../utils/stringUtils';
 import LiquorCard from './LiquorCard';
@@ -15,6 +15,48 @@ interface CatalogViewProps {
   onOpenScanner: () => void;
 }
 
+const CATEGORIES = [
+  'All', 'High Proof', 'Wheated', 'Rye', 'Single Barrel', 'Under $50',
+  'Small Batch', 'Barrel Proof', 'Cask Strength', 'Bottled in Bond',
+  'Aged 10+', 'Kentucky', 'Tennessee', 'Craft/Micro',
+];
+const DEFAULT_VISIBLE = 8;
+
+const CRAFT_DISTILLERIES = [
+  'new riff', 'wilderness trail', 'balcones', 'stranahan', 'westland',
+  'corsair', 'cedar ridge', 'breckenridge', 'few', 'westward',
+  'ragged branch', 'virginia distillery', 'spirit works', 'coppercraft',
+];
+
+function parseAge(age: string): number | null {
+  const m = age.match(/(\d+)/);
+  return m ? parseInt(m[1], 10) : null;
+}
+
+function matchesCategory(b: Liquor, cat: string): boolean {
+  const nameDescType = `${b.name} ${b.description} ${b.type}`.toLowerCase();
+  switch (cat) {
+    case 'High Proof': return b.proof >= 100;
+    case 'Wheated': return b.mashBill.toLowerCase().includes('wheat');
+    case 'Rye': return b.mashBill.toLowerCase().includes('rye') && !b.mashBill.toLowerCase().includes('wheat');
+    case 'Single Barrel': return nameDescType.includes('single barrel');
+    case 'Under $50': return b.price < 50;
+    case 'Small Batch': return nameDescType.includes('small batch');
+    case 'Barrel Proof': return nameDescType.includes('barrel proof');
+    case 'Cask Strength': return nameDescType.includes('cask strength');
+    case 'Bottled in Bond': return b.proof === 100 && nameDescType.includes('bottled in bond');
+    case 'Aged 10+': { const a = parseAge(b.age); return a !== null && a >= 10; }
+    case 'Kentucky': return b.region.toLowerCase().includes('kentucky');
+    case 'Tennessee': return b.region.toLowerCase().includes('tennessee');
+    case 'Craft/Micro': {
+      const dist = b.distillery.toLowerCase();
+      return CRAFT_DISTILLERIES.some(d => dist.includes(d)) ||
+        nameDescType.includes('craft') || nameDescType.includes('micro');
+    }
+    default: return true;
+  }
+}
+
 export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleTried, liquors, onOpenSubmit, onOpenScanner }: CatalogViewProps) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -23,30 +65,65 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const ITEMS_PER_PAGE = 24;
   const [searchResults, setSearchResults] = useState<string[] | null>(null);
-  const [activeCategory, setActiveCategory] = useState<string>('All');
+  const [activeCategories, setActiveCategories] = useState<Set<string>>(new Set(['All']));
+  const [showAllCategories, setShowAllCategories] = useState(false);
   const hasConsumedInitialQuery = useRef(false);
   const hasConsumedScanParam = useRef(false);
 
-  const maxPriceInData = useMemo(() => Math.max(...liquors.map(b => b.price)), [liquors]);
-  const minProofInData = useMemo(() => Math.min(...liquors.map(b => b.proof)), [liquors]);
+  const [priceFilter, setPriceFilter] = useState<'any' | 'under-30' | 'under-50' | 'under-75' | 'over-75'>('any');
+  const [selectedRegions, setSelectedRegions] = useState<Set<string>>(new Set());
+  const [regionSearch, setRegionSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [sortBy, setSortBy] = useState<string>('name');
 
-  const maxProofInData = useMemo(() => Math.max(...liquors.map(b => b.proof)), [liquors]);
-  const minPriceInData = useMemo(() => Math.min(...liquors.map(b => b.price)), [liquors]);
+  // Top 8 regions by frequency
+  const topRegions = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const b of liquors) {
+      if (b.region) counts.set(b.region, (counts.get(b.region) || 0) + 1);
+    }
+    return Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([r]) => r);
+  }, [liquors]);
 
-  const uniqueRegions = useMemo(() => {
+  const allRegions = useMemo(() => {
     const regions = new Set(liquors.map(b => b.region).filter(Boolean));
     return Array.from(regions).sort();
   }, [liquors]);
 
-  const [maxPrice, setMaxPrice] = useState<number>(maxPriceInData);
-  const [minPrice, setMinPrice] = useState<number>(minPriceInData);
-  const [minProof, setMinProof] = useState<number>(minProofInData);
-  const [maxProof, setMaxProof] = useState<number>(maxProofInData);
-  const [selectedRegion, setSelectedRegion] = useState<string>('All');
-  const [page, setPage] = useState(1);
-  const [sortBy, setSortBy] = useState<string>('name');
+  const filteredRegionOptions = useMemo(() => {
+    if (!regionSearch.trim()) return [];
+    const q = regionSearch.toLowerCase();
+    return allRegions.filter(r =>
+      r.toLowerCase().includes(q) && !topRegions.includes(r)
+    );
+  }, [regionSearch, allRegions, topRegions]);
 
-  const categories = ['All', 'High Proof', 'Wheated', 'Rye', 'Single Barrel', 'Under $50'];
+  const toggleRegion = (region: string) => {
+    setSelectedRegions(prev => {
+      const next = new Set(prev);
+      if (next.has(region)) next.delete(region);
+      else next.add(region);
+      return next;
+    });
+  };
+
+  const toggleCategory = (cat: string) => {
+    if (cat === 'All') {
+      setActiveCategories(new Set(['All']));
+      return;
+    }
+    setActiveCategories(prev => {
+      const next = new Set(prev);
+      next.delete('All');
+      if (next.has(cat)) next.delete(cat);
+      else next.add(cat);
+      if (next.size === 0) next.add('All');
+      return next;
+    });
+  };
 
   const flavorKeywords: Record<string, keyof Liquor['flavorProfile']> = {
     sweet: 'sweetness', sugary: 'sweetness', honey: 'sweetness',
@@ -162,35 +239,27 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
       result = searchResults.map((id: string) => liquors.find((b: Liquor) => b.id === id)).filter(Boolean) as Liquor[];
     }
 
-    if (activeCategory !== 'All') {
-      switch (activeCategory) {
-        case 'High Proof':
-          result = result.filter((b: Liquor) => b.proof >= 100);
-          break;
-        case 'Wheated':
-          result = result.filter((b: Liquor) => b.mashBill.toLowerCase().includes('wheat'));
-          break;
-        case 'Rye':
-          result = result.filter((b: Liquor) => b.mashBill.toLowerCase().includes('rye') && !b.mashBill.toLowerCase().includes('wheat'));
-          break;
-        case 'Single Barrel':
-          result = result.filter((b: Liquor) => b.type.toLowerCase().includes('single barrel') || b.name.toLowerCase().includes('single barrel'));
-          break;
-        case 'Under $50':
-          result = result.filter((b: Liquor) => b.price < 50);
-          break;
+    if (!activeCategories.has('All')) {
+      result = result.filter((b: Liquor) =>
+        Array.from(activeCategories).some(cat => matchesCategory(b, cat))
+      );
+    }
+
+    if (selectedRegions.size > 0) {
+      result = result.filter((b: Liquor) => selectedRegions.has(b.region));
+    }
+
+    if (priceFilter !== 'any') {
+      switch (priceFilter) {
+        case 'under-30': result = result.filter(b => b.price < 30); break;
+        case 'under-50': result = result.filter(b => b.price < 50); break;
+        case 'under-75': result = result.filter(b => b.price < 75); break;
+        case 'over-75': result = result.filter(b => b.price >= 75); break;
       }
     }
 
-    if (selectedRegion !== 'All') {
-      result = result.filter((b: Liquor) => b.region === selectedRegion);
-    }
-
-    return result.filter((b: Liquor) =>
-      b.price >= minPrice && b.price <= maxPrice &&
-      b.proof >= minProof && b.proof <= maxProof
-    );
-  }, [searchResults, minPrice, maxPrice, minProof, maxProof, liquors, activeCategory, selectedRegion]);
+    return result;
+  }, [searchResults, liquors, activeCategories, selectedRegions, priceFilter]);
 
   const sortedLiquors = useMemo(() => {
     const sorted = [...filteredLiquors];
@@ -205,7 +274,7 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
     return sorted;
   }, [filteredLiquors, sortBy]);
 
-  useEffect(() => setPage(1), [searchQuery, searchResults, activeCategory, minPrice, maxPrice, minProof, maxProof, selectedRegion, sortBy]);
+  useEffect(() => setPage(1), [searchQuery, searchResults, activeCategories, priceFilter, selectedRegions, sortBy]);
 
   const totalPages = Math.ceil(sortedLiquors.length / ITEMS_PER_PAGE);
   const paginatedLiquors = sortedLiquors.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
@@ -217,30 +286,38 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
 
   const filterDescriptions = useMemo(() => {
     const parts: string[] = [];
-    if (searchQuery.trim()) parts.push(`matching “${searchQuery.trim()}”`);
-    if (activeCategory !== 'All') parts.push(`in ${activeCategory}`);
-    if (selectedRegion !== 'All') parts.push(`from ${selectedRegion}`);
-    if (minPrice > minPriceInData) parts.push(`$${minPrice}+`);
-    if (maxPrice < maxPriceInData) parts.push(`up to $${maxPrice}`);
-    if (minProof > minProofInData) parts.push(`${minProof}+ proof`);
-    if (maxProof < maxProofInData) parts.push(`up to ${maxProof} proof`);
+    if (searchQuery.trim()) parts.push(`matching "${searchQuery.trim()}"`);
+    if (!activeCategories.has('All')) parts.push(`in ${Array.from(activeCategories).join(', ')}`);
+    if (selectedRegions.size > 0) parts.push(`from ${Array.from(selectedRegions).join(', ')}`);
+    if (priceFilter !== 'any') {
+      const labels: Record<string, string> = { 'under-30': 'under $30', 'under-50': 'under $50', 'under-75': 'under $75', 'over-75': '$75+' };
+      parts.push(labels[priceFilter]);
+    }
     if (parts.length === 0) return ['showing the full catalog'];
     return parts;
-  }, [activeCategory, selectedRegion, minPrice, minPriceInData, maxPrice, maxPriceInData, minProof, minProofInData, maxProof, maxProofInData, searchQuery]);
+  }, [activeCategories, selectedRegions, priceFilter, searchQuery]);
 
   const filtersActive = filterDescriptions[0] !== 'showing the full catalog';
 
   const resetAllFilters = () => {
     setSearchQuery('');
     setSearchResults(null);
-    setActiveCategory('All');
-    setSelectedRegion('All');
-    setMinPrice(minPriceInData);
-    setMaxPrice(maxPriceInData);
-    setMinProof(minProofInData);
-    setMaxProof(maxProofInData);
+    setActiveCategories(new Set(['All']));
+    setSelectedRegions(new Set());
+    setPriceFilter('any');
+    setRegionSearch('');
     setSortBy('name');
   };
+
+  const visibleCategories = showAllCategories ? CATEGORIES : CATEGORIES.slice(0, DEFAULT_VISIBLE);
+
+  const priceOptions: { label: string; value: typeof priceFilter }[] = [
+    { label: 'Any Price', value: 'any' },
+    { label: 'Under $30', value: 'under-30' },
+    { label: 'Under $50', value: 'under-50' },
+    { label: 'Under $75', value: 'under-75' },
+    { label: '$75+', value: 'over-75' },
+  ];
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -257,16 +334,6 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
-            <button
-              type="button"
-              onClick={() => {
-                const randomLiquor = liquors[Math.floor(Math.random() * liquors.length)];
-                if (randomLiquor) navigate(`/liquor/${randomLiquor.id}`);
-              }}
-              className="inline-flex items-center justify-center gap-2 btn btn-primary px-5 py-3"
-            >
-              Random Discovery
-            </button>
             <button
               type="button"
               onClick={onOpenScanner}
@@ -308,96 +375,129 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
             </div>
           </form>
 
-          <div className="flex items-center gap-4 justify-between xl:justify-end flex-wrap">
-            <div className="flex items-center gap-2">
-              <span className="micro-label text-on-surface-muted">Region</span>
-              <select
-                value={selectedRegion}
-                onChange={(e) => setSelectedRegion(e.target.value)}
-                className="bg-surface-base border border-border-subtle text-on-surface text-xs px-3 py-3 focus:outline-none focus:border-border-accent-strong rounded-sm appearance-none cursor-pointer min-w-[140px]"
-              >
-                <option value="All">All Regions</option>
-                {uniqueRegions.map(r => (
-                  <option key={r} value={r}>{r}</option>
-                ))}
-              </select>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="micro-label text-on-surface-muted">Sort</span>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="bg-surface-base border border-border-subtle text-on-surface text-xs px-3 py-3 focus:outline-none focus:border-border-accent-strong rounded-sm appearance-none cursor-pointer min-w-[180px]"
-              >
-                <option value="name">Name A–Z</option>
-                <option value="name-desc">Name Z–A</option>
-                <option value="price-asc">Price ↑</option>
-                <option value="price-desc">Price ↓</option>
-                <option value="proof-asc">Proof ↑</option>
-                <option value="proof-desc">Proof ↓</option>
-              </select>
-            </div>
+          <div className="flex items-center gap-2 justify-end">
+            <span className="micro-label text-on-surface-muted">Sort</span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="bg-surface-base border border-border-subtle text-on-surface text-xs px-3 py-3 focus:outline-none focus:border-border-accent-strong rounded-sm appearance-none cursor-pointer min-w-[180px]"
+            >
+              <option value="name">Name A–Z</option>
+              <option value="name-desc">Name Z–A</option>
+              <option value="price-asc">Price ↑</option>
+              <option value="price-desc">Price ↓</option>
+              <option value="proof-asc">Proof ↑</option>
+              <option value="proof-desc">Proof ↓</option>
+            </select>
           </div>
         </div>
 
-        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 sm:flex-wrap sm:overflow-visible">
-          {categories.map(cat => (
+        {/* Category tags — multi-select */}
+        <div>
+          <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 sm:flex-wrap sm:overflow-visible">
+            {visibleCategories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => toggleCategory(cat)}
+                className={`seg-item px-3 sm:px-4 py-2 text-[10px] sm:text-xs tracking-wider sm:tracking-widest shrink-0 sm:shrink ${
+                  activeCategories.has(cat) ? 'seg-item-active' : ''
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+            {CATEGORIES.length > DEFAULT_VISIBLE && (
+              <button
+                onClick={() => setShowAllCategories(prev => !prev)}
+                className="seg-item px-3 py-2 text-[10px] sm:text-xs tracking-wider shrink-0 flex items-center gap-1 text-on-surface-accent"
+              >
+                {showAllCategories ? 'Show less' : 'Show more'}
+                <ChevronDown size={12} className={`transition-transform ${showAllCategories ? 'rotate-180' : ''}`} />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Price preset buttons */}
+        <div className="space-y-2">
+          <p className="micro-label text-on-surface-muted">Price</p>
+          <div className="flex gap-2 flex-wrap">
+            {priceOptions.map(opt => (
+              <button
+                key={opt.value}
+                onClick={() => setPriceFilter(opt.value)}
+                className={`seg-item px-3 py-2 text-[10px] sm:text-xs tracking-wider sm:tracking-widest ${
+                  priceFilter === opt.value ? 'seg-item-active' : ''
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Region multi-select */}
+        <div className="space-y-2">
+          <p className="micro-label text-on-surface-muted">Region</p>
+          <div className="flex gap-2 flex-wrap">
             <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`seg-item px-3 sm:px-4 py-2 text-[10px] sm:text-xs tracking-wider sm:tracking-widest shrink-0 sm:shrink ${
-                activeCategory === cat ? 'seg-item-active' : ''
+              onClick={() => setSelectedRegions(new Set())}
+              className={`seg-item px-3 py-2 text-[10px] sm:text-xs tracking-wider sm:tracking-widest ${
+                selectedRegions.size === 0 ? 'seg-item-active' : ''
               }`}
             >
-              {cat}
+              All Regions
             </button>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-border-subtle pt-4">
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <label className="micro-label text-on-surface">Price Range</label>
-              <span className="font-mono text-xs text-on-surface-accent">${minPrice} – ${maxPrice}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <input
-                type="range"
-                min="0" max={maxPriceInData} step="10"
-                value={minPrice}
-                onChange={(e) => setMinPrice(Math.min(Number(e.target.value), maxPrice))}
-                className="w-full flavor-slider"
-              />
-              <input
-                type="range"
-                min="0" max={maxPriceInData} step="10"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(Math.max(Number(e.target.value), minPrice))}
-                className="w-full flavor-slider"
-              />
-            </div>
+            {topRegions.map(r => (
+              <button
+                key={r}
+                onClick={() => toggleRegion(r)}
+                className={`seg-item px-3 py-2 text-[10px] sm:text-xs tracking-wider sm:tracking-widest flex items-center gap-1 ${
+                  selectedRegions.has(r) ? 'seg-item-active' : ''
+                }`}
+              >
+                {r}
+                {selectedRegions.has(r) && <X size={10} />}
+              </button>
+            ))}
           </div>
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <label className="micro-label text-on-surface">Proof Range</label>
-              <span className="font-mono text-xs text-on-surface-accent">{minProof} – {maxProof}</span>
+          {/* Selected regions not in top 8 */}
+          {Array.from(selectedRegions).filter(r => !topRegions.includes(r)).length > 0 && (
+            <div className="flex gap-2 flex-wrap">
+              {Array.from(selectedRegions).filter(r => !topRegions.includes(r)).map(r => (
+                <button
+                  key={r}
+                  onClick={() => toggleRegion(r)}
+                  className="seg-item seg-item-active px-3 py-2 text-[10px] sm:text-xs tracking-wider sm:tracking-widest flex items-center gap-1"
+                >
+                  {r} <X size={10} />
+                </button>
+              ))}
             </div>
-            <div className="flex items-center gap-3">
-              <input
-                type="range"
-                min={minProofInData} max="160" step="1"
-                value={minProof}
-                onChange={(e) => setMinProof(Math.min(Number(e.target.value), maxProof))}
-                className="w-full flavor-slider"
-              />
-              <input
-                type="range"
-                min={minProofInData} max="160" step="1"
-                value={maxProof}
-                onChange={(e) => setMaxProof(Math.max(Number(e.target.value), minProof))}
-                className="w-full flavor-slider"
-              />
-            </div>
+          )}
+          <div className="relative max-w-xs">
+            <input
+              type="text"
+              value={regionSearch}
+              onChange={(e) => setRegionSearch(e.target.value)}
+              placeholder="Search regions..."
+              className="w-full input-base py-2 px-3 text-xs rounded-sm"
+            />
+            {filteredRegionOptions.length > 0 && (
+              <div className="absolute z-10 mt-1 w-full bg-surface-raised vintage-border max-h-40 overflow-y-auto custom-scrollbar">
+                {filteredRegionOptions.map(r => (
+                  <button
+                    key={r}
+                    onClick={() => { toggleRegion(r); setRegionSearch(''); }}
+                    className={`w-full text-left px-3 py-2 text-xs font-sans hover:bg-on-surface-accent/5 transition-colors ${
+                      selectedRegions.has(r) ? 'text-on-surface-accent' : 'text-on-surface-secondary'
+                    }`}
+                  >
+                    {r} {selectedRegions.has(r) && '✓'}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -449,21 +549,30 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
             </div>
             <div>
               <h3 className="text-xl font-serif text-on-surface mb-2">No bottles matched this discovery view</h3>
-              <p className="text-on-surface-muted max-w-md mx-auto mb-6">Try broadening your filters, changing your search words, or trying a random discovery for a fresh path.</p>
+              <p className="text-on-surface-muted max-w-md mx-auto mb-6">Try broadening your filters or changing your search words.</p>
               <div className="flex flex-wrap items-center justify-center gap-4">
-                <button
-                  onClick={onOpenSubmit}
-                  className="btn btn-primary px-6 py-3 rounded inline-flex items-center gap-2"
-                >
-                  <Plus size={16} /> Add it to the database
-                </button>
                 <button
                   onClick={resetAllFilters}
                   className="btn btn-secondary px-6 py-3"
                 >
                   Clear Filters
                 </button>
+                <button
+                  onClick={() => {
+                    const randomLiquor = liquors[Math.floor(Math.random() * liquors.length)];
+                    if (randomLiquor) navigate(`/liquor/${randomLiquor.id}`);
+                  }}
+                  className="btn btn-secondary px-6 py-3 inline-flex items-center gap-2"
+                >
+                  <Sparkles size={16} /> Random Discovery
+                </button>
               </div>
+              <button
+                onClick={onOpenSubmit}
+                className="text-xs font-sans text-on-surface-muted hover:text-on-surface-accent transition-colors mt-2"
+              >
+                or submit a new bottle
+              </button>
             </div>
           </div>
         )}
@@ -496,6 +605,31 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
           </div>
         </div>
       )}
+
+      {/* Bottom fallback CTA */}
+      <div className="pt-4">
+        <div className="section-divider mb-8" />
+        <div className="text-center space-y-4">
+          <p className="font-serif text-on-surface-muted">Didn't find what you're looking for?</p>
+          <button
+            onClick={() => {
+              const randomLiquor = liquors[Math.floor(Math.random() * liquors.length)];
+              if (randomLiquor) navigate(`/liquor/${randomLiquor.id}`);
+            }}
+            className="btn btn-secondary px-6 py-3 inline-flex items-center gap-2"
+          >
+            <Sparkles size={16} /> Random Discovery
+          </button>
+          <p>
+            <button
+              onClick={onOpenSubmit}
+              className="text-xs font-sans text-on-surface-muted hover:text-on-surface-accent transition-colors"
+            >
+              or submit a new bottle
+            </button>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
