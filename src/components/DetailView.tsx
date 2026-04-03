@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Star, Heart, CheckCircle, ChevronLeft, Share2, Edit2, Trash2, MapPin, Flame, Clock, DollarSign, XCircle } from 'lucide-react';
+import { Star, Heart, CheckCircle, ChevronLeft, Share2, Edit2, Trash2, MapPin, Flame, Clock, DollarSign, XCircle, X } from 'lucide-react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts';
 import { Liquor } from '../data';
 import { Review, User } from '../types';
@@ -55,6 +55,8 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
   const [palate, setPalate] = useState('');
   const [finish, setFinish] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [nudgeDismissed, setNudgeDismissed] = useState(false);
+  const reviewFormRef = useRef<HTMLDivElement>(null);
   const photoUrl = usePhotoUrl(id ?? '');
 
   if (!id || !liquor) return <div className="text-center py-20 text-on-surface-muted font-serif italic text-xl">Liquor not found</div>;
@@ -104,6 +106,8 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
   const similar = useMemo(() => getSimilarLiquors(liquor, liquors), [liquor, liquors]);
   const isWanted = wantToTry.includes(id);
   const isTried = tried.includes(id);
+  const hasUserReview = user ? reviews.some(r => r.userId === user.id) : false;
+  const showReviewNudge = isTried && !!user && !hasUserReview && !nudgeDismissed;
 
   const flavorData = Object.entries(liquor.flavorProfile).map(([key, value]) => ({
     subject: key.charAt(0).toUpperCase() + key.slice(1),
@@ -397,6 +401,28 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
 
       <div className="section-divider mt-section" />
 
+      {/* Review nudge banner */}
+      {showReviewNudge && (
+        <div className="bg-on-surface-accent/10 vintage-border p-4 sm:p-5 mt-subsection flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4 min-w-0">
+            <p className="font-serif text-on-surface text-base sm:text-lg italic">You've tasted this one — how was it?</p>
+            <button
+              onClick={() => reviewFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+              className="btn btn-primary btn-sm px-4 py-2 shrink-0"
+            >
+              Write a Review
+            </button>
+          </div>
+          <button
+            onClick={() => setNudgeDismissed(true)}
+            className="text-on-surface-muted hover:text-on-surface-accent transition-colors shrink-0"
+            aria-label="Dismiss"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
+
       {/* Reviews Section */}
       <div className="space-y-10 mt-subsection">
         <div className="flex items-center justify-between">
@@ -417,7 +443,7 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
         </div>
 
         {/* Review form with gold wash */}
-        <div className="bg-on-surface-accent/5 vintage-border p-5 sm:p-8">
+        <div ref={reviewFormRef} className="bg-on-surface-accent/5 vintage-border p-5 sm:p-8">
           <h3 className="font-serif text-2xl text-on-surface mb-4 sm:mb-6">Leave a Review</h3>
 
           {/* Mode toggle tabs */}
