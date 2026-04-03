@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { X, Mail, Phone, Chrome } from 'lucide-react';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 
 interface AuthModalProps {
   onClose: () => void;
@@ -21,36 +22,7 @@ export default function AuthModal({ onClose, onGoogleSignIn, onCredentialAuth }:
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
-
-  // Focus trap
-  useEffect(() => {
-    const modal = modalRef.current;
-    if (!modal) return;
-
-    const focusableSelector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
-    const firstFocusable = modal.querySelector<HTMLElement>(focusableSelector);
-    firstFocusable?.focus();
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { onClose(); return; }
-      if (e.key !== 'Tab') return;
-
-      const focusable = modal.querySelectorAll<HTMLElement>(focusableSelector);
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onClose, mode, method]);
+  useFocusTrap(modalRef, onClose, [mode, method]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

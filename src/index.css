@@ -78,6 +78,28 @@
   --elevation-1: 0 1px 3px rgba(0,0,0,0.3), 0 4px 20px rgba(0,0,0,0.15);
   --elevation-2: 0 4px 12px rgba(0,0,0,0.4), 0 8px 30px rgba(200,155,60,0.08);
   --elevation-3: 0 8px 24px rgba(0,0,0,0.4), 0 16px 48px rgba(0,0,0,0.2);
+
+  /* Status colors */
+  --color-status-error-bg: rgba(159, 18, 57, 0.2);
+  --color-status-error-border: rgba(159, 18, 57, 0.5);
+  --color-status-error-text: #fca5a5;
+  --color-status-success-bg: rgba(22, 101, 52, 0.2);
+  --color-status-success-border: rgba(22, 101, 52, 0.5);
+  --color-status-success-text: #86efac;
+  --color-status-warning-bg: rgba(161, 98, 7, 0.2);
+  --color-status-warning-border: rgba(161, 98, 7, 0.5);
+  --color-status-warning-text: #fde68a;
+
+  /* Animation durations */
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+
+  /* Z-index layers */
+  --z-nav: 40;
+  --z-modal: 50;
+  --z-search: 55;
+  --z-toast: 60;
 }
 
 [data-theme="light"] {
@@ -103,6 +125,17 @@
   --elevation-1: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.08);
   --elevation-2: 0 4px 12px rgba(0,0,0,0.08), 0 8px 24px rgba(154,116,32,0.06);
   --elevation-3: 0 8px 24px rgba(0,0,0,0.1), 0 16px 48px rgba(0,0,0,0.08);
+
+  /* Status colors (light mode) */
+  --color-status-error-bg: rgba(220, 38, 38, 0.1);
+  --color-status-error-border: rgba(220, 38, 38, 0.3);
+  --color-status-error-text: #b91c1c;
+  --color-status-success-bg: rgba(22, 163, 74, 0.1);
+  --color-status-success-border: rgba(22, 163, 74, 0.3);
+  --color-status-success-text: #15803d;
+  --color-status-warning-bg: rgba(202, 138, 4, 0.1);
+  --color-status-warning-border: rgba(202, 138, 4, 0.3);
+  --color-status-warning-text: #a16207;
 }
 
 body {
@@ -115,56 +148,31 @@ body {
 }
 
 /* ================================================================
-   Light-mode overrides for hardcoded Tailwind arbitrary values
+   Light-mode overrides for remaining hardcoded Tailwind arbitrary values
    ================================================================ */
 
-/* Background colors (kept: patterns still used in ChatBubble, LiquorMedia, PhotoGallery) */
-[data-theme="light"] .bg-\[\#141210\] { background-color: var(--bg-primary) !important; }
+/* bg-[var(--color-vintage-bg)] variants still used in nav/layout */
 [data-theme="light"] .bg-\[var\(--color-vintage-bg\)\] { background-color: var(--bg-primary) !important; }
-
-/* Text colors (kept: patterns still used in ChatBubble, LiquorMedia) */
-[data-theme="light"] .text-\[\#C89B3C\] { color: var(--text-accent) !important; }
-[data-theme="light"] .text-\[\#141210\] { color: var(--bg-primary) !important; }
-[data-theme="light"] .text-\[var\(--color-vintage-text\)\] { color: var(--text-primary) !important; }
-
-/* Accent background and related (kept: patterns still used) */
-[data-theme="light"] .bg-\[\#C89B3C\] { background-color: var(--text-accent) !important; }
-[data-theme="light"] .bg-\[\#C89B3C\]\/20 { background-color: rgba(154, 116, 32, 0.2) !important; }
-[data-theme="light"] .bg-\[\#C89B3C\]\/10 { background-color: rgba(154, 116, 32, 0.1) !important; }
-
-/* Border colors (kept: patterns still used in decorative elements) */
-[data-theme="light"] .border-\[\#C89B3C\] { border-color: var(--text-accent) !important; }
-[data-theme="light"] .border-\[\#C89B3C\]\/25 { border-color: rgba(154, 116, 32, 0.25) !important; }
+[data-theme="light"] .bg-\[var\(--color-vintage-bg\)\]\/95 { background-color: rgba(245, 240, 232, 0.95) !important; }
+[data-theme="light"] .bg-\[var\(--color-vintage-bg\)\]\/90 { background-color: rgba(245, 240, 232, 0.90) !important; }
 
 /* Shadow overrides for light mode */
 [data-theme="light"] .shadow-\[0_4px_30px_rgba\(0\,0\,0\,0\.4\)\] { box-shadow: 0 4px 30px rgba(0,0,0,0.1) !important; }
 [data-theme="light"] .shadow-\[0_-4px_20px_rgba\(0\,0\,0\,0\.3\)\] { box-shadow: 0 -4px 20px rgba(0,0,0,0.06) !important; }
 
-/* bg-[var(--color-vintage-bg)]/95 and /90 */
-[data-theme="light"] .bg-\[var\(--color-vintage-bg\)\]\/95 { background-color: rgba(245, 240, 232, 0.95) !important; }
-[data-theme="light"] .bg-\[var\(--color-vintage-bg\)\]\/90 { background-color: rgba(245, 240, 232, 0.90) !important; }
-
-/* Logo filter removed — new logo handles its own rendering */
-
-/* Background opacity variants (kept: patterns still in decorative use) */
+/* Accent opacity variants still used in FeedView, ListsView decorative elements */
 [data-theme="light"] .bg-\[\#C89B3C\]\/50 { background-color: rgba(154, 116, 32, 0.5) !important; }
 [data-theme="light"] .bg-\[\#C89B3C\]\/60 { background-color: rgba(154, 116, 32, 0.6) !important; }
+[data-theme="light"] .border-\[\#C89B3C\]\/25 { border-color: rgba(154, 116, 32, 0.25) !important; }
+
+/* LiquorMedia decorative opacity patterns */
+[data-theme="light"] .border-\[\#EAE4D9\]\/15 { border-color: rgba(42, 37, 32, 0.15) !important; }
+[data-theme="light"] .text-\[\#EAE4D9\]\/24 { color: rgba(42, 37, 32, 0.24) !important; }
 [data-theme="light"] .bg-\[\#EAE4D9\]\/10 { background-color: rgba(42, 37, 32, 0.1) !important; }
 
-/* Border opacity variants (kept: patterns still used in LiquorMedia) */
-[data-theme="light"] .border-\[\#EAE4D9\]\/15 { border-color: rgba(42, 37, 32, 0.15) !important; }
-
-/* Text color opacity variants (kept: pattern still used in LiquorMedia) */
-[data-theme="light"] .text-\[\#EAE4D9\]\/24 { color: rgba(42, 37, 32, 0.24) !important; }
-
-/* Gradient colors (kept: patterns still used in decorative gradients) */
+/* Gradient colors still in LiquorMedia */
 [data-theme="light"] .from-\[\#C89B3C\]\/40 { --tw-gradient-from: rgba(154, 116, 32, 0.4) !important; }
 [data-theme="light"] .from-\[\#EAE4D9\]\/20 { --tw-gradient-from: rgba(42, 37, 32, 0.2) !important; }
-[data-theme="light"] .to-\[\#E8C56D\] { --tw-gradient-to: #B8922E !important; }
-
-/* Hover background states (kept: patterns still used) */
-[data-theme="light"] .hover\:bg-\[\#B08832\]:hover { background-color: #8A6B28 !important; }
-[data-theme="light"] .hover\:bg-\[\#D4A843\]:hover { background-color: #B08832 !important; }
 
 /* ================================================================
    End light-mode overrides
@@ -436,6 +444,36 @@ select:focus-visible {
   mask-image: radial-gradient(ellipse at center, black 60%, transparent 100%);
   -webkit-mask-image: radial-gradient(ellipse at center, black 60%, transparent 100%);
 }
+
+/* ── Status Messages ── */
+.status-error {
+  background-color: var(--color-status-error-bg);
+  border: 1px solid var(--color-status-error-border);
+  color: var(--color-status-error-text);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-lg);
+  font-size: 0.8125rem;
+}
+.status-success {
+  background-color: var(--color-status-success-bg);
+  border: 1px solid var(--color-status-success-border);
+  color: var(--color-status-success-text);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-lg);
+  font-size: 0.8125rem;
+}
+.status-warning {
+  background-color: var(--color-status-warning-bg);
+  border: 1px solid var(--color-status-warning-border);
+  color: var(--color-status-warning-text);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-lg);
+  font-size: 0.8125rem;
+}
+
+/* ── Hidden Scrollbar ── */
+.hide-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.hide-scrollbar::-webkit-scrollbar { display: none; }
 
 /* ================================================================
    Elevation & Shadow System

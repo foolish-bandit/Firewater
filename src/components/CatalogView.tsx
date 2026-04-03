@@ -550,29 +550,23 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
             <div>
               <h3 className="text-xl font-serif text-on-surface mb-2">No bottles matched this discovery view</h3>
               <p className="text-on-surface-muted max-w-md mx-auto mb-6">Try broadening your filters or changing your search words.</p>
-              <div className="flex flex-wrap items-center justify-center gap-4">
+              <div className="flex flex-wrap items-center justify-center gap-3">
                 <button
                   onClick={resetAllFilters}
-                  className="btn btn-secondary px-6 py-3"
+                  className="btn btn-primary btn-md"
                 >
-                  Clear Filters
+                  Clear All Filters
                 </button>
                 <button
                   onClick={() => {
                     const randomLiquor = liquors[Math.floor(Math.random() * liquors.length)];
                     if (randomLiquor) navigate(`/liquor/${randomLiquor.id}`);
                   }}
-                  className="btn btn-secondary px-6 py-3 inline-flex items-center gap-2"
+                  className="btn btn-ghost btn-md"
                 >
-                  <Sparkles size={16} /> Random Discovery
+                  <Sparkles size={14} /> Surprise Me
                 </button>
               </div>
-              <button
-                onClick={onOpenSubmit}
-                className="text-xs font-sans text-on-surface-muted hover:text-on-surface-accent transition-colors mt-2"
-              >
-                or submit a new bottle
-              </button>
             </div>
           </div>
         )}

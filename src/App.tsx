@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef, Suspense } from 'react';
 import { Routes, Route, useNavigate, useLocation, Link, Navigate as RouterNavigate } from 'react-router-dom';
-import { List as ListIcon, X, Plus, Menu, Shield, User as UserIcon, Search, Home, ChevronDown, Rss, Sun, Moon, WifiOff, Sparkles } from 'lucide-react';
+import { List as ListIcon, X, Plus, Menu, Shield, User as UserIcon, Search, Home, ChevronDown, Rss, Sun, Moon, WifiOff, Sparkles, Loader2 } from 'lucide-react';
 import { SignInButton, SignUpButton, UserButton, useAuth as useClerkAuth } from '@clerk/react';
 import { getAvatarIcon } from './avatarIcons';
 import { Liquor } from './data';
@@ -78,8 +78,9 @@ export default function App() {
   const { user, handleSignIn, handleGoogleSignIn, handleCredentialAuth, handleSignOut, showRulesModal, setShowRulesModal, showAuthModal, setShowAuthModal } = useAuth();
   const { isSignedIn } = useClerkAuth();
   const { toasts, showToast, dismissToast } = useToast();
-  const { wantToTry, tried, toggleWantToTry, toggleTried } = useLiquorLists(user, showToast);
-  const { reviews, addReview, editReview, deleteReview, getReviewsForLiquor } = useReviews(user, showToast);
+  const { wantToTry, tried, syncing: listsSyncing, toggleWantToTry, toggleTried } = useLiquorLists(user, showToast);
+  const { reviews, syncing: reviewsSyncing, addReview, editReview, deleteReview, getReviewsForLiquor } = useReviews(user, showToast);
+  const isSyncing = listsSyncing || reviewsSyncing;
   const { allLiquors, handleAddLiquor, deleteCustomLiquor } = useCustomLiquors();
   const { isAdmin } = useAdmin(user);
   const isOnline = useOnlineStatus();
@@ -200,8 +201,12 @@ export default function App() {
   return (
     <PhotoProvider>
     <div className="min-h-screen bg-surface-base text-on-surface font-sans selection:bg-on-surface-accent/30">
+      {/* Skip Navigation */}
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-on-surface-accent focus:text-surface-base focus:rounded focus:text-sm focus:font-semibold">
+        Skip to content
+      </a>
       {/* Navigation */}
-      <nav className={`sticky top-0 z-50 glass-surface vintage-border-b transition-all duration-300 ${scrolled ? 'shadow-[0_4px_30px_rgba(0,0,0,0.4)]' : ''}`} ref={mobileMenuRef}>
+      <nav className={`sticky top-0 z-[var(--z-nav)] glass-surface vintage-border-b transition-all duration-300 ${scrolled ? 'shadow-[0_4px_30px_rgba(0,0,0,0.4)]' : ''}`} ref={mobileMenuRef}>
         <div className="max-w-5xl mx-auto px-4 h-20 flex items-center justify-between">
           <div
             className="flex items-center gap-3 cursor-pointer group"
@@ -299,14 +304,14 @@ export default function App() {
         {/* Mobile menu backdrop */}
         {mobileMenuOpen && (
           <div
-            className="md:hidden fixed inset-0 top-20 bg-surface-base/60 backdrop-blur-sm z-40 animate-in fade-in duration-200"
+            className="md:hidden fixed inset-0 top-20 bg-surface-base/60 backdrop-blur-sm z-[var(--z-nav)] animate-in fade-in duration-200"
             onClick={() => setMobileMenuOpen(false)}
           />
         )}
 
         {/* Mobile menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-surface-raised vintage-border-b px-4 pb-4 elevated-high relative z-50 animate-in slide-in-from-top-2 duration-200">
+          <div className="md:hidden bg-surface-raised vintage-border-b px-4 pb-4 elevated-high relative z-[var(--z-modal)] animate-in slide-in-from-top-2 duration-200">
             <button
               onClick={() => { navigate('/catalog'); setMobileMenuOpen(false); }}
               className={`block w-full text-left text-sm font-semibold tracking-widest uppercase transition-colors py-4 border-b border-[var(--color-vintage-border)] ${location.pathname === '/catalog' ? 'text-on-surface-accent' : 'text-on-surface-muted hover:text-on-surface-accent'}`}
@@ -375,16 +380,26 @@ export default function App() {
 
       {/* Offline Banner */}
       {!isOnline && (
-        <div className="bg-red-900/80 border-b border-red-700/50 px-4 py-2 text-center">
-          <p className="text-sm text-red-100 flex items-center justify-center gap-2">
+        <div className="status-error border-b px-4 py-2 text-center rounded-none">
+          <p className="text-sm flex items-center justify-center gap-2">
             <WifiOff size={14} />
             You're offline — changes are saved locally and will sync when you reconnect
           </p>
         </div>
       )}
 
+      {/* Sync Indicator */}
+      {isSyncing && isOnline && (
+        <div className="px-4 py-1.5 text-center border-b border-border-subtle bg-surface-alt">
+          <p className="text-xs text-on-surface-muted flex items-center justify-center gap-2">
+            <Loader2 size={12} className="animate-spin" />
+            Syncing your data...
+          </p>
+        </div>
+      )}
+
       {/* Main Content */}
-      <main className="max-w-5xl mx-auto px-3 sm:px-4 py-6 sm:py-8 pb-24 md:pb-8">
+      <main id="main-content" className="max-w-5xl mx-auto px-3 sm:px-4 py-6 sm:py-8 pb-24 md:pb-8">
         <Suspense fallback={<PageSkeleton />}>
         <Routes>
           <Route path="/" element={
@@ -550,7 +565,7 @@ export default function App() {
 
       {/* Rules Modal */}
       {showRulesModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[var(--color-vintage-bg)]/90 backdrop-blur-md animate-in fade-in duration-300" role="dialog" aria-modal="true" aria-label="Welcome to FIREWATER">
+        <div className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center p-4 bg-[var(--color-vintage-bg)]/90 backdrop-blur-md animate-in fade-in duration-300" role="dialog" aria-modal="true" aria-label="Welcome to FIREWATER">
           <div className="surface-raised p-6 md:p-10 max-w-lg w-full elevated-high relative max-h-[90vh] overflow-y-auto">
             <div className="absolute top-0 left-0 w-full h-full pointer-events-none border-2 border-border-accent/30 m-1 rounded-sm"></div>
             <button
@@ -608,7 +623,7 @@ export default function App() {
       )}
 
       {/* Mobile Bottom Tab Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass-surface border-t border-[var(--color-vintage-border)] safe-bottom shadow-[0_-4px_20px_rgba(0,0,0,0.3)]">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-[var(--z-nav)] glass-surface border-t border-[var(--color-vintage-border)] safe-bottom shadow-[0_-4px_20px_rgba(0,0,0,0.3)]">
         <div className="flex items-center justify-around h-[4.25rem]">
           <button
             onClick={() => navigate('/')}

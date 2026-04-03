@@ -1,4 +1,4 @@
-import { useMemo, useState, type MouseEvent } from 'react';
+import { useMemo, useState, useRef, useCallback, type MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Heart, CheckCircle, Download, ChevronDown, Sparkles, Trophy, Compass, Flame } from 'lucide-react';
 import { Liquor } from '../data';
@@ -50,6 +50,12 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'want' | 'tried'>('want');
   const [insightsOpen, setInsightsOpen] = useState(false);
+  const scrollPositions = useRef<Record<string, number>>({ want: 0, tried: 0 });
+  const switchTab = useCallback((tab: 'want' | 'tried') => {
+    scrollPositions.current[activeTab] = window.scrollY;
+    setActiveTab(tab);
+    requestAnimationFrame(() => window.scrollTo(0, scrollPositions.current[tab]));
+  }, [activeTab]);
   const wantLiquors = wantToTry.map((id) => liquors.find((b) => b.id === id)).filter(Boolean) as Liquor[];
   const triedLiquors = tried.map((id) => liquors.find((b) => b.id === id)).filter(Boolean) as Liquor[];
 
@@ -230,7 +236,7 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex gap-1 surface-raised p-1 rounded-full">
           <button
-            onClick={() => setActiveTab('want')}
+            onClick={() => switchTab('want')}
             className={`px-3 sm:px-6 py-2.5 text-[10px] sm:text-xs font-semibold tracking-wider sm:tracking-widest uppercase transition-all duration-300 rounded-full ${
               activeTab === 'want'
                 ? 'seg-item-active'
@@ -245,7 +251,7 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
             </span>
           </button>
           <button
-            onClick={() => setActiveTab('tried')}
+            onClick={() => switchTab('tried')}
             className={`px-3 sm:px-6 py-2.5 text-[10px] sm:text-xs font-semibold tracking-wider sm:tracking-widest uppercase transition-all duration-300 rounded-full ${
               activeTab === 'tried'
                 ? 'seg-item-active'

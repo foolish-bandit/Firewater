@@ -87,7 +87,7 @@ export default function PhotoUpload({ liquorId, user }: PhotoUploadProps) {
                 <button
                   onClick={handleUpload}
                   disabled={uploading}
-                  className="flex items-center gap-2 px-4 py-2 bg-on-surface-accent text-on-surface-invert text-xs font-semibold tracking-widest uppercase hover:bg-[#B08832] disabled:opacity-50 transition-colors"
+                  className="btn btn-primary btn-sm"
                 >
                   {uploading ? <Loader2 size={14} className="animate-spin" /> : <Camera size={14} />}
                   {uploading ? 'Uploading...' : 'Submit for Review'}

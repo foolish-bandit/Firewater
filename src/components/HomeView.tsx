@@ -44,7 +44,7 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
         setPlaceholderIdx(prev => (prev + 1) % PLACEHOLDERS.length);
         setPlaceholderVisible(true);
       }, 300);
-    }, 4000);
+    }, 3500);
     return () => clearInterval(interval);
   }, []);
 
@@ -245,7 +245,7 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
         <p className="text-sm font-serif italic text-on-surface-muted px-4 -mt-2 mb-2">
           Bottles the community keeps coming back to — a rotating selection based on what fellow explorers are discovering.
         </p>
-        <div className="flex gap-4 overflow-x-auto px-4 pb-2 scroll-touch custom-scrollbar" style={{ scrollbarWidth: 'none' }}>
+        <div className="flex gap-4 overflow-x-auto px-4 pb-2 scroll-touch hide-scrollbar">
           {communityPicks.map(liquor => (
             <button
               key={liquor.id}
@@ -304,7 +304,7 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
           <p className="text-sm font-serif italic text-on-surface-muted px-4 -mt-2 mb-2">
             Bottles you've flagged to try next. Tap any to see tasting notes, or head to your full shelf to manage the list.
           </p>
-          <div className="flex gap-4 overflow-x-auto px-4 pb-2 scroll-touch custom-scrollbar" style={{ scrollbarWidth: 'none' }}>
+          <div className="flex gap-4 overflow-x-auto px-4 pb-2 scroll-touch hide-scrollbar">
             {wantToTryLiquors.map(liquor => (
               <button
                 key={liquor.id}

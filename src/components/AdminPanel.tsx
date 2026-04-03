@@ -127,7 +127,7 @@ export default function AdminPanel({ user, isAdmin, liquors, deleteCustomLiquor 
                 <div className="flex gap-3">
                   <button
                     onClick={() => handleApprove(photo.id)}
-                    className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-on-surface-accent text-on-surface-invert text-xs font-semibold tracking-widest uppercase hover:bg-[#B08832] transition-colors"
+                    className="btn btn-primary btn-sm flex-1"
                   >
                     <CheckCircle size={14} />
                     Approve
@@ -204,7 +204,7 @@ export default function AdminPanel({ user, isAdmin, liquors, deleteCustomLiquor 
         <button
           onClick={runMigrations}
           disabled={migrationLoading}
-          className="flex items-center gap-2 py-2.5 px-6 bg-on-surface-accent text-on-surface-invert text-xs font-semibold tracking-widest uppercase hover:bg-[#B08832] disabled:opacity-50 transition-colors"
+          className="btn btn-primary btn-sm"
         >
           {migrationLoading ? 'Running...' : 'Run Migrations'}
         </button>

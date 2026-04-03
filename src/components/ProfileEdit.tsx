@@ -221,7 +221,7 @@ export default function ProfileEdit({ profile, liquors, triedIds, onSave, onClos
           <button
             onClick={handleSave}
             disabled={saving}
-            className="bg-on-surface-accent text-on-surface-invert font-sans font-semibold tracking-widest uppercase text-xs px-8 py-3 hover:bg-[#B08832] disabled:opacity-50 transition-all duration-300"
+            className="btn btn-primary btn-md"
           >
             {saving ? 'Saving...' : 'Save Changes'}
           </button>

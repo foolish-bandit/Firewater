@@ -158,7 +158,7 @@ export default function LiquorMedia({
                 <p className="text-[10px] font-sans font-semibold tracking-[0.28em] uppercase text-on-surface-muted">Bottle Portrait</p>
                 <p className="font-serif text-lg italic text-on-surface line-clamp-2">{identity.typeLabel}</p>
               </div>
-              <span className="shrink-0 rounded-full border border-border-subtle bg-[#141210]/60 px-3 py-1 text-[10px] font-sans font-semibold tracking-[0.22em] uppercase text-on-surface-accent backdrop-blur-sm">
+              <span className="shrink-0 rounded-full border border-border-subtle bg-surface-base/60 px-3 py-1 text-[10px] font-sans font-semibold tracking-[0.22em] uppercase text-on-surface-accent backdrop-blur-sm">
                 {identity.proofLabel}
               </span>
             </div>
@@ -169,10 +169,10 @@ export default function LiquorMedia({
           <div className={`absolute inset-0 ${identity.glow}`} />
           <div className={`absolute inset-x-0 top-0 h-24 bg-gradient-to-r ${identity.gradient} opacity-70`} />
           <div className="absolute inset-0 opacity-40 [background-image:linear-gradient(rgba(234,228,217,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(234,228,217,0.04)_1px,transparent_1px)] [background-size:22px_22px]" />
-          <div className="absolute -left-8 top-10 h-28 w-28 rounded-full bg-[#C89B3C]/10 blur-3xl" />
+          <div className="absolute -left-8 top-10 h-28 w-28 rounded-full bg-on-surface-accent/10 blur-3xl" />
           <div className="absolute -right-10 bottom-14 h-36 w-36 rounded-full bg-white/6 blur-3xl" />
 
-          <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full border border-border-subtle bg-[#141210]/55 px-3 py-1.5 backdrop-blur-sm">
+          <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full border border-border-subtle bg-surface-base/55 px-3 py-1.5 backdrop-blur-sm">
             <Sparkles size={12} className="text-on-surface-accent" />
             <span className="text-[10px] font-sans font-semibold tracking-[0.24em] uppercase text-on-surface-secondary">
               Curated fallback art
@@ -188,8 +188,8 @@ export default function LiquorMedia({
             <div className={`absolute inset-x-[22%] top-0 h-[12%] rounded-t-[18px] border border-[#EAE4D9]/15 bg-gradient-to-b ${identity.bottleFill}`} />
             <div className="absolute inset-x-[34%] top-[-4.5%] h-[8%] rounded-t-md border border-[#EAE4D9]/15 bg-[#EAE4D9]/10" />
             <div className={`absolute inset-x-0 bottom-0 top-[8%] rounded-[40%_40%_18%_18%/12%_12%_22%_22%] border ${identity.edge} bg-gradient-to-b ${identity.bottleFill} shadow-[0_30px_80px_rgba(0,0,0,0.35)] backdrop-blur-[2px]`}>
-              <div className="absolute inset-x-[14%] top-[18%] h-[36%] rounded-[32px] border border-border-subtle bg-[#141210]/20" />
-              <div className="absolute inset-x-[18%] bottom-[14%] top-[58%] rounded-[28px] border border-[#EAE4D9]/12 bg-[#141210]/26" />
+              <div className="absolute inset-x-[14%] top-[18%] h-[36%] rounded-[32px] border border-border-subtle bg-surface-base/20" />
+              <div className="absolute inset-x-[18%] bottom-[14%] top-[58%] rounded-[28px] border border-[#EAE4D9]/12 bg-surface-base/26" />
             </div>
             <div className="absolute left-1/2 top-[30%] -translate-x-1/2 text-center">
               <div className="font-display text-4xl sm:text-5xl tracking-[0.18em] text-[#EAE4D9]/24">{identity.monogram}</div>
@@ -198,7 +198,7 @@ export default function LiquorMedia({
           </div>
 
           {showCaption && (
-            <div className="absolute inset-x-4 bottom-4 rounded-2xl border border-border-subtle bg-[#141210]/58 p-4 backdrop-blur-md">
+            <div className="absolute inset-x-4 bottom-4 rounded-2xl border border-border-subtle bg-surface-base/58 p-4 backdrop-blur-md">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-[10px] font-sans font-semibold tracking-[0.26em] uppercase text-on-surface-accent">{identity.distilleryLabel}</p>

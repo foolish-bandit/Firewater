@@ -1,9 +1,10 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { X, Loader2, AlertCircle, CheckCircle, ChevronRight, Camera } from 'lucide-react';
 import { Liquor, FlavorProfile } from '../liquorTypes';
 import { normalizeLiquorName, levenshteinDistance } from '../utils/stringUtils';
 import { generateLiquorData } from '../services/geminiService';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 
 interface SubmitLiquorModalProps {
   onClose: () => void;
@@ -25,36 +26,7 @@ export default function SubmitLiquorModal({ onClose, onSubmit, onSelectExisting,
   const [generatedLiquor, setGeneratedLiquor] = useState<Partial<Liquor> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
-
-  // Focus trap
-  useEffect(() => {
-    const modal = modalRef.current;
-    if (!modal) return;
-
-    const focusableSelector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
-    const firstFocusable = modal.querySelector<HTMLElement>(focusableSelector);
-    firstFocusable?.focus();
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { onClose(); return; }
-      if (e.key !== 'Tab') return;
-
-      const focusable = modal.querySelectorAll<HTMLElement>(focusableSelector);
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onClose, step]);
+  useFocusTrap(modalRef, onClose, [step]);
 
   // Auto-submit if we have a prefilled name (from barcode scan)
   useEffect(() => {
@@ -197,7 +169,7 @@ export default function SubmitLiquorModal({ onClose, onSubmit, onSelectExisting,
           <p className="text-on-surface-muted mb-4">Help grow the community database.</p>
 
           {/* Step indicator */}
-          <div className="flex items-center gap-2 mb-6">
+          <div className="flex items-center gap-2 mb-6" role="progressbar" aria-valuenow={['input', 'duplicate-check', 'loading', 'review'].indexOf(step) + 1} aria-valuemin={1} aria-valuemax={4} aria-label={`Step ${['input', 'duplicate-check', 'loading', 'review'].indexOf(step) + 1} of 4`}>
             {(['input', 'duplicate-check', 'loading', 'review'] as const).map((s, i) => (
               <div key={s} className={`w-2 h-2 rounded-full transition-colors ${
                 s === step ? 'bg-on-surface-accent' :
@@ -208,7 +180,7 @@ export default function SubmitLiquorModal({ onClose, onSubmit, onSelectExisting,
           </div>
 
           {error && (
-            <div className="bg-red-900/20 border border-red-900/50 text-red-200 p-4 rounded-lg mb-6 flex items-start gap-3">
+            <div className="status-error mb-6 flex items-start gap-3">
               <AlertCircle className="shrink-0 mt-0.5" size={18} />
               <p>{error}</p>
             </div>
@@ -249,7 +221,7 @@ export default function SubmitLiquorModal({ onClose, onSubmit, onSelectExisting,
                 <div className={!onOpenScanner ? 'ml-auto' : ''}>
                   <button
                     type="submit"
-                    className="bg-on-surface-accent text-on-surface-invert px-6 py-3 rounded font-semibold tracking-widest uppercase hover:bg-[#B08832] transition-colors flex items-center gap-2"
+                    className="btn btn-primary btn-md rounded flex items-center gap-2"
                   >
                     Next <ChevronRight size={18} />
                   </button>
@@ -432,7 +404,7 @@ export default function SubmitLiquorModal({ onClose, onSubmit, onSelectExisting,
                 <button
                   onClick={handleConfirm}
                   disabled={!generatedLiquor.name?.trim()}
-                  className="bg-on-surface-accent text-on-surface-invert px-6 py-3 rounded font-semibold tracking-widest uppercase hover:bg-[#B08832] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="btn btn-primary btn-md rounded"
                 >
                   Submit Manually
                 </button>
@@ -547,7 +519,7 @@ export default function SubmitLiquorModal({ onClose, onSubmit, onSelectExisting,
                 </button>
                 <button
                   onClick={handleConfirm}
-                  className="bg-on-surface-accent text-on-surface-invert px-6 py-3 rounded font-semibold tracking-widest uppercase hover:bg-[#B08832] transition-colors"
+                  className="btn btn-primary btn-md rounded"
                 >
                   Confirm & Submit
                 </button>

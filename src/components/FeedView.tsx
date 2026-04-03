@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { RefreshCw, Star, CheckCircle2, Heart, Loader2, Users, Quote, GlassWater, Sparkles } from 'lucide-react';
+import { RefreshCw, Star, CheckCircle2, Heart, Loader2, Users, Quote, GlassWater, Sparkles, AlertCircle } from 'lucide-react';
 import { Liquor } from '../data';
 
 interface User {
@@ -99,6 +99,8 @@ export default function FeedView({ user, liquors }: FeedViewProps) {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [filter, setFilter] = useState<'all' | 'review' | 'tried' | 'want'>('all');
 
   const liquorMap = useMemo(() => {
     const map = new Map<string, Liquor>();
@@ -108,21 +110,29 @@ export default function FeedView({ user, liquors }: FeedViewProps) {
     return map;
   }, [liquors]);
 
+  const filteredActivities = useMemo(() => {
+    if (filter === 'all') return activities;
+    return activities.filter(a => a.type === filter);
+  }, [activities, filter]);
+
   const fetchFeed = useCallback(async (isRefresh = false) => {
     if (!user) return;
     if (isRefresh) setRefreshing(true);
     else setLoading(true);
 
     try {
+      setError(null);
       const res = await fetch('/api/social?scope=feed', {
         headers: { 'x-user-id': user.id },
       });
       if (res.ok) {
         const data = await res.json();
         setActivities(data.activities || []);
+      } else {
+        setError('Could not load feed. Please try again.');
       }
-    } catch (err) {
-      console.error('Failed to fetch feed:', err);
+    } catch {
+      setError('Network error — check your connection and try again.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -153,18 +163,60 @@ export default function FeedView({ user, liquors }: FeedViewProps) {
         <button
           onClick={() => fetchFeed(true)}
           disabled={refreshing}
-          className="flex items-center gap-2 text-xs font-semibold tracking-widest uppercase vintage-border hover:bg-on-surface-accent hover:text-surface-base hover:border-on-surface-accent text-on-surface-accent px-4 py-2 rounded-full transition-all duration-300 disabled:opacity-50"
+          className="btn btn-ghost btn-sm rounded-full"
         >
           <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} />
           Refresh
         </button>
       </div>
 
-      {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 size={32} className="animate-spin text-on-surface-accent" />
+      {/* Activity type filters */}
+      {activities.length > 0 && (
+        <div className="flex gap-2 mb-5 overflow-x-auto pb-1">
+          {([['all', 'All'], ['review', 'Reviews'], ['tried', 'Tried'], ['want', 'Wishlisted']] as const).map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => setFilter(key)}
+              className={`seg-item shrink-0 ${filter === key ? 'seg-item-active' : ''}`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
-      ) : activities.length === 0 ? (
+      )}
+
+      {/* Error State */}
+      {error && !loading && (
+        <div className="status-error flex items-start gap-3 mb-6">
+          <AlertCircle className="shrink-0 mt-0.5" size={18} />
+          <div className="flex-1">
+            <p>{error}</p>
+            <button onClick={() => fetchFeed()} className="mt-2 text-xs font-semibold underline">
+              Try again
+            </button>
+          </div>
+        </div>
+      )}
+
+      {loading ? (
+        <div className="space-y-4" aria-busy="true" aria-label="Loading feed">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="rounded-[28px] border border-border-subtle p-5 animate-pulse">
+              <div className="flex gap-4 pl-2">
+                <div className="w-11 h-11 rounded-full bg-on-surface/10" />
+                <div className="flex-1 space-y-3">
+                  <div className="flex gap-2">
+                    <div className="h-5 w-24 rounded-full bg-on-surface/10" />
+                    <div className="h-5 w-12 rounded-full bg-on-surface/5" />
+                  </div>
+                  <div className="h-4 w-3/4 rounded bg-on-surface/8" />
+                  <div className="h-4 w-1/2 rounded bg-on-surface/5" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : filteredActivities.length === 0 && filter === 'all' ? (
         <div className="bg-surface-raised vintage-border border-dashed p-8 sm:p-16 text-center relative overflow-hidden">
           <img src="/logo.svg" alt="" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 opacity-[0.03] pointer-events-none" />
           <div className="relative z-10">
@@ -175,24 +227,30 @@ export default function FeedView({ user, liquors }: FeedViewProps) {
             </p>
             <button
               onClick={() => navigate('/catalog')}
-              className="bg-transparent vintage-border hover:bg-on-surface-accent hover:text-surface-base hover:border-on-surface-accent text-on-surface-accent font-sans font-semibold tracking-widest uppercase px-6 py-3 text-xs transition-all duration-300"
+              className="btn btn-secondary btn-md"
             >
-              Find People to Follow
+              Explore the Catalog
             </button>
           </div>
         </div>
       ) : (
-        <div className="space-y-4">
-          {activities.map((activity, index) => {
+        <div className="space-y-4" role="feed" aria-label="Activity feed">
+          {filteredActivities.length === 0 && filter !== 'all' && (
+            <div className="text-center py-12">
+              <p className="text-on-surface-muted font-serif italic">No {filter === 'review' ? 'reviews' : filter === 'tried' ? 'check-ins' : 'wishlists'} in your feed yet.</p>
+            </div>
+          )}
+          {filteredActivities.map((activity, index) => {
             const liquor = liquorMap.get(activity.bourbon_id);
             const liquorName = liquor?.name || activity.bourbon_id;
             const style = activityStyles[activity.type];
             const Icon = style.icon;
 
             return (
-              <div
+              <article
                 key={`${activity.type}-${activity.user_id}-${activity.bourbon_id}-${index}`}
                 className={`group relative overflow-hidden rounded-[28px] border p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_40px_rgba(0,0,0,0.28)] ${style.shell}`}
+                aria-label={`${activity.user_name} ${style.verb} ${liquorName}`}
               >
                 <div className={`absolute inset-y-0 left-0 w-1.5 ${style.rail}`} />
                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-on-surface/14 to-transparent" />
@@ -295,7 +353,7 @@ export default function FeedView({ user, liquors }: FeedViewProps) {
                     </div>
                   </div>
                 </div>
-              </div>
+              </article>
             );
           })}
         </div>

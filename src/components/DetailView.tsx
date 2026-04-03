@@ -77,6 +77,7 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
     } else {
       await navigator.clipboard.writeText(window.location.href);
       setCopied(true);
+      showToast?.('Link copied to clipboard');
       setTimeout(() => setCopied(false), 2000);
     }
   };

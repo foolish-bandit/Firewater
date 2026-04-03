@@ -4,6 +4,7 @@ import { apiFetch } from '../api';
 
 export function useReviews(user: User | null, onError?: (msg: string) => void) {
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [syncing, setSyncing] = useState(false);
   const loaded = useRef(false);
   const dbLoaded = useRef(false);
 
@@ -23,6 +24,7 @@ export function useReviews(user: User | null, onError?: (msg: string) => void) {
     const needsSync = !localStorage.getItem(syncKey);
 
     const fetchFromDb = () => {
+      setSyncing(true);
       apiFetch(`/api/social?scope=reviews&userId=${user.id}`)
         .then(res => {
           if (!res.ok) throw new Error('Failed to fetch reviews');
@@ -50,7 +52,8 @@ export function useReviews(user: User | null, onError?: (msg: string) => void) {
         })
         .catch(() => {
           // Offline — keep localStorage data
-        });
+        })
+        .finally(() => setSyncing(false));
     };
 
     if (needsSync && loaded.current) {
@@ -140,5 +143,5 @@ export function useReviews(user: User | null, onError?: (msg: string) => void) {
     return reviews.filter(r => r.liquorId === id);
   }, [reviews]);
 
-  return { reviews, addReview, editReview, deleteReview, getReviewsForLiquor };
+  return { reviews, syncing, addReview, editReview, deleteReview, getReviewsForLiquor };
 }

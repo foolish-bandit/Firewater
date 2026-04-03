@@ -5,6 +5,7 @@ import { apiFetch } from '../api';
 export function useLiquorLists(user?: User | null, onError?: (msg: string) => void) {
   const [wantToTry, setWantToTry] = useState<string[]>([]);
   const [tried, setTried] = useState<string[]>([]);
+  const [syncing, setSyncing] = useState(false);
   const loaded = useRef(false);
   const dbLoaded = useRef(false);
 
@@ -27,6 +28,7 @@ export function useLiquorLists(user?: User | null, onError?: (msg: string) => vo
     const needsSync = !localStorage.getItem(syncKey);
 
     const fetchFromDb = () => {
+      setSyncing(true);
       apiFetch(`/api/social?scope=lists&userId=${user.id}`)
         .then(res => {
           if (!res.ok) throw new Error('Failed to fetch lists');
@@ -43,7 +45,8 @@ export function useLiquorLists(user?: User | null, onError?: (msg: string) => vo
         })
         .catch(() => {
           // Offline — keep localStorage data
-        });
+        })
+        .finally(() => setSyncing(false));
     };
 
     if (needsSync && loaded.current) {
@@ -114,5 +117,5 @@ export function useLiquorLists(user?: User | null, onError?: (msg: string) => vo
     }
   }, [tried, syncListAction]);
 
-  return { wantToTry, tried, toggleWantToTry, toggleTried };
+  return { wantToTry, tried, syncing, toggleWantToTry, toggleTried };
 }

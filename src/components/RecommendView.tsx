@@ -291,7 +291,7 @@ function RecommendationCard({
       className="group surface-raised overflow-hidden cursor-pointer hover:border-border-accent-strong card-glow-hover transition-all duration-500 flex flex-col h-full relative hover:-translate-y-1"
     >
       {/* Top accent bar */}
-      <div className="h-[2px] w-[15%] group-hover:w-full bg-gradient-to-r from-on-surface-accent to-[#E8C56D] transition-all duration-700 ease-out" />
+      <div className="h-[2px] w-[15%] group-hover:w-full bg-gradient-to-r from-on-surface-accent to-vintage-accent-hover transition-all duration-700 ease-out" />
 
       {/* Match badge */}
       <div className="absolute top-4 right-4 z-10">

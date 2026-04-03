@@ -316,7 +316,7 @@ export default function BarcodeScanner({ onResult, onClose, liquors }: BarcodeSc
           {/* Error State */}
           {status === 'error' && (
             <div className="space-y-4">
-              <div className="bg-red-900/20 border border-red-900/50 text-red-200 p-4 rounded-lg flex items-start gap-3">
+              <div className="status-error flex items-start gap-3">
                 <AlertCircle className="shrink-0 mt-0.5" size={18} />
                 <p>{errorMessage}</p>
               </div>
@@ -350,7 +350,7 @@ export default function BarcodeScanner({ onResult, onClose, liquors }: BarcodeSc
               </div>
               <button
                 onClick={switchToManual}
-                className="w-full bg-on-surface-accent text-on-surface-invert px-4 py-3 rounded font-semibold tracking-widest uppercase text-xs hover:bg-[#B08832] transition-colors"
+                className="btn btn-primary btn-md rounded w-full"
               >
                 Enter UPC Manually
               </button>
@@ -415,7 +415,7 @@ export default function BarcodeScanner({ onResult, onClose, liquors }: BarcodeSc
               <button
                 type="submit"
                 disabled={!manualUpc.trim()}
-                className="w-full bg-on-surface-accent text-on-surface-invert px-4 py-3 rounded font-semibold tracking-widest uppercase text-xs hover:bg-[#B08832] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="btn btn-primary btn-md rounded w-full"
               >
                 Look Up
               </button>

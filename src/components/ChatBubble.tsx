@@ -518,8 +518,8 @@ export default function ChatBubble() {
           style={{ height: 'min(500px, calc(100vh - 8rem))', background: 'var(--bg-surface)' }}>
           {/* Header */}
           <div className="flex items-center gap-3 px-4 py-3 border-b border-theme" style={{ background: 'var(--bg-surface-alt)' }}>
-            <div className="w-8 h-8 rounded-full bg-[#C89B3C]/20 flex items-center justify-center">
-              <Flame size={16} className="text-[#C89B3C]" />
+            <div className="w-8 h-8 rounded-full bg-on-surface-accent/20 flex items-center justify-center">
+              <Flame size={16} className="text-on-surface-accent" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="font-semibold text-sm text-theme-primary">{BOT_NAME}</div>
@@ -537,7 +537,7 @@ export default function ChatBubble() {
                 <div
                   className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-line ${
                     msg.sender === 'user'
-                      ? 'bg-[#C89B3C] text-[#141210] rounded-br-md'
+                      ? 'bg-on-surface-accent text-surface-base rounded-br-md'
                       : 'rounded-bl-md border border-theme'
                   }`}
                   style={msg.sender === 'bot' ? { background: 'var(--bg-surface-alt)', color: 'var(--text-primary)' } : {}}
@@ -550,9 +550,9 @@ export default function ChatBubble() {
               <div className="flex justify-start">
                 <div className="rounded-2xl rounded-bl-md px-4 py-3 border border-theme" style={{ background: 'var(--bg-surface-alt)' }}>
                   <div className="flex gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-[#C89B3C]/60 animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <span className="w-2 h-2 rounded-full bg-[#C89B3C]/60 animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <span className="w-2 h-2 rounded-full bg-[#C89B3C]/60 animate-bounce" style={{ animationDelay: '300ms' }} />
+                    <span className="w-2 h-2 rounded-full bg-on-surface-accent/60 animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-2 h-2 rounded-full bg-on-surface-accent/60 animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="w-2 h-2 rounded-full bg-on-surface-accent/60 animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
                 </div>
               </div>
@@ -574,7 +574,7 @@ export default function ChatBubble() {
               <button
                 onClick={handleSend}
                 disabled={!input.trim()}
-                className="p-2 rounded-xl bg-[#C89B3C] text-[#141210] disabled:opacity-30 hover:bg-[#D4A843] transition-colors"
+                className="p-2 rounded-xl bg-on-surface-accent text-surface-base disabled:opacity-30 hover:bg-vintage-accent-hover transition-colors"
               >
                 <Send size={16} />
               </button>
@@ -586,7 +586,7 @@ export default function ChatBubble() {
       {/* Floating Bubble Button */}
       <button
         onClick={() => setIsOpen(prev => !prev)}
-        className="fixed bottom-20 right-4 z-[9999] w-14 h-14 rounded-full bg-[#C89B3C] text-[#141210] shadow-lg hover:bg-[#D4A843] hover:scale-105 active:scale-95 transition-all flex items-center justify-center"
+        className="fixed bottom-20 right-4 z-[9999] w-14 h-14 rounded-full bg-on-surface-accent text-surface-base shadow-lg hover:bg-vintage-accent-hover hover:scale-105 active:scale-95 transition-all flex items-center justify-center"
         style={isOpen ? { display: 'none' } : {}}
         aria-label="Open chat"
       >
