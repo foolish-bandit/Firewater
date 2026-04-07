@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef, Suspense } from 'react';
 import { Routes, Route, useNavigate, useLocation, Link, Navigate as RouterNavigate } from 'react-router-dom';
-import { List as ListIcon, X, Plus, Menu, Shield, User as UserIcon, Search, Home, ChevronDown, Rss, Sun, Moon, WifiOff } from 'lucide-react';
+import { List as ListIcon, X, Plus, Menu, Shield, User as UserIcon, Search, Home, ChevronDown, Rss, Sun, Moon, WifiOff, Check } from 'lucide-react';
 import { SignInButton, SignUpButton, UserButton, useAuth as useClerkAuth } from '@clerk/react';
 import { getAvatarIcon } from './avatarIcons';
 import { Liquor } from './data';
@@ -197,17 +197,18 @@ export default function App() {
             This website contains information about alcoholic beverages. You must be <strong className="text-on-surface-accent">21 years of age or older</strong> to access this site. By entering, you agree that you are of legal drinking age in your jurisdiction.
           </p>
 
-          <label className="flex items-center justify-center gap-3 cursor-pointer group mb-8">
-            <input
-              type="checkbox"
-              checked={ageCheckbox}
-              onChange={(e) => setAgeCheckbox(e.target.checked)}
-              className="w-5 h-5 accent-on-surface-accent cursor-pointer flex-shrink-0"
-            />
-            <span className="text-sm text-on-surface-secondary group-hover:text-on-surface transition-colors">
+          <button
+            type="button"
+            onClick={() => setAgeCheckbox(prev => !prev)}
+            className="w-full surface-raised vintage-border p-4 flex items-center justify-between gap-4 cursor-pointer mb-8 text-left transition-all duration-200 hover:border-border-accent"
+          >
+            <span className="text-sm text-on-surface-secondary">
               I confirm that I am <strong className="text-on-surface-accent">21 years of age or older</strong>
             </span>
-          </label>
+            <span className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 transition-all duration-200 ${ageCheckbox ? 'bg-on-surface-accent' : 'border-2 border-border-subtle'}`}>
+              {ageCheckbox && <Check size={16} className="text-surface-base" strokeWidth={3} />}
+            </span>
+          </button>
 
           <button
             onClick={handleAgeVerify}
