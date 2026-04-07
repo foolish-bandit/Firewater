@@ -5,6 +5,9 @@ const config: CapacitorConfig = {
   appName: "FIREWATER",
   webDir: "dist",
   backgroundColor: "#141210",
+  ios: {
+    allowsBackForwardNavigationGestures: true,
+  },
   plugins: {
     SplashScreen: {
       launchShowDuration: 2000,
