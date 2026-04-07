@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Heart, ChevronRight, Sparkles, BookOpen, Users, Flame, Wheat, FlaskConical, DollarSign, Layers, Camera } from 'lucide-react';
 import { SignUpButton } from '@clerk/react';
@@ -36,6 +36,19 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
   const [placeholderVisible, setPlaceholderVisible] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Scroll-fade state for carousels
+  const [popularScrolled, setPopularScrolled] = useState(false);
+  const [shortlistScrolled, setShortlistScrolled] = useState(false);
+  const popularRef = useRef<HTMLDivElement>(null);
+  const shortlistRef = useRef<HTMLDivElement>(null);
+
+  const handlePopularScroll = useCallback(() => {
+    setPopularScrolled((popularRef.current?.scrollLeft ?? 0) > 0);
+  }, []);
+  const handleShortlistScroll = useCallback(() => {
+    setShortlistScrolled((shortlistRef.current?.scrollLeft ?? 0) > 0);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -245,43 +258,47 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
         <p className="text-sm font-serif italic text-on-surface-muted px-4 -mt-2 mb-2">
           Bottles the community keeps coming back to — a rotating selection based on what fellow explorers are discovering.
         </p>
-        <div className="flex gap-4 overflow-x-auto px-4 pb-2 scroll-touch custom-scrollbar" style={{ scrollbarWidth: 'none' }}>
-          {communityPicks.map(liquor => (
-            <button
-              key={liquor.id}
-              onClick={() => navigate(`/liquor/${liquor.id}`)}
-              className="flex-shrink-0 w-40 sm:w-48 surface-raised hover:border-border-accent-strong card-elevated card-elevated-hover transition-all hover:-translate-y-0.5 duration-300 text-left group"
-            >
-              <div className="h-24 sm:h-28 bg-surface-alt flex flex-col items-center justify-center px-3 gap-2 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-on-surface-accent/5 to-transparent" />
-                <span className="font-serif text-2xl sm:text-3xl text-on-surface-accent/30 font-normal">{liquor.proof}°</span>
-                <span className="badge badge-accent">
-                  {topFlavor(liquor)}
-                </span>
-              </div>
-              <div className="p-3">
-                <h3 className="font-serif text-sm text-on-surface leading-tight line-clamp-2 mb-1 group-hover:text-on-surface-accent transition-colors">
-                  {liquor.name}
-                </h3>
-                <p className="text-[10px] text-on-surface-muted uppercase tracking-widest font-sans truncate">{liquor.distillery}</p>
-                <div className="flex items-center justify-between mt-2">
-                  <span className="font-serif text-sm text-on-surface-secondary">${liquor.price}</span>
-                  <span className="text-[10px] text-on-surface-muted uppercase tracking-widest font-sans">{liquor.proof}pf</span>
+        <div className="relative">
+          <div className={`pointer-events-none absolute left-0 top-0 bottom-2 w-12 z-10 bg-gradient-to-r from-[var(--bg-primary)] to-transparent transition-opacity duration-200 ${popularScrolled ? 'opacity-100' : 'opacity-0'}`} />
+          <div className="pointer-events-none absolute right-0 top-0 bottom-2 w-12 z-10 bg-gradient-to-l from-[var(--bg-primary)] to-transparent" />
+          <div ref={popularRef} onScroll={handlePopularScroll} className="flex gap-4 overflow-x-auto px-4 pb-2 scroll-touch custom-scrollbar" style={{ scrollbarWidth: 'none' }}>
+            {communityPicks.map(liquor => (
+              <button
+                key={liquor.id}
+                onClick={() => navigate(`/liquor/${liquor.id}`)}
+                className="flex-shrink-0 w-40 sm:w-48 surface-raised hover:border-border-accent-strong card-elevated card-elevated-hover transition-all hover:-translate-y-0.5 duration-300 text-left group"
+              >
+                <div className="h-24 sm:h-28 bg-surface-alt flex flex-col items-center justify-center px-3 gap-2 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-on-surface-accent/5 to-transparent" />
+                  <span className="font-serif text-2xl sm:text-3xl text-on-surface-accent/30 font-normal">{liquor.proof}°</span>
+                  <span className="badge badge-accent">
+                    {topFlavor(liquor)}
+                  </span>
                 </div>
-                {(() => {
-                  const review = reviewsByLiquor.get(liquor.id);
-                  if (!review) return null;
-                  const text = review.text || review.nose || review.palate || review.finish || '';
-                  const snippet = text.length > 60 ? text.slice(0, 60).trimEnd() + '…' : text;
-                  return (
-                    <p className="text-[10px] font-serif italic text-on-surface-muted line-clamp-2 mt-1.5">
-                      ★ {review.rating} — {snippet}
-                    </p>
-                  );
-                })()}
-              </div>
-            </button>
-          ))}
+                <div className="p-3">
+                  <h3 className="font-serif text-sm text-on-surface leading-tight line-clamp-2 mb-1 group-hover:text-on-surface-accent transition-colors">
+                    {liquor.name}
+                  </h3>
+                  <p className="text-[10px] text-on-surface-muted uppercase tracking-widest font-sans truncate">{liquor.distillery}</p>
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="font-serif text-sm text-on-surface-secondary">${liquor.price}</span>
+                    <span className="text-[10px] text-on-surface-muted uppercase tracking-widest font-sans">{liquor.proof}pf</span>
+                  </div>
+                  {(() => {
+                    const review = reviewsByLiquor.get(liquor.id);
+                    if (!review) return null;
+                    const text = review.text || review.nose || review.palate || review.finish || '';
+                    const snippet = text.length > 60 ? text.slice(0, 60).trimEnd() + '…' : text;
+                    return (
+                      <p className="text-[10px] font-serif italic text-on-surface-muted line-clamp-2 mt-1.5">
+                        ★ {review.rating} — {snippet}
+                      </p>
+                    );
+                  })()}
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -304,32 +321,36 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
           <p className="text-sm font-serif italic text-on-surface-muted px-4 -mt-2 mb-2">
             Bottles you've flagged to try next. Tap any to see tasting notes, or head to your full shelf to manage the list.
           </p>
-          <div className="flex gap-4 overflow-x-auto px-4 pb-2 scroll-touch custom-scrollbar" style={{ scrollbarWidth: 'none' }}>
-            {wantToTryLiquors.map(liquor => (
-              <button
-                key={liquor.id}
-                onClick={() => navigate(`/liquor/${liquor.id}`)}
-                className="flex-shrink-0 w-40 sm:w-48 surface-raised hover:border-border-accent-strong card-elevated card-elevated-hover transition-all hover:-translate-y-0.5 duration-300 text-left group"
-              >
-                <div className="h-24 sm:h-28 bg-surface-alt flex flex-col items-center justify-center px-3 gap-2 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-on-surface-accent/5 to-transparent" />
-                  <Heart size={20} className="text-on-surface-accent/40" />
-                  <span className="badge badge-accent">
-                    {topFlavor(liquor)}
-                  </span>
-                </div>
-                <div className="p-3">
-                  <h3 className="font-serif text-sm text-on-surface leading-tight line-clamp-2 mb-1 group-hover:text-on-surface-accent transition-colors">
-                    {liquor.name}
-                  </h3>
-                  <p className="text-[10px] text-on-surface-muted uppercase tracking-widest font-sans truncate">{liquor.distillery}</p>
-                  <div className="flex items-center justify-between mt-2">
-                    <span className="font-serif text-sm text-on-surface-secondary">${liquor.price}</span>
-                    <span className="text-[10px] text-on-surface-muted uppercase tracking-widest font-sans">{liquor.proof}pf</span>
+          <div className="relative">
+            <div className={`pointer-events-none absolute left-0 top-0 bottom-2 w-12 z-10 bg-gradient-to-r from-[var(--bg-primary)] to-transparent transition-opacity duration-200 ${shortlistScrolled ? 'opacity-100' : 'opacity-0'}`} />
+            <div className="pointer-events-none absolute right-0 top-0 bottom-2 w-12 z-10 bg-gradient-to-l from-[var(--bg-primary)] to-transparent" />
+            <div ref={shortlistRef} onScroll={handleShortlistScroll} className="flex gap-4 overflow-x-auto px-4 pb-2 scroll-touch custom-scrollbar" style={{ scrollbarWidth: 'none' }}>
+              {wantToTryLiquors.map(liquor => (
+                <button
+                  key={liquor.id}
+                  onClick={() => navigate(`/liquor/${liquor.id}`)}
+                  className="flex-shrink-0 w-40 sm:w-48 surface-raised hover:border-border-accent-strong card-elevated card-elevated-hover transition-all hover:-translate-y-0.5 duration-300 text-left group"
+                >
+                  <div className="h-24 sm:h-28 bg-surface-alt flex flex-col items-center justify-center px-3 gap-2 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-on-surface-accent/5 to-transparent" />
+                    <Heart size={20} className="text-on-surface-accent/40" />
+                    <span className="badge badge-accent">
+                      {topFlavor(liquor)}
+                    </span>
                   </div>
-                </div>
-              </button>
-            ))}
+                  <div className="p-3">
+                    <h3 className="font-serif text-sm text-on-surface leading-tight line-clamp-2 mb-1 group-hover:text-on-surface-accent transition-colors">
+                      {liquor.name}
+                    </h3>
+                    <p className="text-[10px] text-on-surface-muted uppercase tracking-widest font-sans truncate">{liquor.distillery}</p>
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="font-serif text-sm text-on-surface-secondary">${liquor.price}</span>
+                      <span className="text-[10px] text-on-surface-muted uppercase tracking-widest font-sans">{liquor.proof}pf</span>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
