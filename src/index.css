@@ -114,6 +114,11 @@ body {
   overscroll-behavior-y: none;
 }
 
+/* Prevent double-tap zoom on interactive elements (replaces maximum-scale=1) */
+button, a, input, select, textarea, [role="button"] {
+  touch-action: manipulation;
+}
+
 /* ================================================================
    Light-mode overrides for hardcoded Tailwind arbitrary values
    ================================================================ */
