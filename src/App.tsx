@@ -35,9 +35,10 @@ import { useAdmin } from './hooks/useAdmin';
 import { useTheme } from './hooks/useTheme';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
 import { storage } from './lib/storage';
-import { hapticTap, hapticImpact, isNative } from './lib/capacitor';
+import { hapticTap, hapticImpact, isNative, initNative } from './lib/capacitor';
 import { PhotoProvider } from './contexts/PhotoContext';
 import { useMediaQuery } from './hooks/useMediaQuery';
+import { useKeyboardVisible } from './hooks/useKeyboardVisible';
 
 const ChatBubble = React.lazy(() => import('./components/ChatBubble'));
 
@@ -48,6 +49,7 @@ export default function App() {
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
   const isDesktop = useMediaQuery('(min-width: 1024px)');
+  const isKeyboardVisible = useKeyboardVisible();
 
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showBarcodeScanner, setShowBarcodeScanner] = useState(false);
@@ -68,6 +70,13 @@ export default function App() {
       setAgeReady(true);
     });
   }, []);
+
+  // Hide native splash screen only after age gate state is resolved
+  useEffect(() => {
+    if (ageReady) {
+      initNative();
+    }
+  }, [ageReady]);
 
   useEffect(() => {
     if (!mobileMenuOpen) return;
@@ -173,7 +182,11 @@ export default function App() {
 
 
   if (!ageReady) {
-    // Brief loading while checking async storage (avoids flash of age gate)
+    // On native, show a plain dark screen matching the splash while async storage resolves.
+    // On web, show a subtle loading indicator.
+    if (isNative) {
+      return <div className="min-h-screen bg-[#141210]" />;
+    }
     return (
       <div className="min-h-screen bg-surface-base flex items-center justify-center">
         <div className="w-16 h-16 rounded-full vintage-border flex items-center justify-center overflow-hidden p-1 animate-pulse">
@@ -629,6 +642,7 @@ export default function App() {
       )}
 
       {/* Mobile Bottom Tab Bar */}
+      {!isKeyboardVisible && (
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass-surface border-t border-[var(--color-vintage-border)] safe-bottom shadow-[0_-4px_20px_rgba(0,0,0,0.3)]">
         <div className="flex items-center justify-around h-[4.25rem]">
           <button
@@ -680,6 +694,7 @@ export default function App() {
           )}
         </div>
       </nav>
+      )}
 
       {/* PWA Install Prompt */}
       <InstallPrompt />

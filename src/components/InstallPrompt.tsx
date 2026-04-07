@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { X, Download } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { storage } from '../lib/storage';
+import { isNative } from '../lib/capacitor';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -10,7 +11,7 @@ interface BeforeInstallPromptEvent extends Event {
 
 const DISMISS_KEY = 'brrl_install_dismissed';
 
-export default function InstallPrompt() {
+function InstallPromptInner() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
   const dismissedRef = useRef(false);
@@ -85,4 +86,9 @@ export default function InstallPrompt() {
       )}
     </AnimatePresence>
   );
+}
+
+export default function InstallPrompt() {
+  if (isNative) return null;
+  return <InstallPromptInner />;
 }
