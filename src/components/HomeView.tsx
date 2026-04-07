@@ -1,10 +1,11 @@
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import PageTransition from './PageTransition';
 import { useNavigate } from 'react-router-dom';
-import { Search, Heart, ChevronRight, Sparkles, BookOpen, Users, Flame, Wheat, FlaskConical, DollarSign, Layers, Camera } from 'lucide-react';
+import { Search, Heart, ChevronRight, Sparkles, BookOpen, Users, Flame, Wheat, FlaskConical, DollarSign, Layers, Camera, Star, X } from 'lucide-react';
 import { SignUpButton } from '@clerk/react';
 import { User, Review } from '../types';
 import { Liquor } from '../data';
+import { storage } from '../lib/storage';
 
 interface HomeViewProps {
   user: User | null;
@@ -43,6 +44,21 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
   const [shortlistScrolled, setShortlistScrolled] = useState(false);
   const popularRef = useRef<HTMLDivElement>(null);
   const shortlistRef = useRef<HTMLDivElement>(null);
+
+  // Onboarding banner
+  const [onboardingDismissed, setOnboardingDismissed] = useState(() =>
+    storage.getSync('bs_onboarding_dismissed') === '1'
+  );
+  useEffect(() => {
+    storage.get('bs_onboarding_dismissed').then(val => {
+      if (val) setOnboardingDismissed(true);
+    });
+  }, []);
+  const dismissOnboarding = useCallback(() => {
+    setOnboardingDismissed(true);
+    storage.set('bs_onboarding_dismissed', '1');
+  }, []);
+  const showOnboarding = !!user && wantToTry.length === 0 && tried.length === 0 && !onboardingDismissed;
 
   const handlePopularScroll = useCallback(() => {
     setPopularScrolled((popularRef.current?.scrollLeft ?? 0) > 0);
@@ -245,6 +261,41 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
           </div>
         </div>
       </div>
+
+      {showOnboarding && (
+        <div className="w-full max-w-5xl mx-auto px-4 mb-section">
+          <div className="surface-raised border-l-4 border-l-on-surface-accent p-5 sm:p-6 relative">
+            <button
+              onClick={dismissOnboarding}
+              className="absolute top-3 right-3 text-on-surface-muted hover:text-on-surface-accent transition-colors p-1"
+              aria-label="Dismiss"
+            >
+              <X size={18} />
+            </button>
+            <h3 className="font-serif text-lg text-on-surface mb-4 pr-8">Welcome to FIREWATER — here's how to get started</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
+              {[
+                { icon: Search, title: 'Find a bottle', desc: 'Search by name, flavor, or scan a barcode' },
+                { icon: Heart, title: 'Save it', desc: 'Tap the heart to add to your wishlist' },
+                { icon: Star, title: 'Review it', desc: 'Rate and review bottles you\'ve tried' },
+              ].map(step => (
+                <div key={step.title} className="flex sm:flex-col items-start sm:items-center gap-3 sm:text-center">
+                  <div className="w-10 h-10 rounded-full bg-on-surface-accent/10 flex items-center justify-center shrink-0">
+                    <step.icon size={18} className="text-on-surface-accent" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-on-surface font-sans">{step.title}</p>
+                    <p className="text-xs text-on-surface-muted">{step.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button onClick={() => navigate('/catalog')} className="btn btn-primary btn-sm">
+              Explore the Catalog
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="w-full max-w-5xl mx-auto mb-section">
         <div className="flex items-center justify-between px-4 mb-4">
