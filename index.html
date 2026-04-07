@@ -25,16 +25,18 @@
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
     <script>
-      if (window.Capacitor && 'serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function(regs) { regs.forEach(function(r) { r.unregister(); }); });
+      if (window.Capacitor) {
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function(regs) { regs.forEach(function(r) { r.unregister(); }); });
+        }
       } else if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
           navigator.serviceWorker.register('/sw.js').catch(function() {});
         });
       }
     </script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
 
