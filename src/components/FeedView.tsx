@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { RefreshCw, Star, CheckCircle2, Heart, Loader2, Users, Quote, GlassWater, Sparkles, Rss } from 'lucide-react';
 import { SignInButton } from '@clerk/react';
 import { Liquor } from '../data';
+import { FeedSkeleton } from './SkeletonCard';
 
 interface User {
   id: string;
@@ -179,9 +180,7 @@ export default function FeedView({ user, liquors }: FeedViewProps) {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 size={32} className="animate-spin text-on-surface-accent" />
-        </div>
+        <FeedSkeleton count={4} />
       ) : activities.length === 0 ? (
         <div className="bg-surface-raised vintage-border border-dashed p-8 sm:p-16 text-center relative overflow-hidden">
           <img src="/logo.svg" alt="" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 opacity-[0.03] pointer-events-none" />

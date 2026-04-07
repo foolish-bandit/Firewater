@@ -8,6 +8,7 @@ import { useProfile } from '../hooks/useProfile';
 import { getFlavorSummary, getSortedFlavorEntries } from '../utils/flavorStory';
 import { getAvatarIcon } from '../avatarIcons';
 import ProfileEdit from './ProfileEdit';
+import { ProfileSkeleton } from './SkeletonCard';
 import FollowButton from './FollowButton';
 import FollowList from './FollowList';
 
@@ -132,11 +133,7 @@ export default function ProfileView({ user, liquors }: ProfileViewProps) {
   ];
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-32">
-        <div className="w-8 h-8 border-2 border-border-accent-strong border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return <ProfileSkeleton />;
   }
 
   if (!profile) {
