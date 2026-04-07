@@ -1,23 +1,27 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { ALL_LIQUORS, Liquor, FlavorProfile } from '../data';
 import { normalizeLiquorName } from '../utils/stringUtils';
+import { storage } from '../lib/storage';
 
 export function useCustomLiquors() {
-  const [customLiquors, setCustomLiquors] = useState<Liquor[]>([]);
+  const [customLiquors, setCustomLiquors] = useState<Liquor[]>(() =>
+    storage.getSyncJSON<Liquor[]>('bs_customBourbons') || []
+  );
   const loaded = useRef(false);
 
-  // Load from localStorage
+  // Async load from storage (authoritative on native)
   useEffect(() => {
-    const savedCustom = localStorage.getItem('bs_customBourbons');
-    if (savedCustom) setCustomLiquors(JSON.parse(savedCustom));
-    loaded.current = true;
+    storage.getJSON<Liquor[]>('bs_customBourbons').then(saved => {
+      if (saved) setCustomLiquors(saved);
+      loaded.current = true;
+    });
   }, []);
 
-  // Save to localStorage (debounced)
+  // Save to storage (debounced)
   useEffect(() => {
     if (!loaded.current) return;
     const timer = setTimeout(() => {
-      localStorage.setItem('bs_customBourbons', JSON.stringify(customLiquors));
+      storage.setJSON('bs_customBourbons', customLiquors);
     }, 500);
     return () => clearTimeout(timer);
   }, [customLiquors]);

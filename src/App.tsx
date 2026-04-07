@@ -35,6 +35,7 @@ import { useToast } from './hooks/useToast';
 import { useAdmin } from './hooks/useAdmin';
 import { useTheme } from './hooks/useTheme';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
+import { storage } from './lib/storage';
 import { PhotoProvider } from './contexts/PhotoContext';
 import ChatBubble from './components/ChatBubble';
 
@@ -51,9 +52,19 @@ export default function App() {
   const [barcodePrefill, setBarcodePrefill] = useState<{ name: string; details: string; upc: string } | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showFooterLinks, setShowFooterLinks] = useState(false);
-  const [ageVerified, setAgeVerified] = useState(() => localStorage.getItem('bs_age_verified') === 'true');
+  const [ageVerified, setAgeVerified] = useState(() => storage.getSync('bs_age_verified') === 'true');
+  const [ageReady, setAgeReady] = useState(() => storage.getSync('bs_age_verified') !== null);
   const [ageCheckbox, setAgeCheckbox] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+
+  // Async age verification check (authoritative on native)
+  useEffect(() => {
+    if (ageReady && ageVerified) return; // already verified via sync read
+    storage.get('bs_age_verified').then(val => {
+      if (val === 'true') setAgeVerified(true);
+      setAgeReady(true);
+    });
+  }, []);
 
   useEffect(() => {
     if (!mobileMenuOpen) return;
@@ -71,7 +82,7 @@ export default function App() {
   }, [mobileMenuOpen]);
 
   const handleAgeVerify = () => {
-    localStorage.setItem('bs_age_verified', 'true');
+    storage.set('bs_age_verified', 'true');
     setAgeVerified(true);
   };
 
@@ -154,6 +165,17 @@ export default function App() {
     }
   };
 
+
+  if (!ageReady) {
+    // Brief loading while checking async storage (avoids flash of age gate)
+    return (
+      <div className="min-h-screen bg-surface-base flex items-center justify-center">
+        <div className="w-16 h-16 rounded-full vintage-border flex items-center justify-center overflow-hidden p-1 animate-pulse">
+          <img src="/logo.svg" alt="FIREWATER" className="w-full h-full object-contain" />
+        </div>
+      </div>
+    );
+  }
 
   if (!ageVerified) {
     return (

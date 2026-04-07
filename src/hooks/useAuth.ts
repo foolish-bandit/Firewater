@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useUser, useAuth as useClerkAuth } from '@clerk/react';
 import { User } from '../types';
 import { setClerkTokenGetter } from '../api';
+import { storage } from '../lib/storage';
 
 export function useAuth() {
   const { user: clerkUser, isLoaded, isSignedIn } = useUser();
@@ -32,11 +33,13 @@ export function useAuth() {
   // Check first-time rules modal
   useEffect(() => {
     if (!user) return;
-    const hasSeenRules = localStorage.getItem(`bs_seen_rules_${user.id}`);
-    if (!hasSeenRules) {
-      setShowRulesModal(true);
-      localStorage.setItem(`bs_seen_rules_${user.id}`, 'true');
-    }
+    const key = `bs_seen_rules_${user.id}`;
+    storage.get(key).then(hasSeenRules => {
+      if (!hasSeenRules) {
+        setShowRulesModal(true);
+        storage.set(key, 'true');
+      }
+    });
   }, [user?.id]);
 
   // Clerk components handle sign-in/sign-out; these are kept for interface compat

@@ -1,17 +1,21 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Review, User } from '../types';
 import { apiFetch } from '../api';
+import { storage } from '../lib/storage';
 
 export function useReviews(user: User | null, onError?: (msg: string) => void) {
-  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviews, setReviews] = useState<Review[]>(() =>
+    storage.getSyncJSON<Review[]>('bs_reviews') || []
+  );
   const loaded = useRef(false);
   const dbLoaded = useRef(false);
 
-  // Load from localStorage immediately (instant UI)
+  // Async load from storage
   useEffect(() => {
-    const savedReviews = localStorage.getItem('bs_reviews');
-    if (savedReviews) setReviews(JSON.parse(savedReviews));
-    loaded.current = true;
+    storage.getJSON<Review[]>('bs_reviews').then(saved => {
+      if (saved) setReviews(saved);
+      loaded.current = true;
+    });
   }, []);
 
   // When user logs in, fetch their reviews from DB (source of truth)
@@ -20,7 +24,6 @@ export function useReviews(user: User | null, onError?: (msg: string) => void) {
     dbLoaded.current = true;
 
     const syncKey = `bs_reviews_synced_${user.id}`;
-    const needsSync = !localStorage.getItem(syncKey);
 
     const fetchFromDb = () => {
       apiFetch(`/api/social?scope=reviews&userId=${user.id}`)
@@ -46,37 +49,43 @@ export function useReviews(user: User | null, onError?: (msg: string) => void) {
             tags: typeof r.tags === 'string' ? JSON.parse(r.tags) : (r.tags || []),
           }));
           setReviews(mapped);
-          localStorage.setItem('bs_reviews', JSON.stringify(mapped));
+          storage.setJSON('bs_reviews', mapped);
         })
         .catch(() => {
-          // Offline — keep localStorage data
+          // Offline — keep cached data
         });
     };
 
-    if (needsSync && loaded.current) {
-      const localReviews = JSON.parse(localStorage.getItem('bs_reviews') || '[]');
-      const userReviews = localReviews.filter((r: Review) => r.userId === user.id);
-      if (userReviews.length > 0) {
-        apiFetch('/api/social?scope=reviews&action=sync', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ reviews: userReviews }),
-        }).then(res => {
-          if (res.ok) localStorage.setItem(syncKey, 'true');
+    storage.get(syncKey).then(hasSynced => {
+      const needsSync = !hasSynced;
+      if (needsSync && loaded.current) {
+        storage.getJSON<Review[]>('bs_reviews').then(localReviews => {
+          const allLocal = localReviews || [];
+          const userReviews = allLocal.filter((r: Review) => r.userId === user.id);
+          if (userReviews.length > 0) {
+            apiFetch('/api/social?scope=reviews&action=sync', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ reviews: userReviews }),
+            }).then(res => {
+              if (res.ok) storage.set(syncKey, 'true');
+              fetchFromDb();
+            }).catch(() => onError?.('Review sync failed — changes saved locally'));
+            return;
+          }
           fetchFromDb();
-        }).catch(() => onError?.('Review sync failed — changes saved locally'));
-        return;
+        });
+      } else {
+        fetchFromDb();
       }
-    }
-
-    fetchFromDb();
+    });
   }, [user]);
 
-  // Save to localStorage cache (debounced)
+  // Save to storage cache (debounced)
   useEffect(() => {
     if (!loaded.current) return;
     const timer = setTimeout(() => {
-      localStorage.setItem('bs_reviews', JSON.stringify(reviews));
+      storage.setJSON('bs_reviews', reviews);
     }, 500);
     return () => clearTimeout(timer);
   }, [reviews]);

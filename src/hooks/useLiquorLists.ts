@@ -1,20 +1,28 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { User } from '../types';
 import { apiFetch } from '../api';
+import { storage } from '../lib/storage';
 
 export function useLiquorLists(user?: User | null, onError?: (msg: string) => void) {
-  const [wantToTry, setWantToTry] = useState<string[]>([]);
-  const [tried, setTried] = useState<string[]>([]);
+  const [wantToTry, setWantToTry] = useState<string[]>(() =>
+    storage.getSyncJSON<string[]>('bs_wantToTry') || []
+  );
+  const [tried, setTried] = useState<string[]>(() =>
+    storage.getSyncJSON<string[]>('bs_tried') || []
+  );
   const loaded = useRef(false);
   const dbLoaded = useRef(false);
 
-  // Load from localStorage immediately (instant UI), then override with DB data if logged in
+  // Async load from storage
   useEffect(() => {
-    const savedWant = localStorage.getItem('bs_wantToTry');
-    const savedTried = localStorage.getItem('bs_tried');
-    if (savedWant) setWantToTry(JSON.parse(savedWant));
-    if (savedTried) setTried(JSON.parse(savedTried));
-    loaded.current = true;
+    Promise.all([
+      storage.getJSON<string[]>('bs_wantToTry'),
+      storage.getJSON<string[]>('bs_tried'),
+    ]).then(([savedWant, savedTried]) => {
+      if (savedWant) setWantToTry(savedWant);
+      if (savedTried) setTried(savedTried);
+      loaded.current = true;
+    });
   }, []);
 
   // When user logs in, fetch lists from DB (source of truth) and merge
@@ -22,9 +30,7 @@ export function useLiquorLists(user?: User | null, onError?: (msg: string) => vo
     if (!user || dbLoaded.current) return;
     dbLoaded.current = true;
 
-    // First, sync any local-only items to DB
     const syncKey = `bs_lists_synced_${user.id}`;
-    const needsSync = !localStorage.getItem(syncKey);
 
     const fetchFromDb = () => {
       apiFetch(`/api/social?scope=lists&userId=${user.id}`)
@@ -37,40 +43,47 @@ export function useLiquorLists(user?: User | null, onError?: (msg: string) => vo
           const dbTried: string[] = data.tried || [];
           setWantToTry(dbWant);
           setTried(dbTried);
-          // Update localStorage cache
-          localStorage.setItem('bs_wantToTry', JSON.stringify(dbWant));
-          localStorage.setItem('bs_tried', JSON.stringify(dbTried));
+          storage.setJSON('bs_wantToTry', dbWant);
+          storage.setJSON('bs_tried', dbTried);
         })
         .catch(() => {
-          // Offline — keep localStorage data
+          // Offline — keep cached data
         });
     };
 
-    if (needsSync && loaded.current) {
-      const localWant = JSON.parse(localStorage.getItem('bs_wantToTry') || '[]');
-      const localTried = JSON.parse(localStorage.getItem('bs_tried') || '[]');
-      if (localWant.length > 0 || localTried.length > 0) {
-        apiFetch('/api/social?scope=lists&action=sync', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ want: localWant, tried: localTried }),
-        }).then(res => {
-          if (res.ok) localStorage.setItem(syncKey, 'true');
-          // After sync, fetch the merged result from DB
+    storage.get(syncKey).then(hasSynced => {
+      const needsSync = !hasSynced;
+      if (needsSync && loaded.current) {
+        Promise.all([
+          storage.getJSON<string[]>('bs_wantToTry'),
+          storage.getJSON<string[]>('bs_tried'),
+        ]).then(([localWant, localTried]) => {
+          const want = localWant || [];
+          const tried = localTried || [];
+          if (want.length > 0 || tried.length > 0) {
+            apiFetch('/api/social?scope=lists&action=sync', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ want, tried }),
+            }).then(res => {
+              if (res.ok) storage.set(syncKey, 'true');
+              fetchFromDb();
+            }).catch(() => onError?.('List sync failed — changes saved locally'));
+            return;
+          }
           fetchFromDb();
-        }).catch(() => onError?.('List sync failed — changes saved locally'));
-        return;
+        });
+      } else {
+        fetchFromDb();
       }
-    }
-
-    fetchFromDb();
+    });
   }, [user]);
 
-  // Save to localStorage cache (debounced)
+  // Save to storage cache (debounced)
   useEffect(() => {
     if (!loaded.current) return;
     const timer = setTimeout(() => {
-      localStorage.setItem('bs_wantToTry', JSON.stringify(wantToTry));
+      storage.setJSON('bs_wantToTry', wantToTry);
     }, 500);
     return () => clearTimeout(timer);
   }, [wantToTry]);
@@ -78,7 +91,7 @@ export function useLiquorLists(user?: User | null, onError?: (msg: string) => vo
   useEffect(() => {
     if (!loaded.current) return;
     const timer = setTimeout(() => {
-      localStorage.setItem('bs_tried', JSON.stringify(tried));
+      storage.setJSON('bs_tried', tried);
     }, 500);
     return () => clearTimeout(timer);
   }, [tried]);
