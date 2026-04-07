@@ -214,7 +214,7 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-transparent text-base sm:text-lg font-serif italic text-on-surface focus:outline-none"
+                        className="w-full bg-transparent text-base sm:text-lg font-serif italic text-on-surface focus:outline-none pr-10"
                       />
                       {!searchQuery && (
                         <span
@@ -224,22 +224,22 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
                         </span>
                       )}
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => navigate('/catalog?scan=1')}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-muted hover:text-on-surface-accent transition-colors p-1"
+                      aria-label="Scan a bottle"
+                    >
+                      <Camera size={20} />
+                    </button>
                   </div>
                 </form>
-                <div className="flex flex-col gap-3">
-                  <button
-                    onClick={() => navigate('/catalog?scan=1')}
-                    className="inline-flex items-center justify-center gap-2 btn btn-primary px-5 py-3 w-full gold-glow"
-                  >
-                    <Camera size={16} /> Scan a Bottle
-                  </button>
-                  <button
-                    onClick={() => inputRef.current?.focus()}
-                    className="inline-flex items-center justify-center gap-2 btn btn-secondary px-5 py-3 w-full"
-                  >
-                    <Search size={16} /> Search the Catalog
-                  </button>
-                </div>
+                <button
+                  onClick={handleSearch}
+                  className="inline-flex items-center justify-center gap-2 btn btn-primary px-5 py-3 w-full gold-glow"
+                >
+                  <Search size={16} /> Search the Catalog
+                </button>
               </div>
             </div>
           </div>
