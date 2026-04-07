@@ -2,7 +2,7 @@ import { useMemo, useState, type MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Heart, CheckCircle, Download, ChevronDown, Sparkles, Trophy, Compass, Flame } from 'lucide-react';
 import { Liquor } from '../data';
-import { hapticTap } from '../lib/capacitor';
+import { hapticTap, isNative } from '../lib/capacitor';
 import { Review } from '../types';
 import LiquorCard from './LiquorCard';
 import InsightsPanel from './InsightsPanel';
@@ -12,6 +12,7 @@ interface ListsViewProps {
   tried: string[];
   toggleWantToTry: (id: string) => void;
   toggleTried: (id: string) => void;
+  showToast?: (message: string) => void;
   liquors: Liquor[];
   reviews: Review[];
 }
@@ -20,7 +21,7 @@ function formatLiquor(b: Liquor): string {
   return `- ${b.name} (${b.distillery}) — $${b.price} — ${b.proof} proof`;
 }
 
-function exportLists(wantLiquors: Liquor[], triedLiquors: Liquor[]) {
+function buildListsText(wantLiquors: Liquor[], triedLiquors: Liquor[]): string {
   const lines = ['=== FIREWATER — MY LISTS ===', ''];
   lines.push('WANT TO TRY:');
   if (wantLiquors.length === 0) {
@@ -37,17 +38,54 @@ function exportLists(wantLiquors: Liquor[], triedLiquors: Liquor[]) {
   }
   lines.push('');
   lines.push(`Exported from FIREWATER on ${new Date().toLocaleDateString()}`);
+  return lines.join('\n');
+}
 
-  const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+const FILE_NAME = 'firewater-lists.txt';
+
+async function exportLists(wantLiquors: Liquor[], triedLiquors: Liquor[], showToast?: (msg: string) => void) {
+  const text = buildListsText(wantLiquors, triedLiquors);
+
+  if (isNative) {
+    // Try Web Share API (iOS 15+ supports sharing File objects)
+    if (navigator.share) {
+      try {
+        const file = new File([text], FILE_NAME, { type: 'text/plain' });
+        await navigator.share({ files: [file] });
+        return;
+      } catch (e: any) {
+        // User cancelled share or share not supported for files — fall through
+        if (e?.name === 'AbortError') return;
+      }
+    }
+
+    // Fallback: write to app documents via Capacitor Filesystem
+    try {
+      const { Filesystem, Directory, Encoding } = await import('@capacitor/filesystem');
+      await Filesystem.writeFile({
+        path: FILE_NAME,
+        data: text,
+        directory: Directory.Documents,
+        encoding: Encoding.UTF8,
+      });
+      showToast?.(`Saved to Documents/${FILE_NAME}`);
+    } catch {
+      showToast?.('Could not save file');
+    }
+    return;
+  }
+
+  // Web: download via anchor element
+  const blob = new Blob([text], { type: 'text/plain' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'firewater-lists.txt';
+  a.download = FILE_NAME;
   a.click();
   URL.revokeObjectURL(url);
 }
 
-export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTried, liquors, reviews }: ListsViewProps) {
+export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTried, liquors, reviews, showToast }: ListsViewProps) {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'want' | 'tried'>('want');
   const [insightsOpen, setInsightsOpen] = useState(false);
@@ -262,7 +300,7 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
 
         {total > 0 && (
           <button
-            onClick={() => exportLists(wantLiquors, triedLiquors)}
+            onClick={() => exportLists(wantLiquors, triedLiquors, showToast)}
             className="btn btn-secondary inline-flex items-center gap-2 font-sans font-semibold tracking-widest uppercase text-xs px-6 py-2 transition-colors"
           >
             <Download size={14} />

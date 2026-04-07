@@ -459,6 +459,7 @@ export default function App() {
               toggleTried={toggleTriedWithToast}
               liquors={allLiquors}
               reviews={reviews}
+              showToast={showToast}
             />
           } />
           <Route path="/admin" element={
