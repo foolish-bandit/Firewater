@@ -92,8 +92,9 @@ export default function App() {
   const { user, showRulesModal, setShowRulesModal } = useAuth();
   const { isSignedIn } = useClerkAuth();
   const { toasts, showToast, dismissToast } = useToast();
-  const { wantToTry, tried, toggleWantToTry, toggleTried } = useLiquorLists(user, showToast);
-  const { reviews, addReview, editReview, deleteReview, getReviewsForLiquor } = useReviews(user, showToast);
+  const showError = useCallback((msg: string) => showToast(msg, 'error'), [showToast]);
+  const { wantToTry, tried, toggleWantToTry, toggleTried } = useLiquorLists(user, showError);
+  const { reviews, addReview, editReview, deleteReview, getReviewsForLiquor } = useReviews(user, showError);
   const { allLiquors, handleAddLiquor, deleteCustomLiquor, isLoading: catalogLoading } = useCustomLiquors();
   const { isAdmin } = useAdmin(user);
   const isOnline = useOnlineStatus();

@@ -12,7 +12,7 @@ interface ListsViewProps {
   tried: string[];
   toggleWantToTry: (id: string) => void;
   toggleTried: (id: string) => void;
-  showToast?: (message: string) => void;
+  showToast?: (message: string, type?: 'success' | 'error' | 'info') => void;
   liquors: Liquor[];
   reviews: Review[];
 }
@@ -43,7 +43,7 @@ function buildListsText(wantLiquors: Liquor[], triedLiquors: Liquor[]): string {
 
 const FILE_NAME = 'firewater-lists.txt';
 
-async function exportLists(wantLiquors: Liquor[], triedLiquors: Liquor[], showToast?: (msg: string) => void) {
+async function exportLists(wantLiquors: Liquor[], triedLiquors: Liquor[], showToast?: (msg: string, type?: 'success' | 'error' | 'info') => void) {
   const text = buildListsText(wantLiquors, triedLiquors);
 
   if (isNative) {
@@ -70,7 +70,7 @@ async function exportLists(wantLiquors: Liquor[], triedLiquors: Liquor[], showTo
       });
       showToast?.(`Saved to Documents/${FILE_NAME}`);
     } catch {
-      showToast?.('Could not save file');
+      showToast?.('Could not save file', 'error');
     }
     return;
   }
