@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
+import { hapticNotification } from '../lib/capacitor';
 
 export interface ToastItem {
   id: number;
@@ -9,7 +10,8 @@ export function useToast() {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const nextId = useRef(0);
 
-  const showToast = useCallback((message: string) => {
+  const showToast = useCallback((message: string, type: 'success' | 'error' = 'success') => {
+    hapticNotification(type);
     const id = nextId.current++;
     setToasts(prev => [...prev, { id, message }]);
     setTimeout(() => {

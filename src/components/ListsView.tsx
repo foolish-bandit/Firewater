@@ -2,6 +2,7 @@ import { useMemo, useState, type MouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Heart, CheckCircle, Download, ChevronDown, Sparkles, Trophy, Compass, Flame } from 'lucide-react';
 import { Liquor } from '../data';
+import { hapticTap } from '../lib/capacitor';
 import { Review } from '../types';
 import LiquorCard from './LiquorCard';
 import InsightsPanel from './InsightsPanel';
@@ -230,7 +231,7 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex gap-1 surface-raised p-1 rounded-full">
           <button
-            onClick={() => setActiveTab('want')}
+            onClick={() => { hapticTap(); setActiveTab('want'); }}
             className={`px-3 sm:px-6 py-2.5 text-[10px] sm:text-xs font-semibold tracking-wider sm:tracking-widest uppercase transition-all duration-300 rounded-full ${
               activeTab === 'want'
                 ? 'seg-item-active'
@@ -245,7 +246,7 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
             </span>
           </button>
           <button
-            onClick={() => setActiveTab('tried')}
+            onClick={() => { hapticTap(); setActiveTab('tried'); }}
             className={`px-3 sm:px-6 py-2.5 text-[10px] sm:text-xs font-semibold tracking-wider sm:tracking-widest uppercase transition-all duration-300 rounded-full ${
               activeTab === 'tried'
                 ? 'seg-item-active'

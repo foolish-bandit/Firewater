@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { User } from '../types';
 import { apiFetch } from '../api';
 import { storage } from '../lib/storage';
+import { hapticTap } from '../lib/capacitor';
 
 export function useLiquorLists(user?: User | null, onError?: (msg: string) => void) {
   const [wantToTry, setWantToTry] = useState<string[]>(() =>
@@ -106,6 +107,7 @@ export function useLiquorLists(user?: User | null, onError?: (msg: string) => vo
   }, [user, onError]);
 
   const toggleWantToTry = useCallback((id: string) => {
+    hapticTap();
     if (wantToTry.includes(id)) {
       setWantToTry(prev => prev.filter(x => x !== id));
       syncListAction(id, 'want', 'remove');
@@ -117,6 +119,7 @@ export function useLiquorLists(user?: User | null, onError?: (msg: string) => vo
   }, [wantToTry, syncListAction]);
 
   const toggleTried = useCallback((id: string) => {
+    hapticTap();
     if (tried.includes(id)) {
       setTried(prev => prev.filter(x => x !== id));
       syncListAction(id, 'tried', 'remove');

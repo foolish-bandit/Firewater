@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Review, User } from '../types';
 import { apiFetch } from '../api';
 import { storage } from '../lib/storage';
+import { hapticImpact } from '../lib/capacitor';
 
 export function useReviews(user: User | null, onError?: (msg: string) => void) {
   const [reviews, setReviews] = useState<Review[]>(() =>
@@ -91,6 +92,7 @@ export function useReviews(user: User | null, onError?: (msg: string) => void) {
   }, [reviews]);
 
   const addReview = useCallback((review: Omit<Review, 'id' | 'date' | 'userId' | 'userName' | 'userPicture'>) => {
+    hapticImpact();
     const newReview: Review = {
       ...review,
       id: Math.random().toString(36).substr(2, 9),

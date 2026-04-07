@@ -36,6 +36,7 @@ import { useAdmin } from './hooks/useAdmin';
 import { useTheme } from './hooks/useTheme';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
 import { storage } from './lib/storage';
+import { hapticTap, hapticImpact } from './lib/capacitor';
 import { PhotoProvider } from './contexts/PhotoContext';
 import ChatBubble from './components/ChatBubble';
 
@@ -138,6 +139,7 @@ export default function App() {
   }, [addReview, showToast]);
 
   const onAddLiquor = (newLiquor: Liquor) => {
+    hapticImpact();
     const resultId = handleAddLiquor(newLiquor);
     setShowSubmitModal(false);
     navigate(`/liquor/${resultId}`);
@@ -146,6 +148,7 @@ export default function App() {
 
   const handleBarcodeScanResult = (result: BarcodeScanResult) => {
     setShowBarcodeScanner(false);
+    hapticImpact();
     if (result.type === 'match') {
       navigate(`/liquor/${result.liquorId}`);
     } else if (result.type === 'prefill') {
@@ -633,21 +636,21 @@ export default function App() {
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass-surface border-t border-[var(--color-vintage-border)] safe-bottom shadow-[0_-4px_20px_rgba(0,0,0,0.3)]">
         <div className="flex items-center justify-around h-[4.25rem]">
           <button
-            onClick={() => navigate('/')}
+            onClick={() => { hapticTap(); navigate('/'); }}
             className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors ${location.pathname === '/' ? 'text-on-surface-accent' : 'text-on-surface-muted active:text-on-surface-secondary'}`}
           >
             <Home size={20} />
             <span className="text-[9px] font-semibold tracking-wider uppercase">Home</span>
           </button>
           <button
-            onClick={() => navigate('/catalog')}
+            onClick={() => { hapticTap(); navigate('/catalog'); }}
             className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors ${location.pathname === '/catalog' ? 'text-on-surface-accent' : 'text-on-surface-muted active:text-on-surface-secondary'}`}
           >
             <Search size={20} />
             <span className="text-[9px] font-semibold tracking-wider uppercase">Catalog</span>
           </button>
           <button
-            onClick={() => navigate('/lists')}
+            onClick={() => { hapticTap(); navigate('/lists'); }}
             className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors ${location.pathname === '/lists' ? 'text-on-surface-accent' : 'text-on-surface-muted active:text-on-surface-secondary'}`}
           >
             <ListIcon size={20} />
@@ -655,7 +658,7 @@ export default function App() {
           </button>
           {user ? (
             <button
-              onClick={() => navigate('/feed')}
+              onClick={() => { hapticTap(); navigate('/feed'); }}
               className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors ${location.pathname === '/feed' ? 'text-on-surface-accent' : 'text-on-surface-muted active:text-on-surface-secondary'}`}
             >
               <Rss size={20} />
@@ -664,6 +667,7 @@ export default function App() {
           ) : (
             <button
               onClick={() => {
+                hapticTap();
                 const randomLiquor = allLiquors[Math.floor(Math.random() * allLiquors.length)];
                 if (randomLiquor) navigate(`/liquor/${randomLiquor.id}`);
               }}
@@ -674,7 +678,7 @@ export default function App() {
             </button>
           )}
           <button
-            onClick={() => user ? navigate(`/profile/${user.id}`) : handleSignIn()}
+            onClick={() => { hapticTap(); user ? navigate(`/profile/${user.id}`) : handleSignIn(); }}
             className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors ${location.pathname.startsWith('/profile') ? 'text-on-surface-accent' : 'text-on-surface-muted active:text-on-surface-secondary'}`}
           >
             <UserIcon size={20} />

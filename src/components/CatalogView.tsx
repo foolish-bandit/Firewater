@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, X, Plus, Camera, ChevronDown, Sparkles } from 'lucide-react';
 import { Liquor } from '../data';
+import { hapticTap } from '../lib/capacitor';
 import { levenshteinDistance } from '../utils/stringUtils';
 import LiquorCard from './LiquorCard';
 
@@ -398,7 +399,7 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
             {visibleCategories.map(cat => (
               <button
                 key={cat}
-                onClick={() => toggleCategory(cat)}
+                onClick={() => { hapticTap(); toggleCategory(cat); }}
                 className={`seg-item px-3 sm:px-4 py-2 text-[10px] sm:text-xs tracking-wider sm:tracking-widest shrink-0 sm:shrink ${
                   activeCategories.has(cat) ? 'seg-item-active' : ''
                 }`}
@@ -425,7 +426,7 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
             {priceOptions.map(opt => (
               <button
                 key={opt.value}
-                onClick={() => setPriceFilter(opt.value)}
+                onClick={() => { hapticTap(); setPriceFilter(opt.value); }}
                 className={`seg-item px-3 py-2 text-[10px] sm:text-xs tracking-wider sm:tracking-widest ${
                   priceFilter === opt.value ? 'seg-item-active' : ''
                 }`}
@@ -441,7 +442,7 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
           <p className="micro-label text-on-surface-muted">Region</p>
           <div className="flex gap-2 flex-wrap">
             <button
-              onClick={() => setSelectedRegions(new Set())}
+              onClick={() => { hapticTap(); setSelectedRegions(new Set()); }}
               className={`seg-item px-3 py-2 text-[10px] sm:text-xs tracking-wider sm:tracking-widest ${
                 selectedRegions.size === 0 ? 'seg-item-active' : ''
               }`}
@@ -451,7 +452,7 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
             {topRegions.map(r => (
               <button
                 key={r}
-                onClick={() => toggleRegion(r)}
+                onClick={() => { hapticTap(); toggleRegion(r); }}
                 className={`seg-item px-3 py-2 text-[10px] sm:text-xs tracking-wider sm:tracking-widest flex items-center gap-1 ${
                   selectedRegions.has(r) ? 'seg-item-active' : ''
                 }`}
@@ -467,7 +468,7 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
               {Array.from(selectedRegions).filter(r => !topRegions.includes(r)).map(r => (
                 <button
                   key={r}
-                  onClick={() => toggleRegion(r)}
+                  onClick={() => { hapticTap(); toggleRegion(r); }}
                   className="seg-item seg-item-active px-3 py-2 text-[10px] sm:text-xs tracking-wider sm:tracking-widest flex items-center gap-1"
                 >
                   {r} <X size={10} />

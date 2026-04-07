@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { storage } from '../lib/storage';
+import { hapticTap } from '../lib/capacitor';
 
 type Theme = 'dark' | 'light';
 
@@ -53,6 +54,7 @@ export function useTheme() {
   }, []);
 
   const toggleTheme = useCallback(() => {
+    hapticTap();
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
   }, []);
 
