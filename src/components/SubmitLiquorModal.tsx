@@ -4,6 +4,7 @@ import { X, Loader2, AlertCircle, CheckCircle, ChevronRight, Camera } from 'luci
 import { Liquor, FlavorProfile } from '../liquorTypes';
 import { normalizeLiquorName, levenshteinDistance } from '../utils/stringUtils';
 import { generateLiquorData } from '../services/geminiService';
+import { hapticImpact } from '../lib/capacitor';
 
 interface SubmitLiquorModalProps {
   onClose: () => void;
@@ -139,6 +140,7 @@ export default function SubmitLiquorModal({ onClose, onSubmit, onSelectExisting,
 
   const handleConfirm = () => {
     if (generatedLiquor && generatedLiquor.name) {
+      hapticImpact();
       const newLiquor: Liquor = {
         id: `community-${Date.now()}`,
         name: generatedLiquor.name!,

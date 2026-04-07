@@ -334,8 +334,8 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
                   onClick={() => navigate(`/liquor/${b.id}`)}
                   isWanted={wantToTry.includes(b.id)}
                   isTried={tried.includes(b.id)}
-                  onToggleWant={(e: MouseEvent) => { e.stopPropagation(); toggleWantToTry(b.id); }}
-                  onToggleTried={(e: MouseEvent) => { e.stopPropagation(); toggleTried(b.id); }}
+                  onToggleWant={(e: MouseEvent) => { e.stopPropagation(); hapticTap(); toggleWantToTry(b.id); }}
+                  onToggleTried={(e: MouseEvent) => { e.stopPropagation(); hapticTap(); toggleTried(b.id); }}
                 />
               ))}
             </div>
@@ -366,8 +366,8 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
                   onClick={() => navigate(`/liquor/${b.id}`)}
                   isWanted={wantToTry.includes(b.id)}
                   isTried={tried.includes(b.id)}
-                  onToggleWant={(e: MouseEvent) => { e.stopPropagation(); toggleWantToTry(b.id); }}
-                  onToggleTried={(e: MouseEvent) => { e.stopPropagation(); toggleTried(b.id); }}
+                  onToggleWant={(e: MouseEvent) => { e.stopPropagation(); hapticTap(); toggleWantToTry(b.id); }}
+                  onToggleTried={(e: MouseEvent) => { e.stopPropagation(); hapticTap(); toggleTried(b.id); }}
                 />
               ))}
             </div>
