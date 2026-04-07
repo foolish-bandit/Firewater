@@ -38,7 +38,9 @@ import { useOnlineStatus } from './hooks/useOnlineStatus';
 import { storage } from './lib/storage';
 import { hapticTap, hapticImpact } from './lib/capacitor';
 import { PhotoProvider } from './contexts/PhotoContext';
-import ChatBubble from './components/ChatBubble';
+import { useMediaQuery } from './hooks/useMediaQuery';
+
+const ChatBubble = React.lazy(() => import('./components/ChatBubble'));
 
 // --- Main App Component ---
 
@@ -46,6 +48,7 @@ export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
 
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showBarcodeScanner, setShowBarcodeScanner] = useState(false);
@@ -691,8 +694,12 @@ export default function App() {
       {/* PWA Install Prompt */}
       <InstallPrompt />
 
-      {/* Chat Bubble */}
-      <ChatBubble allLiquors={allLiquors} />
+      {/* Chat Bubble — desktop only, lazy-loaded */}
+      {isDesktop && (
+        <Suspense fallback={null}>
+          <ChatBubble allLiquors={allLiquors} />
+        </Suspense>
+      )}
 
       {/* Toast Notifications */}
       <ToastStack toasts={toasts} onDismiss={dismissToast} />
