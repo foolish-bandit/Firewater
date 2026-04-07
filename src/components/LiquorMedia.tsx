@@ -175,7 +175,7 @@ export default function LiquorMedia({
           <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full border border-border-subtle bg-[#141210]/55 px-3 py-1.5 backdrop-blur-sm">
             <Sparkles size={12} className="text-on-surface-accent" />
             <span className="text-[10px] font-sans font-semibold tracking-[0.24em] uppercase text-on-surface-secondary">
-              Curated fallback art
+              {identity.family}
             </span>
           </div>
 
