@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
+import PageTransition from './PageTransition';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Star, Heart, CheckCircle, ChevronLeft, Share2, Edit2, Trash2, MapPin, Flame, Clock, DollarSign, XCircle, X } from 'lucide-react';
 import { SignInButton } from '@clerk/react';
@@ -143,7 +144,7 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
     : null;
 
   return (
-    <div className="flex flex-col animate-in slide-in-from-right-8 duration-500">
+    <PageTransition><div className="flex flex-col">
       <button
         onClick={() => navigate(-1)}
         className="flex items-center gap-3 text-on-surface-muted hover:text-on-surface-accent transition-colors group font-sans font-semibold tracking-widest uppercase text-xs"
@@ -739,6 +740,6 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
           )}
         </div>
       </div>
-    </div>
+    </div></PageTransition>
   );
 }

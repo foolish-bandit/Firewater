@@ -1,4 +1,5 @@
 import { useMemo, useState, type MouseEvent } from 'react';
+import PageTransition from './PageTransition';
 import { useNavigate } from 'react-router-dom';
 import { Heart, CheckCircle, Download, ChevronDown, Sparkles, Trophy, Compass, Flame } from 'lucide-react';
 import { Liquor } from '../data';
@@ -160,7 +161,7 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
   ];
 
   return (
-    <div className="space-y-10 animate-in fade-in duration-500">
+    <PageTransition><div className="space-y-10">
       <div className="text-center space-y-4 py-8">
         <p className="micro-label text-on-surface-accent">Collection Journey</p>
         <h1 className="font-serif text-4xl md:text-5xl font-normal text-on-surface">My Shelf</h1>
@@ -373,6 +374,6 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
           )}
         </div>
       )}
-    </div>
+    </div></PageTransition>
   );
 }

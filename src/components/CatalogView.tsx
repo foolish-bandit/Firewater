@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
+import PageTransition from './PageTransition';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, X, Plus, Camera, ChevronDown, Sparkles } from 'lucide-react';
 import { Liquor } from '../data';
@@ -321,7 +322,7 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
   ];
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <PageTransition><div className="space-y-8">
       <div className="surface-raised p-4 sm:p-6 space-y-6">
         <div className="flex flex-col xl:flex-row gap-6 xl:items-end xl:justify-between">
           <div className="space-y-3 max-w-2xl">
@@ -618,6 +619,6 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
           </p>
         </div>
       </div>
-    </div>
+    </div></PageTransition>
   );
 }

@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import PageTransition from './PageTransition';
 import { useNavigate } from 'react-router-dom';
 import { Search, Heart, ChevronRight, Sparkles, BookOpen, Users, Flame, Wheat, FlaskConical, DollarSign, Layers, Camera } from 'lucide-react';
 import { SignUpButton } from '@clerk/react';
@@ -157,7 +158,7 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
   }, [reviews]);
 
   return (
-    <div className="flex flex-col min-h-[80vh] animate-in fade-in duration-700">
+    <PageTransition><div className="flex flex-col min-h-[80vh]">
       <div className="w-full max-w-5xl mx-auto px-4 pt-4 md:pt-8 mb-10">
         <div className="surface-raised p-6 md:p-8 lg:p-10 relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(200,155,60,0.18),transparent_35%),radial-gradient(circle_at_bottom_left,rgba(200,155,60,0.08),transparent_30%)] pointer-events-none" />
@@ -433,6 +434,6 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
           </div>
         )}
       </div>
-    </div>
+    </div></PageTransition>
   );
 }

@@ -1,11 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
+import PageTransition from './PageTransition';
 
 export default function AcceptableUsePage() {
   const navigate = useNavigate();
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8 md:py-12">
+    <PageTransition><div className="max-w-3xl mx-auto px-4 py-8 md:py-12">
       <button
         onClick={() => navigate(-1)}
         className="flex items-center gap-3 text-on-surface-muted hover:text-on-surface-accent transition-colors group font-sans font-semibold tracking-widest uppercase text-xs"
@@ -126,6 +127,6 @@ export default function AcceptableUsePage() {
           </p>
         </section>
       </div>
-    </div>
+    </div></PageTransition>
   );
 }

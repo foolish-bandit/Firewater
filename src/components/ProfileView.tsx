@@ -9,6 +9,7 @@ import { getFlavorSummary, getSortedFlavorEntries } from '../utils/flavorStory';
 import { getAvatarIcon } from '../avatarIcons';
 import ProfileEdit from './ProfileEdit';
 import { ProfileSkeleton } from './SkeletonCard';
+import PageTransition from './PageTransition';
 import FollowButton from './FollowButton';
 import FollowList from './FollowList';
 
@@ -153,7 +154,7 @@ export default function ProfileView({ user, liquors }: ProfileViewProps) {
   const isPrivate = !profile.is_public && !profile.is_own;
 
   return (
-    <div className="space-y-12 animate-in fade-in duration-500">
+    <PageTransition><div className="space-y-12">
       <button
         onClick={() => navigate(-1)}
         className="flex items-center gap-3 text-on-surface-muted hover:text-on-surface-accent transition-colors group font-sans font-semibold tracking-widest uppercase text-xs"
@@ -577,6 +578,6 @@ export default function ProfileView({ user, liquors }: ProfileViewProps) {
           onNavigate={(id) => { setShowFollows(null); navigate(`/profile/${id}`); }}
         />
       )}
-    </div>
+    </div></PageTransition>
   );
 }
