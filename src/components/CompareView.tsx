@@ -9,7 +9,7 @@ interface CompareViewProps {
   liquors: Liquor[];
 }
 
-const COMPARE_COLORS = ['#C89B3C', '#5BA3A3', '#A35B7A'];
+const COMPARE_COLORS = ['var(--text-accent)', '#5BA3A3', '#A35B7A'];
 
 const FLAVOR_KEYS = [
   'sweetness', 'spice', 'oak', 'caramel', 'vanilla', 'fruit',

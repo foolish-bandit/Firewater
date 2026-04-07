@@ -1,30 +1,44 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { ALL_LIQUORS, Liquor, FlavorProfile } from '../data';
+import { loadAllLiquors, Liquor, FlavorProfile } from '../data';
 import { normalizeLiquorName } from '../utils/stringUtils';
+import { storage } from '../lib/storage';
 
 export function useCustomLiquors() {
-  const [customLiquors, setCustomLiquors] = useState<Liquor[]>([]);
+  const [catalogLiquors, setCatalogLiquors] = useState<Liquor[]>([]);
+  const [catalogLoading, setCatalogLoading] = useState(true);
+  const [customLiquors, setCustomLiquors] = useState<Liquor[]>(() =>
+    storage.getSyncJSON<Liquor[]>('bs_customBourbons') || []
+  );
   const loaded = useRef(false);
 
-  // Load from localStorage
+  // Load catalog data via dynamic imports
   useEffect(() => {
-    const savedCustom = localStorage.getItem('bs_customBourbons');
-    if (savedCustom) setCustomLiquors(JSON.parse(savedCustom));
-    loaded.current = true;
+    loadAllLiquors().then(data => {
+      setCatalogLiquors(data);
+      setCatalogLoading(false);
+    });
   }, []);
 
-  // Save to localStorage (debounced)
+  // Async load custom liquors from storage (authoritative on native)
+  useEffect(() => {
+    storage.getJSON<Liquor[]>('bs_customBourbons').then(saved => {
+      if (saved) setCustomLiquors(saved);
+      loaded.current = true;
+    });
+  }, []);
+
+  // Save to storage (debounced)
   useEffect(() => {
     if (!loaded.current) return;
     const timer = setTimeout(() => {
-      localStorage.setItem('bs_customBourbons', JSON.stringify(customLiquors));
+      storage.setJSON('bs_customBourbons', customLiquors);
     }, 500);
     return () => clearTimeout(timer);
   }, [customLiquors]);
 
   const allLiquors = useMemo(() => {
-    return [...ALL_LIQUORS, ...customLiquors];
-  }, [customLiquors]);
+    return [...catalogLiquors, ...customLiquors];
+  }, [catalogLiquors, customLiquors]);
 
   const handleAddLiquor = useCallback((newLiquor: Liquor): string => {
     let resultId = newLiquor.id;
@@ -72,5 +86,5 @@ export function useCustomLiquors() {
     setCustomLiquors(prev => prev.filter(l => l.id !== id));
   }, []);
 
-  return { allLiquors, customLiquors, handleAddLiquor, deleteCustomLiquor };
+  return { allLiquors, customLiquors, handleAddLiquor, deleteCustomLiquor, isLoading: catalogLoading };
 }

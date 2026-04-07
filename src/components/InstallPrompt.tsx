@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { X, Download } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
+import { storage } from '../lib/storage';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -12,18 +13,25 @@ const DISMISS_KEY = 'brrl_install_dismissed';
 export default function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
+  const dismissedRef = useRef(false);
 
   useEffect(() => {
-    if (localStorage.getItem(DISMISS_KEY)) return;
-
     const handler = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
-      setVisible(true);
+      if (!dismissedRef.current) {
+        setDeferredPrompt(e as BeforeInstallPromptEvent);
+        setVisible(true);
+      }
     };
 
-    window.addEventListener('beforeinstallprompt', handler);
+    // Check async storage for prior dismissal
+    storage.get(DISMISS_KEY).then(val => {
+      if (val) {
+        dismissedRef.current = true;
+      }
+    });
 
+    window.addEventListener('beforeinstallprompt', handler);
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
 
@@ -40,7 +48,8 @@ export default function InstallPrompt() {
   const handleDismiss = useCallback(() => {
     setVisible(false);
     setDeferredPrompt(null);
-    localStorage.setItem(DISMISS_KEY, '1');
+    dismissedRef.current = true;
+    storage.set(DISMISS_KEY, '1');
   }, []);
 
   return (

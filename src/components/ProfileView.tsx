@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Star, CheckCircle, ChevronLeft, BookOpen, Edit2, Eye, EyeOff, Calendar, Flame, Sparkles, Trophy, Orbit, Users2 } from 'lucide-react';
+import { Star, CheckCircle, ChevronLeft, BookOpen, Edit2, Eye, EyeOff, Calendar, Flame, Sparkles, Trophy, Orbit, Users2, FileText, Shield, ScrollText, LogOut, ChevronRight } from 'lucide-react';
+import { SignOutButton } from '@clerk/react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts';
 import { User, Review } from '../types';
 import { Liquor, FlavorProfile } from '../liquorTypes';
@@ -8,6 +9,8 @@ import { useProfile } from '../hooks/useProfile';
 import { getFlavorSummary, getSortedFlavorEntries } from '../utils/flavorStory';
 import { getAvatarIcon } from '../avatarIcons';
 import ProfileEdit from './ProfileEdit';
+import { ProfileSkeleton } from './SkeletonCard';
+import PageTransition from './PageTransition';
 import FollowButton from './FollowButton';
 import FollowList from './FollowList';
 
@@ -132,11 +135,7 @@ export default function ProfileView({ user, liquors }: ProfileViewProps) {
   ];
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-32">
-        <div className="w-8 h-8 border-2 border-border-accent-strong border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return <ProfileSkeleton />;
   }
 
   if (!profile) {
@@ -156,7 +155,7 @@ export default function ProfileView({ user, liquors }: ProfileViewProps) {
   const isPrivate = !profile.is_public && !profile.is_own;
 
   return (
-    <div className="space-y-12 animate-in fade-in duration-500">
+    <PageTransition><div className="space-y-12">
       <button
         onClick={() => navigate(-1)}
         className="flex items-center gap-3 text-on-surface-muted hover:text-on-surface-accent transition-colors group font-sans font-semibold tracking-widest uppercase text-xs"
@@ -373,7 +372,7 @@ export default function ProfileView({ user, liquors }: ProfileViewProps) {
                     <button
                       key={liquor.id}
                       onClick={() => navigate(`/liquor/${liquor.id}`)}
-                      className={`group relative overflow-hidden rounded-[28px] border text-left transition-all duration-300 hover:-translate-y-1 hover:border-border-accent ${isLead ? 'md:col-span-6 p-6 bg-[radial-gradient(circle_at_top_left,rgba(200,155,60,0.16),transparent_40%),linear-gradient(145deg,#1B1713_0%,#141210_100%)] border-border-accent min-h-[260px]' : 'md:col-span-3 p-5 bg-surface-raised border-border-subtle min-h-[220px]'}`}
+                      className={`group relative overflow-hidden rounded-[28px] border text-left transition-all duration-300 hover:-translate-y-1 hover:border-border-accent ${isLead ? 'md:col-span-6 p-6 premium-gradient border-border-accent min-h-[260px]' : 'md:col-span-3 p-5 bg-surface-raised border-border-subtle min-h-[220px]'}`}
                     >
                       <div className="absolute right-4 top-4 text-[56px] leading-none font-serif text-on-surface-accent opacity-10">{String(i + 1).padStart(2, '0')}</div>
                       <div className="relative z-10 flex h-full flex-col justify-between gap-6">
@@ -429,7 +428,7 @@ export default function ProfileView({ user, liquors }: ProfileViewProps) {
                     <RadarChart cx="50%" cy="50%" outerRadius="70%" data={flavorDNA}>
                       <PolarGrid stroke="rgba(234, 228, 217, 0.1)" />
                       <PolarAngleAxis dataKey="subject" tick={{ fill: 'rgba(234, 228, 217, 0.4)', fontSize: 10, fontFamily: 'Montserrat' }} />
-                      <Radar name="Flavor DNA" dataKey="A" stroke="#C89B3C" fill="#C89B3C" fillOpacity={0.22} />
+                      <Radar name="Flavor DNA" dataKey="A" stroke="var(--text-accent)" fill="var(--text-accent)" fillOpacity={0.22} />
                     </RadarChart>
                   </ResponsiveContainer>
                 </div>
@@ -507,7 +506,7 @@ export default function ProfileView({ user, liquors }: ProfileViewProps) {
                 {recentReviews.map((review, index) => (
                   <div
                     key={review.id}
-                    className={`group relative overflow-hidden rounded-[28px] border p-5 sm:p-6 transition-all duration-300 hover:-translate-y-1 ${index === 0 ? 'border-border-accent bg-[radial-gradient(circle_at_top_left,rgba(200,155,60,0.14),transparent_38%),linear-gradient(145deg,#1B1713_0%,#141210_100%)] lg:col-span-2' : 'border-border-subtle bg-surface-raised'}`}
+                    className={`group relative overflow-hidden rounded-[28px] border p-5 sm:p-6 transition-all duration-300 hover:-translate-y-1 ${index === 0 ? 'border-border-accent premium-gradient lg:col-span-2' : 'border-border-subtle bg-surface-raised'}`}
                   >
                     <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-on-surface/15 to-transparent" />
                     <div className="flex items-start justify-between gap-4">
@@ -572,6 +571,38 @@ export default function ProfileView({ user, liquors }: ProfileViewProps) {
         />
       )}
 
+      {profile.is_own && (
+        <div className="md:hidden surface-raised p-5 space-y-1">
+          <p className="micro-label text-on-surface-accent mb-3">Settings & Legal</p>
+          {[
+            { to: '/terms', label: 'Terms & Conditions', icon: FileText },
+            { to: '/privacy', label: 'Privacy Policy', icon: Shield },
+            { to: '/eula', label: 'End-User License Agreement', icon: ScrollText },
+            { to: '/acceptable-use', label: 'Acceptable Use Policy', icon: Shield },
+          ].map(link => (
+            <button
+              key={link.to}
+              onClick={() => navigate(link.to)}
+              className="w-full flex items-center justify-between py-3 border-b border-border-subtle last:border-0 text-left group"
+            >
+              <span className="flex items-center gap-3 text-sm text-on-surface-secondary group-hover:text-on-surface transition-colors">
+                <link.icon size={16} className="text-on-surface-muted" />
+                {link.label}
+              </span>
+              <ChevronRight size={14} className="text-on-surface-muted" />
+            </button>
+          ))}
+          <p className="text-[10px] text-on-surface-muted text-center pt-3 tracking-wider">FIREWATER v1.0.0</p>
+          {user && (
+            <SignOutButton>
+              <button className="w-full flex items-center justify-center gap-2 text-sm text-red-400 hover:text-red-300 transition-colors pt-3 mt-2 border-t border-border-subtle">
+                <LogOut size={16} /> Sign Out
+              </button>
+            </SignOutButton>
+          )}
+        </div>
+      )}
+
       {showFollows && userId && (
         <FollowList
           userId={userId}
@@ -580,6 +611,6 @@ export default function ProfileView({ user, liquors }: ProfileViewProps) {
           onNavigate={(id) => { setShowFollows(null); navigate(`/profile/${id}`); }}
         />
       )}
-    </div>
+    </div></PageTransition>
   );
 }

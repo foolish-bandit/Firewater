@@ -1,7 +1,9 @@
 import { useMemo, useState, type MouseEvent } from 'react';
+import PageTransition from './PageTransition';
 import { useNavigate } from 'react-router-dom';
 import { Heart, CheckCircle, Download, ChevronDown, Sparkles, Trophy, Compass, Flame } from 'lucide-react';
 import { Liquor } from '../data';
+import { hapticTap, isNative } from '../lib/capacitor';
 import { Review } from '../types';
 import LiquorCard from './LiquorCard';
 import InsightsPanel from './InsightsPanel';
@@ -11,6 +13,7 @@ interface ListsViewProps {
   tried: string[];
   toggleWantToTry: (id: string) => void;
   toggleTried: (id: string) => void;
+  showToast?: (message: string, type?: 'success' | 'error' | 'info') => void;
   liquors: Liquor[];
   reviews: Review[];
 }
@@ -19,7 +22,7 @@ function formatLiquor(b: Liquor): string {
   return `- ${b.name} (${b.distillery}) — $${b.price} — ${b.proof} proof`;
 }
 
-function exportLists(wantLiquors: Liquor[], triedLiquors: Liquor[]) {
+function buildListsText(wantLiquors: Liquor[], triedLiquors: Liquor[]): string {
   const lines = ['=== FIREWATER — MY LISTS ===', ''];
   lines.push('WANT TO TRY:');
   if (wantLiquors.length === 0) {
@@ -36,17 +39,54 @@ function exportLists(wantLiquors: Liquor[], triedLiquors: Liquor[]) {
   }
   lines.push('');
   lines.push(`Exported from FIREWATER on ${new Date().toLocaleDateString()}`);
+  return lines.join('\n');
+}
 
-  const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+const FILE_NAME = 'firewater-lists.txt';
+
+async function exportLists(wantLiquors: Liquor[], triedLiquors: Liquor[], showToast?: (msg: string, type?: 'success' | 'error' | 'info') => void) {
+  const text = buildListsText(wantLiquors, triedLiquors);
+
+  if (isNative) {
+    // Try Web Share API (iOS 15+ supports sharing File objects)
+    if (navigator.share) {
+      try {
+        const file = new File([text], FILE_NAME, { type: 'text/plain' });
+        await navigator.share({ files: [file] });
+        return;
+      } catch (e: any) {
+        // User cancelled share or share not supported for files — fall through
+        if (e?.name === 'AbortError') return;
+      }
+    }
+
+    // Fallback: write to app documents via Capacitor Filesystem
+    try {
+      const { Filesystem, Directory, Encoding } = await import('@capacitor/filesystem');
+      await Filesystem.writeFile({
+        path: FILE_NAME,
+        data: text,
+        directory: Directory.Documents,
+        encoding: Encoding.UTF8,
+      });
+      showToast?.(`Saved to Documents/${FILE_NAME}`);
+    } catch {
+      showToast?.('Could not save file', 'error');
+    }
+    return;
+  }
+
+  // Web: download via anchor element
+  const blob = new Blob([text], { type: 'text/plain' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'firewater-lists.txt';
+  a.download = FILE_NAME;
   a.click();
   URL.revokeObjectURL(url);
 }
 
-export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTried, liquors, reviews }: ListsViewProps) {
+export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTried, liquors, reviews, showToast }: ListsViewProps) {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'want' | 'tried'>('want');
   const [insightsOpen, setInsightsOpen] = useState(false);
@@ -102,7 +142,7 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
       value: `${triedLiquors.length} tasted`,
       note: nextMilestone.remaining === 0 ? `Milestone ${nextMilestone.target} reached.` : `${nextMilestone.remaining} more to hit ${nextMilestone.target}.`,
       icon: Trophy,
-      accent: 'text-[#E2C27A] border-[#C89B3C]/18 bg-on-surface-accent/10',
+      accent: 'text-on-surface-accent border-border-accent bg-on-surface-accent/10',
     },
     {
       title: 'Category trail',
@@ -121,7 +161,7 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
   ];
 
   return (
-    <div className="space-y-10 animate-in fade-in duration-500">
+    <PageTransition><div className="space-y-10">
       <div className="text-center space-y-4 py-8">
         <p className="micro-label text-on-surface-accent">Collection Journey</p>
         <h1 className="font-serif text-4xl md:text-5xl font-normal text-on-surface">My Shelf</h1>
@@ -130,7 +170,7 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
 
       {total > 0 && (
         <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)] gap-5">
-          <div className="rounded-[30px] border border-[#C89B3C]/18 bg-[radial-gradient(circle_at_top_left,rgba(200,155,60,0.18),transparent_36%),linear-gradient(145deg,#1B1713_0%,#141210_100%)] p-5 sm:p-7">
+          <div className="rounded-[30px] border border-border-accent premium-gradient p-5 sm:p-7">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-5 mb-5">
               <div>
                 <p className="micro-label text-on-surface-accent mb-2">Progress Story</p>
@@ -148,7 +188,7 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
                 <span>{wantLiquors.length} still chasing</span>
               </div>
               <div className="h-3 rounded-full bg-[#0F0D0B] overflow-hidden">
-                <div className="h-full rounded-full bg-gradient-to-r from-[#A37A2B] via-[#C89B3C] to-[#F0D490] transition-all duration-700" style={{ width: `${completionPct}%` }} />
+                <div className="h-full rounded-full bg-gradient-to-r from-on-surface-accent/70 via-on-surface-accent to-on-surface-accent/50 transition-all duration-700" style={{ width: `${completionPct}%` }} />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3">
                 {journeyCards.map((card) => {
@@ -175,7 +215,7 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
             </div>
 
             <div className="space-y-4">
-              <div className="rounded-[22px] border border-[#C89B3C]/16 bg-[#C89B3C]/8 p-4">
+              <div className="rounded-[22px] border border-border-accent bg-on-surface-accent/8 p-4">
                 <p className="text-[10px] font-semibold tracking-[0.26em] uppercase text-on-surface-muted">Next unlock</p>
                 <p className="mt-2 font-serif text-3xl text-on-surface">{nextMilestone.target} bottles</p>
                 <p className="mt-2 text-sm text-on-surface-muted">{nextMilestone.remaining === 0 ? 'Milestone secured — keep climbing.' : `${nextMilestone.remaining} more tasted bottles to unlock your next badge.`}</p>
@@ -189,7 +229,7 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
                       <span className="text-[10px] tracking-[0.26em] uppercase text-on-surface-accent">{category.pct}% complete</span>
                     </div>
                     <div className="h-2 rounded-full bg-[#0F0D0B] overflow-hidden">
-                      <div className="h-full rounded-full bg-gradient-to-r from-[#8F6A23] to-[#C89B3C]" style={{ width: `${category.pct}%` }} />
+                      <div className="h-full rounded-full bg-gradient-to-r from-on-surface-accent/60 to-on-surface-accent" style={{ width: `${category.pct}%` }} />
                     </div>
                     <p className="mt-2 text-sm text-on-surface-muted">{category.categoryTried} of {category.categoryTotal} bottles in this lane have been tasted.</p>
                   </div>
@@ -230,7 +270,7 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex gap-1 surface-raised p-1 rounded-full">
           <button
-            onClick={() => setActiveTab('want')}
+            onClick={() => { hapticTap(); setActiveTab('want'); }}
             className={`px-3 sm:px-6 py-2.5 text-[10px] sm:text-xs font-semibold tracking-wider sm:tracking-widest uppercase transition-all duration-300 rounded-full ${
               activeTab === 'want'
                 ? 'seg-item-active'
@@ -245,7 +285,7 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
             </span>
           </button>
           <button
-            onClick={() => setActiveTab('tried')}
+            onClick={() => { hapticTap(); setActiveTab('tried'); }}
             className={`px-3 sm:px-6 py-2.5 text-[10px] sm:text-xs font-semibold tracking-wider sm:tracking-widest uppercase transition-all duration-300 rounded-full ${
               activeTab === 'tried'
                 ? 'seg-item-active'
@@ -261,7 +301,7 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
 
         {total > 0 && (
           <button
-            onClick={() => exportLists(wantLiquors, triedLiquors)}
+            onClick={() => exportLists(wantLiquors, triedLiquors, showToast)}
             className="btn btn-secondary inline-flex items-center gap-2 font-sans font-semibold tracking-widest uppercase text-xs px-6 py-2 transition-colors"
           >
             <Download size={14} />
@@ -273,18 +313,17 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
       {activeTab === 'want' && (
         <div>
           {wantLiquors.length === 0 ? (
-            <div className="surface-raised border-dashed p-8 sm:p-16 text-center relative overflow-hidden">
-              <img src="/logo.svg" alt="" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 opacity-[0.03] pointer-events-none" />
-              <div className="relative z-10">
-                <Heart size={32} className="text-on-surface-accent/30 mx-auto mb-4" />
-                <p className="text-on-surface-muted font-serif italic text-lg mb-6">Your wishlist is empty. Explore the catalog to find new pours.</p>
-                <button
-                  onClick={() => navigate('/catalog')}
-                  className="btn btn-secondary font-sans font-semibold tracking-widest uppercase px-6 py-3 text-xs transition-all duration-300"
-                >
-                  Browse Catalog
-                </button>
-              </div>
+            <div className="flex flex-col items-center justify-center text-center py-16 px-4">
+              <Heart size={48} className="text-on-surface-accent/30 mb-5" />
+              <h3 className="font-serif text-xl text-on-surface mb-2">Your wishlist is empty</h3>
+              <p className="text-on-surface-muted text-sm mb-1 max-w-xs">Tap the heart icon on any bottle to save it here.</p>
+              <p className="text-on-surface-muted font-serif italic text-sm mb-6 max-w-xs">Explore the catalog to find new pours.</p>
+              <button
+                onClick={() => navigate('/catalog')}
+                className="btn btn-primary"
+              >
+                Explore the Catalog
+              </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -307,18 +346,16 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
       {activeTab === 'tried' && (
         <div>
           {triedLiquors.length === 0 ? (
-            <div className="surface-raised border-dashed p-8 sm:p-16 text-center relative overflow-hidden">
-              <img src="/logo.svg" alt="" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 opacity-[0.03] pointer-events-none" />
-              <div className="relative z-10">
-                <CheckCircle size={32} className="text-on-surface-accent/30 mx-auto mb-4" />
-                <p className="text-on-surface-muted font-serif italic text-lg mb-6">You haven't marked any liquors as tried yet.</p>
-                <button
-                  onClick={() => navigate('/catalog')}
-                  className="btn btn-secondary font-sans font-semibold tracking-widest uppercase px-6 py-3 text-xs transition-all duration-300"
-                >
-                  Browse Catalog
-                </button>
-              </div>
+            <div className="flex flex-col items-center justify-center text-center py-16 px-4">
+              <CheckCircle size={48} className="text-on-surface-accent/30 mb-5" />
+              <h3 className="font-serif text-xl text-on-surface mb-2">Nothing tried yet</h3>
+              <p className="text-on-surface-muted text-sm mb-6 max-w-xs">Mark bottles as tried to track your journey.</p>
+              <button
+                onClick={() => navigate('/catalog')}
+                className="btn btn-primary"
+              >
+                Browse the Catalog
+              </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -337,6 +374,6 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
           )}
         </div>
       )}
-    </div>
+    </div></PageTransition>
   );
 }

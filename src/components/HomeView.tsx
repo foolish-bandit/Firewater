@@ -1,9 +1,11 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import PageTransition from './PageTransition';
 import { useNavigate } from 'react-router-dom';
-import { Search, Heart, ChevronRight, Sparkles, BookOpen, Users, Flame, Wheat, FlaskConical, DollarSign, Layers, Camera } from 'lucide-react';
+import { Search, Heart, ChevronRight, Sparkles, BookOpen, Users, Flame, Wheat, FlaskConical, DollarSign, Layers, Camera, Star, X } from 'lucide-react';
 import { SignUpButton } from '@clerk/react';
 import { User, Review } from '../types';
 import { Liquor } from '../data';
+import { storage } from '../lib/storage';
 
 interface HomeViewProps {
   user: User | null;
@@ -36,6 +38,34 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
   const [placeholderVisible, setPlaceholderVisible] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Scroll-fade state for carousels
+  const [popularScrolled, setPopularScrolled] = useState(false);
+  const [shortlistScrolled, setShortlistScrolled] = useState(false);
+  const popularRef = useRef<HTMLDivElement>(null);
+  const shortlistRef = useRef<HTMLDivElement>(null);
+
+  // Onboarding banner
+  const [onboardingDismissed, setOnboardingDismissed] = useState(() =>
+    storage.getSync('bs_onboarding_dismissed') === '1'
+  );
+  useEffect(() => {
+    storage.get('bs_onboarding_dismissed').then(val => {
+      if (val) setOnboardingDismissed(true);
+    });
+  }, []);
+  const dismissOnboarding = useCallback(() => {
+    setOnboardingDismissed(true);
+    storage.set('bs_onboarding_dismissed', '1');
+  }, []);
+  const showOnboarding = !!user && wantToTry.length === 0 && tried.length === 0 && !onboardingDismissed;
+
+  const handlePopularScroll = useCallback(() => {
+    setPopularScrolled((popularRef.current?.scrollLeft ?? 0) > 0);
+  }, []);
+  const handleShortlistScroll = useCallback(() => {
+    setShortlistScrolled((shortlistRef.current?.scrollLeft ?? 0) > 0);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -144,7 +174,7 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
   }, [reviews]);
 
   return (
-    <div className="flex flex-col min-h-[80vh] animate-in fade-in duration-700">
+    <PageTransition><div className="flex flex-col min-h-[80vh]">
       <div className="w-full max-w-5xl mx-auto px-4 pt-4 md:pt-8 mb-10">
         <div className="surface-raised p-6 md:p-8 lg:p-10 relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(200,155,60,0.18),transparent_35%),radial-gradient(circle_at_bottom_left,rgba(200,155,60,0.08),transparent_30%)] pointer-events-none" />
@@ -200,7 +230,7 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-transparent text-base sm:text-lg font-serif italic text-on-surface focus:outline-none"
+                        className="w-full bg-transparent text-base sm:text-lg font-serif italic text-on-surface focus:outline-none pr-10"
                       />
                       {!searchQuery && (
                         <span
@@ -210,27 +240,62 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
                         </span>
                       )}
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => navigate('/catalog?scan=1')}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-muted hover:text-on-surface-accent transition-colors p-1"
+                      aria-label="Scan a bottle"
+                    >
+                      <Camera size={20} />
+                    </button>
                   </div>
                 </form>
-                <div className="flex flex-col gap-3">
-                  <button
-                    onClick={() => navigate('/catalog?scan=1')}
-                    className="inline-flex items-center justify-center gap-2 btn btn-primary px-5 py-3 w-full gold-glow"
-                  >
-                    <Camera size={16} /> Scan a Bottle
-                  </button>
-                  <button
-                    onClick={() => inputRef.current?.focus()}
-                    className="inline-flex items-center justify-center gap-2 btn btn-secondary px-5 py-3 w-full"
-                  >
-                    <Search size={16} /> Search the Catalog
-                  </button>
-                </div>
+                <button
+                  onClick={handleSearch}
+                  className="inline-flex items-center justify-center gap-2 btn btn-primary px-5 py-3 w-full gold-glow"
+                >
+                  <Search size={16} /> Search the Catalog
+                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {showOnboarding && (
+        <div className="w-full max-w-5xl mx-auto px-4 mb-section">
+          <div className="surface-raised border-l-4 border-l-on-surface-accent p-5 sm:p-6 relative">
+            <button
+              onClick={dismissOnboarding}
+              className="absolute top-3 right-3 text-on-surface-muted hover:text-on-surface-accent transition-colors p-1"
+              aria-label="Dismiss"
+            >
+              <X size={18} />
+            </button>
+            <h3 className="font-serif text-lg text-on-surface mb-4 pr-8">Welcome to FIREWATER — here's how to get started</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
+              {[
+                { icon: Search, title: 'Find a bottle', desc: 'Search by name, flavor, or scan a barcode' },
+                { icon: Heart, title: 'Save it', desc: 'Tap the heart to add to your wishlist' },
+                { icon: Star, title: 'Review it', desc: 'Rate and review bottles you\'ve tried' },
+              ].map(step => (
+                <div key={step.title} className="flex sm:flex-col items-start sm:items-center gap-3 sm:text-center">
+                  <div className="w-10 h-10 rounded-full bg-on-surface-accent/10 flex items-center justify-center shrink-0">
+                    <step.icon size={18} className="text-on-surface-accent" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-on-surface font-sans">{step.title}</p>
+                    <p className="text-xs text-on-surface-muted">{step.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button onClick={() => navigate('/catalog')} className="btn btn-primary btn-sm">
+              Explore the Catalog
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="w-full max-w-5xl mx-auto mb-section">
         <div className="flex items-center justify-between px-4 mb-4">
@@ -245,43 +310,47 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
         <p className="text-sm font-serif italic text-on-surface-muted px-4 -mt-2 mb-2">
           Bottles the community keeps coming back to — a rotating selection based on what fellow explorers are discovering.
         </p>
-        <div className="flex gap-4 overflow-x-auto px-4 pb-2 scroll-touch custom-scrollbar" style={{ scrollbarWidth: 'none' }}>
-          {communityPicks.map(liquor => (
-            <button
-              key={liquor.id}
-              onClick={() => navigate(`/liquor/${liquor.id}`)}
-              className="flex-shrink-0 w-40 sm:w-48 surface-raised hover:border-border-accent-strong card-elevated card-elevated-hover transition-all hover:-translate-y-0.5 duration-300 text-left group"
-            >
-              <div className="h-24 sm:h-28 bg-surface-alt flex flex-col items-center justify-center px-3 gap-2 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-on-surface-accent/5 to-transparent" />
-                <span className="font-serif text-2xl sm:text-3xl text-on-surface-accent/30 font-normal">{liquor.proof}°</span>
-                <span className="badge badge-accent">
-                  {topFlavor(liquor)}
-                </span>
-              </div>
-              <div className="p-3">
-                <h3 className="font-serif text-sm text-on-surface leading-tight line-clamp-2 mb-1 group-hover:text-on-surface-accent transition-colors">
-                  {liquor.name}
-                </h3>
-                <p className="text-[10px] text-on-surface-muted uppercase tracking-widest font-sans truncate">{liquor.distillery}</p>
-                <div className="flex items-center justify-between mt-2">
-                  <span className="font-serif text-sm text-on-surface-secondary">${liquor.price}</span>
-                  <span className="text-[10px] text-on-surface-muted uppercase tracking-widest font-sans">{liquor.proof}pf</span>
+        <div className="relative">
+          <div className={`pointer-events-none absolute left-0 top-0 bottom-2 w-12 z-10 bg-gradient-to-r from-[var(--bg-primary)] to-transparent transition-opacity duration-200 ${popularScrolled ? 'opacity-100' : 'opacity-0'}`} />
+          <div className="pointer-events-none absolute right-0 top-0 bottom-2 w-12 z-10 bg-gradient-to-l from-[var(--bg-primary)] to-transparent" />
+          <div ref={popularRef} onScroll={handlePopularScroll} className="flex gap-4 overflow-x-auto px-4 pb-2 scroll-touch custom-scrollbar" style={{ scrollbarWidth: 'none' }}>
+            {communityPicks.map(liquor => (
+              <button
+                key={liquor.id}
+                onClick={() => navigate(`/liquor/${liquor.id}`)}
+                className="flex-shrink-0 w-40 sm:w-48 surface-raised hover:border-border-accent-strong card-elevated card-elevated-hover transition-all hover:-translate-y-0.5 duration-300 text-left group"
+              >
+                <div className="h-24 sm:h-28 bg-surface-alt flex flex-col items-center justify-center px-3 gap-2 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-on-surface-accent/5 to-transparent" />
+                  <span className="font-serif text-2xl sm:text-3xl text-on-surface-accent/30 font-normal">{liquor.proof}°</span>
+                  <span className="badge badge-accent">
+                    {topFlavor(liquor)}
+                  </span>
                 </div>
-                {(() => {
-                  const review = reviewsByLiquor.get(liquor.id);
-                  if (!review) return null;
-                  const text = review.text || review.nose || review.palate || review.finish || '';
-                  const snippet = text.length > 60 ? text.slice(0, 60).trimEnd() + '…' : text;
-                  return (
-                    <p className="text-[10px] font-serif italic text-on-surface-muted line-clamp-2 mt-1.5">
-                      ★ {review.rating} — {snippet}
-                    </p>
-                  );
-                })()}
-              </div>
-            </button>
-          ))}
+                <div className="p-3">
+                  <h3 className="font-serif text-sm text-on-surface leading-tight line-clamp-2 mb-1 group-hover:text-on-surface-accent transition-colors">
+                    {liquor.name}
+                  </h3>
+                  <p className="text-[10px] text-on-surface-muted uppercase tracking-widest font-sans truncate">{liquor.distillery}</p>
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="font-serif text-sm text-on-surface-secondary">${liquor.price}</span>
+                    <span className="text-[10px] text-on-surface-muted uppercase tracking-widest font-sans">{liquor.proof}pf</span>
+                  </div>
+                  {(() => {
+                    const review = reviewsByLiquor.get(liquor.id);
+                    if (!review) return null;
+                    const text = review.text || review.nose || review.palate || review.finish || '';
+                    const snippet = text.length > 60 ? text.slice(0, 60).trimEnd() + '…' : text;
+                    return (
+                      <p className="text-[10px] font-serif italic text-on-surface-muted line-clamp-2 mt-1.5">
+                        ★ {review.rating} — {snippet}
+                      </p>
+                    );
+                  })()}
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -304,32 +373,36 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
           <p className="text-sm font-serif italic text-on-surface-muted px-4 -mt-2 mb-2">
             Bottles you've flagged to try next. Tap any to see tasting notes, or head to your full shelf to manage the list.
           </p>
-          <div className="flex gap-4 overflow-x-auto px-4 pb-2 scroll-touch custom-scrollbar" style={{ scrollbarWidth: 'none' }}>
-            {wantToTryLiquors.map(liquor => (
-              <button
-                key={liquor.id}
-                onClick={() => navigate(`/liquor/${liquor.id}`)}
-                className="flex-shrink-0 w-40 sm:w-48 surface-raised hover:border-border-accent-strong card-elevated card-elevated-hover transition-all hover:-translate-y-0.5 duration-300 text-left group"
-              >
-                <div className="h-24 sm:h-28 bg-surface-alt flex flex-col items-center justify-center px-3 gap-2 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-on-surface-accent/5 to-transparent" />
-                  <Heart size={20} className="text-on-surface-accent/40" />
-                  <span className="badge badge-accent">
-                    {topFlavor(liquor)}
-                  </span>
-                </div>
-                <div className="p-3">
-                  <h3 className="font-serif text-sm text-on-surface leading-tight line-clamp-2 mb-1 group-hover:text-on-surface-accent transition-colors">
-                    {liquor.name}
-                  </h3>
-                  <p className="text-[10px] text-on-surface-muted uppercase tracking-widest font-sans truncate">{liquor.distillery}</p>
-                  <div className="flex items-center justify-between mt-2">
-                    <span className="font-serif text-sm text-on-surface-secondary">${liquor.price}</span>
-                    <span className="text-[10px] text-on-surface-muted uppercase tracking-widest font-sans">{liquor.proof}pf</span>
+          <div className="relative">
+            <div className={`pointer-events-none absolute left-0 top-0 bottom-2 w-12 z-10 bg-gradient-to-r from-[var(--bg-primary)] to-transparent transition-opacity duration-200 ${shortlistScrolled ? 'opacity-100' : 'opacity-0'}`} />
+            <div className="pointer-events-none absolute right-0 top-0 bottom-2 w-12 z-10 bg-gradient-to-l from-[var(--bg-primary)] to-transparent" />
+            <div ref={shortlistRef} onScroll={handleShortlistScroll} className="flex gap-4 overflow-x-auto px-4 pb-2 scroll-touch custom-scrollbar" style={{ scrollbarWidth: 'none' }}>
+              {wantToTryLiquors.map(liquor => (
+                <button
+                  key={liquor.id}
+                  onClick={() => navigate(`/liquor/${liquor.id}`)}
+                  className="flex-shrink-0 w-40 sm:w-48 surface-raised hover:border-border-accent-strong card-elevated card-elevated-hover transition-all hover:-translate-y-0.5 duration-300 text-left group"
+                >
+                  <div className="h-24 sm:h-28 bg-surface-alt flex flex-col items-center justify-center px-3 gap-2 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-on-surface-accent/5 to-transparent" />
+                    <Heart size={20} className="text-on-surface-accent/40" />
+                    <span className="badge badge-accent">
+                      {topFlavor(liquor)}
+                    </span>
                   </div>
-                </div>
-              </button>
-            ))}
+                  <div className="p-3">
+                    <h3 className="font-serif text-sm text-on-surface leading-tight line-clamp-2 mb-1 group-hover:text-on-surface-accent transition-colors">
+                      {liquor.name}
+                    </h3>
+                    <p className="text-[10px] text-on-surface-muted uppercase tracking-widest font-sans truncate">{liquor.distillery}</p>
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="font-serif text-sm text-on-surface-secondary">${liquor.price}</span>
+                      <span className="text-[10px] text-on-surface-muted uppercase tracking-widest font-sans">{liquor.proof}pf</span>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -412,6 +485,6 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
           </div>
         )}
       </div>
-    </div>
+    </div></PageTransition>
   );
 }

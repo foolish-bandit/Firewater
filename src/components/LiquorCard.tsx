@@ -43,7 +43,7 @@ export default function LiquorCard({ liquor, onClick, isWanted, isTried, onToggl
       onClick={onClick}
       className="group surface-raised overflow-hidden cursor-pointer hover:border-border-accent-strong card-elevated card-elevated-hover transition-all duration-300 ease-out flex flex-col h-full relative hover:-translate-y-1.5"
     >
-      <div className="h-[2px] w-[30%] group-hover:w-full bg-gradient-to-r from-on-surface-accent to-[#E8C56D] transition-all duration-500 ease-out" />
+      <div className="h-[2px] w-[30%] group-hover:w-full bg-gradient-to-r from-on-surface-accent to-on-surface-accent/60 transition-all duration-500 ease-out" />
 
       <LiquorMedia
         liquor={liquor}
@@ -58,22 +58,22 @@ export default function LiquorCard({ liquor, onClick, isWanted, isTried, onToggl
             <h3 className="font-serif text-2xl font-normal text-on-surface group-hover:text-on-surface-accent transition-colors leading-tight line-clamp-2">{liquor.name}</h3>
             <p className="micro-label text-on-surface-accent line-clamp-1">{liquor.distillery}</p>
           </div>
-          <div className="flex gap-2 shrink-0 pt-0.5">
+          <div className="flex gap-1 shrink-0 pt-0.5">
             <button
               onClick={onToggleWant}
-              className={`icon-toggle transition-all duration-300 active:scale-90 ${isWanted ? 'icon-toggle-active' : ''}`}
+              className={`icon-toggle min-w-[44px] min-h-[44px] flex items-center justify-center transition-all duration-300 active:scale-90 ${isWanted ? 'icon-toggle-active' : ''}`}
               title="Want to Try"
               aria-label={isWanted ? 'Remove from wishlist' : 'Add to wishlist'}
             >
-              <Heart size={16} className={isWanted ? 'fill-current' : ''} />
+              <Heart size={18} className={isWanted ? 'fill-current' : ''} />
             </button>
             <button
               onClick={onToggleTried}
-              className={`icon-toggle transition-all duration-300 active:scale-90 ${isTried ? 'icon-toggle-active' : ''}`}
+              className={`icon-toggle min-w-[44px] min-h-[44px] flex items-center justify-center transition-all duration-300 active:scale-90 ${isTried ? 'icon-toggle-active' : ''}`}
               title="Tried"
               aria-label={isTried ? 'Remove from tried' : 'Mark as tried'}
             >
-              <CheckCircle size={16} className={isTried ? 'fill-current' : ''} />
+              <CheckCircle size={18} className={isTried ? 'fill-current' : ''} />
             </button>
           </div>
         </div>

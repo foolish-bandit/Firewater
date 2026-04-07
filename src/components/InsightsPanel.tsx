@@ -145,15 +145,15 @@ export default function InsightsPanel({ triedIds, wantIds, reviews, liquors }: I
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#1A1816',
+                    backgroundColor: 'var(--bg-surface)',
                     border: '1px solid rgba(200, 155, 60, 0.3)',
                     borderRadius: 0,
                     fontSize: 12,
-                    color: '#EAE4D9',
+                    color: 'var(--text-primary)',
                   }}
                   cursor={{ fill: 'rgba(200, 155, 60, 0.05)' }}
                 />
-                <Bar dataKey="count" fill="#C89B3C" radius={[0, 2, 2, 0]} barSize={14} />
+                <Bar dataKey="count" fill="var(--text-accent)" radius={[0, 2, 2, 0]} barSize={14} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -176,7 +176,7 @@ export default function InsightsPanel({ triedIds, wantIds, reviews, liquors }: I
               </div>
               <div className="w-full h-1 bg-on-surface/10 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-[#C89B3C]/40 to-[#C89B3C] rounded-full"
+                  className="h-full bg-gradient-to-r from-on-surface-accent/40 to-on-surface-accent rounded-full"
                   style={{
                     width: `${Math.min(100, ((priceStats.avg - priceStats.min) / (priceStats.max - priceStats.min || 1)) * 100)}%`,
                   }}
@@ -197,7 +197,7 @@ export default function InsightsPanel({ triedIds, wantIds, reviews, liquors }: I
                 <RadarChart cx="50%" cy="50%" outerRadius="70%" data={flavorDNA}>
                   <PolarGrid stroke="rgba(234, 228, 217, 0.1)" />
                   <PolarAngleAxis dataKey="subject" tick={{ fill: 'rgba(234, 228, 217, 0.4)', fontSize: 10, fontFamily: 'Montserrat' }} />
-                  <Radar name="Flavor DNA" dataKey="A" stroke="#C89B3C" fill="#C89B3C" fillOpacity={0.2} />
+                  <Radar name="Flavor DNA" dataKey="A" stroke="var(--text-accent)" fill="var(--text-accent)" fillOpacity={0.2} />
                 </RadarChart>
               </ResponsiveContainer>
             </div>

@@ -1,6 +1,8 @@
 import React, { useState, useMemo, useRef } from 'react';
+import PageTransition from './PageTransition';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Star, Heart, CheckCircle, ChevronLeft, Share2, Edit2, Trash2, MapPin, Flame, Clock, DollarSign, XCircle, X } from 'lucide-react';
+import { SignInButton } from '@clerk/react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts';
 import { Liquor } from '../data';
 import { Review, User } from '../types';
@@ -142,7 +144,7 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
     : null;
 
   return (
-    <div className="flex flex-col animate-in slide-in-from-right-8 duration-500">
+    <PageTransition><div className="flex flex-col">
       <button
         onClick={() => navigate(-1)}
         className="flex items-center gap-3 text-on-surface-muted hover:text-on-surface-accent transition-colors group font-sans font-semibold tracking-widest uppercase text-xs"
@@ -152,7 +154,7 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
       </button>
 
       {photoUrl && (
-        <div className="w-full max-h-64 overflow-hidden bg-[#1A1816] rounded-lg mt-4">
+        <div className="w-full max-h-64 overflow-hidden bg-surface-raised rounded-lg mt-4">
           <img
             src={photoUrl}
             alt={liquor.name}
@@ -345,7 +347,7 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
               <RadarChart cx="50%" cy="50%" outerRadius="70%" data={flavorData}>
                 <PolarGrid stroke="rgba(234, 228, 217, 0.1)" />
                 <PolarAngleAxis dataKey="subject" tick={{ fill: 'rgba(234, 228, 217, 0.5)', fontSize: 11, fontFamily: 'Montserrat', textTransform: 'uppercase', letterSpacing: '0.1em' }} />
-                <Radar name={liquor.name} dataKey="A" stroke="#C89B3C" fill="#C89B3C" fillOpacity={0.2} />
+                <Radar name={liquor.name} dataKey="A" stroke="var(--text-accent)" fill="var(--text-accent)" fillOpacity={0.2} />
               </RadarChart>
             </ResponsiveContainer>
           </div>
@@ -354,7 +356,7 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
               <RadarChart cx="50%" cy="50%" outerRadius="65%" data={flavorData}>
                 <PolarGrid stroke="rgba(234, 228, 217, 0.08)" />
                 <PolarAngleAxis dataKey="subject" tick={{ fill: 'rgba(234, 228, 217, 0.35)', fontSize: 9, fontFamily: 'Montserrat' }} />
-                <Radar name={liquor.name} dataKey="A" stroke="#C89B3C" fill="#C89B3C" fillOpacity={0.18} />
+                <Radar name={liquor.name} dataKey="A" stroke="var(--text-accent)" fill="var(--text-accent)" fillOpacity={0.18} />
               </RadarChart>
             </ResponsiveContainer>
           </div>
@@ -565,7 +567,23 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
 
         <div className="space-y-6">
           {reviews.length === 0 ? (
-            <p className="text-on-surface-muted italic font-serif text-center py-8">No reviews yet. Be the first to review!</p>
+            <div className="flex flex-col items-center justify-center text-center py-16 px-4">
+              <Star size={40} className="text-on-surface-accent/30 mb-5" />
+              <h3 className="font-serif text-xl text-on-surface mb-2">No reviews yet</h3>
+              <p className="text-on-surface-muted text-sm mb-6 max-w-xs">Be the first to share your tasting notes on this bottle.</p>
+              {user ? (
+                <button
+                  onClick={() => reviewFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+                  className="btn btn-secondary"
+                >
+                  Write a Review
+                </button>
+              ) : (
+                <SignInButton mode="modal">
+                  <button className="btn btn-secondary">Sign in to review</button>
+                </SignInButton>
+              )}
+            </div>
           ) : (
             reviews.map((review: Review) => (
               <div key={review.id} className="surface-raised p-4 sm:p-6 space-y-4">
@@ -722,6 +740,6 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
           )}
         </div>
       </div>
-    </div>
+    </div></PageTransition>
   );
 }

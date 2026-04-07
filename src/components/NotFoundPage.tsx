@@ -1,11 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import { Home, Search, ArrowLeft } from 'lucide-react';
+import PageTransition from './PageTransition';
 
 export default function NotFoundPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4 animate-in fade-in duration-500">
+    <PageTransition><div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
       <div className="font-display text-[120px] md:text-[180px] leading-none text-on-surface-accent/10 select-none mb-[-2rem]">
         404
       </div>
@@ -38,6 +39,6 @@ export default function NotFoundPage() {
           Go Back
         </button>
       </div>
-    </div>
+    </div></PageTransition>
   );
 }

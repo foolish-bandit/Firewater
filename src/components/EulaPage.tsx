@@ -1,11 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
+import PageTransition from './PageTransition';
 
 export default function EulaPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8 md:py-12">
+    <PageTransition><div className="max-w-3xl mx-auto px-4 py-8 md:py-12">
       <button
         onClick={() => navigate(-1)}
         className="flex items-center gap-3 text-on-surface-muted hover:text-on-surface-accent transition-colors group font-sans font-semibold tracking-widest uppercase text-xs"
@@ -17,7 +18,7 @@ export default function EulaPage() {
       <div className="mt-8 mb-10">
         <p className="micro-label mb-2 text-on-surface-accent">Legal</p>
         <h1 className="font-display text-3xl md:text-4xl font-normal text-on-surface mb-3">End-User License Agreement</h1>
-        <div className="w-12 h-px bg-[#C89B3C]/50 mb-4"></div>
+        <div className="w-12 h-px bg-on-surface-accent/50 mb-4"></div>
         <p className="text-on-surface-muted font-sans text-xs tracking-wide">Last updated: March 20, 2026</p>
       </div>
 
@@ -120,6 +121,6 @@ export default function EulaPage() {
           </p>
         </section>
       </div>
-    </div>
+    </div></PageTransition>
   );
 }

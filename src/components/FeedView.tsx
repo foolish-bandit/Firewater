@@ -1,7 +1,10 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { RefreshCw, Star, CheckCircle2, Heart, Loader2, Users, Quote, GlassWater, Sparkles } from 'lucide-react';
+import { RefreshCw, Star, CheckCircle2, Heart, Loader2, Users, Quote, GlassWater, Sparkles, Rss } from 'lucide-react';
+import { SignInButton } from '@clerk/react';
 import { Liquor } from '../data';
+import PageTransition from './PageTransition';
+import { FeedSkeleton } from './SkeletonCard';
 
 interface User {
   id: string;
@@ -24,6 +27,7 @@ interface Activity {
 interface FeedViewProps {
   user: User | null;
   liquors: Liquor[];
+  onOpenUserSearch?: () => void;
 }
 
 function relativeTime(dateStr: string): string {
@@ -63,18 +67,18 @@ const activityStyles = {
     label: 'Fresh Review',
     verb: 'reviewed',
     icon: Quote,
-    shell: 'border-[#C89B3C]/25 bg-gradient-to-br from-[#1F1A12] via-[#1A1816] to-[#181512]',
-    rail: 'bg-gradient-to-b from-[#E2C27A] via-[#C89B3C] to-[#8A6422]',
-    iconWrap: 'bg-[#C89B3C]/14 text-[#E2C27A] border border-[#C89B3C]/25',
-    badge: 'bg-[#C89B3C]/12 text-[#E2C27A] border border-border-accent',
-    highlight: 'text-[#F3E5BE]',
-    panel: 'bg-[#C89B3C]/8 border border-[#C89B3C]/15',
+    shell: 'border-border-accent bg-surface-alt',
+    rail: 'bg-gradient-to-b from-on-surface-accent/60 via-on-surface-accent to-on-surface-accent/40',
+    iconWrap: 'bg-on-surface-accent/14 text-on-surface-accent border border-border-accent',
+    badge: 'bg-on-surface-accent/12 text-on-surface-accent border border-border-accent',
+    highlight: 'text-on-surface-accent',
+    panel: 'bg-on-surface-accent/8 border border-border-accent',
   },
   tried: {
     label: 'Bottle Conquered',
     verb: 'checked in',
     icon: CheckCircle2,
-    shell: 'border-emerald-600/20 bg-gradient-to-br from-[#141B17] via-[#171816] to-[#101512]',
+    shell: 'border-emerald-600/20 bg-surface-alt',
     rail: 'bg-gradient-to-b from-[#9CE7C2] via-[#4FB27D] to-[#23593B]',
     iconWrap: 'bg-emerald-500/12 text-emerald-300 border border-emerald-500/20',
     badge: 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20',
@@ -85,7 +89,7 @@ const activityStyles = {
     label: 'Wishlisted Pour',
     verb: 'set sights on',
     icon: Heart,
-    shell: 'border-rose-500/20 bg-gradient-to-br from-[#1D1417] via-[#1A1816] to-[#181214]',
+    shell: 'border-rose-500/20 bg-surface-alt',
     rail: 'bg-gradient-to-b from-[#F3A6B9] via-[#D9678A] to-[#7A3245]',
     iconWrap: 'bg-rose-500/12 text-rose-300 border border-rose-500/20',
     badge: 'bg-rose-500/10 text-rose-300 border border-rose-500/20',
@@ -94,7 +98,7 @@ const activityStyles = {
   },
 } as const;
 
-export default function FeedView({ user, liquors }: FeedViewProps) {
+export default function FeedView({ user, liquors, onOpenUserSearch }: FeedViewProps) {
   const navigate = useNavigate();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
@@ -135,16 +139,25 @@ export default function FeedView({ user, liquors }: FeedViewProps) {
 
   if (!user) {
     return (
-      <div className="text-center py-20">
-        <p className="text-on-surface-muted font-serif italic text-lg">
-          Sign in to see your activity feed.
-        </p>
-      </div>
+      <PageTransition>
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="w-14 h-14 rounded-full vintage-border flex items-center justify-center mb-5">
+            <Rss size={24} className="text-on-surface-accent" />
+          </div>
+          <h2 className="font-serif text-2xl text-on-surface mb-2">Your Feed</h2>
+          <p className="text-on-surface-secondary text-sm max-w-xs mb-6">
+            Sign in to see reviews, lists, and activity from people you follow.
+          </p>
+          <SignInButton mode="modal">
+            <button className="btn btn-secondary btn-md">Sign In</button>
+          </SignInButton>
+        </div>
+      </PageTransition>
     );
   }
 
   return (
-    <div>
+    <PageTransition><div>
       <div className="flex items-center justify-between mb-6">
         <div>
           <p className="micro-label mb-1 text-on-surface-accent">Activity</p>
@@ -161,25 +174,21 @@ export default function FeedView({ user, liquors }: FeedViewProps) {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 size={32} className="animate-spin text-on-surface-accent" />
-        </div>
+        <FeedSkeleton count={4} />
       ) : activities.length === 0 ? (
-        <div className="bg-surface-raised vintage-border border-dashed p-8 sm:p-16 text-center relative overflow-hidden">
-          <img src="/logo.svg" alt="" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 opacity-[0.03] pointer-events-none" />
-          <div className="relative z-10">
-            <Users size={32} className="text-on-surface-accent/30 mx-auto mb-4" />
-            <h3 className="font-serif text-xl text-on-surface mb-2">Your feed is quiet</h3>
-            <p className="text-on-surface-muted font-serif italic text-lg mb-6 max-w-md mx-auto">
-              Follow some liquor enthusiasts to see their reviews, wishlists, and new pours here.
-            </p>
-            <button
-              onClick={() => navigate('/catalog')}
-              className="bg-transparent vintage-border hover:bg-on-surface-accent hover:text-surface-base hover:border-on-surface-accent text-on-surface-accent font-sans font-semibold tracking-widest uppercase px-6 py-3 text-xs transition-all duration-300"
-            >
+        <div className="flex flex-col items-center justify-center text-center py-16 px-4">
+          <Users size={48} className="text-on-surface-accent/30 mb-5" />
+          <h3 className="font-serif text-xl text-on-surface mb-2">Your feed is empty</h3>
+          <p className="text-on-surface-muted text-sm mb-6 max-w-xs">Follow other collectors to see their activity here.</p>
+          {onOpenUserSearch ? (
+            <button onClick={onOpenUserSearch} className="btn btn-primary">
               Find People to Follow
             </button>
-          </div>
+          ) : (
+            <button onClick={() => navigate('/catalog')} className="btn btn-primary">
+              Explore the Catalog
+            </button>
+          )}
         </div>
       ) : (
         <div className="space-y-4">
@@ -300,6 +309,6 @@ export default function FeedView({ user, liquors }: FeedViewProps) {
           })}
         </div>
       )}
-    </div>
+    </div></PageTransition>
   );
 }

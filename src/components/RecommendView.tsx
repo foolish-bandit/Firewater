@@ -291,7 +291,7 @@ function RecommendationCard({
       className="group surface-raised overflow-hidden cursor-pointer hover:border-border-accent-strong card-glow-hover transition-all duration-500 flex flex-col h-full relative hover:-translate-y-1"
     >
       {/* Top accent bar */}
-      <div className="h-[2px] w-[15%] group-hover:w-full bg-gradient-to-r from-on-surface-accent to-[#E8C56D] transition-all duration-700 ease-out" />
+      <div className="h-[2px] w-[15%] group-hover:w-full bg-gradient-to-r from-on-surface-accent to-on-surface-accent/60 transition-all duration-700 ease-out" />
 
       {/* Match badge */}
       <div className="absolute top-4 right-4 z-10">
@@ -392,8 +392,8 @@ function FlavorRadar({ profile }: { profile: FlavorProfile }) {
             <Radar
               name="Your Palate"
               dataKey="A"
-              stroke="#C89B3C"
-              fill="#C89B3C"
+              stroke="var(--text-accent)"
+              fill="var(--text-accent)"
               fillOpacity={0.2}
             />
           </RadarChart>
@@ -410,8 +410,8 @@ function FlavorRadar({ profile }: { profile: FlavorProfile }) {
             <Radar
               name="Your Palate"
               dataKey="A"
-              stroke="#C89B3C"
-              fill="#C89B3C"
+              stroke="var(--text-accent)"
+              fill="var(--text-accent)"
               fillOpacity={0.18}
             />
           </RadarChart>

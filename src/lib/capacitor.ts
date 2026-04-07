@@ -196,24 +196,19 @@ export async function initNative(): Promise<void> {
  */
 export function onNetworkChange(callback: (isOnline: boolean) => void): () => void {
   if (isNative) {
-    let cleanup: (() => void) | null = null;
+    let listenerHandle: { remove: () => Promise<void> } | null = null;
 
-    import("@capacitor/core").then(({ Capacitor }) => {
-      // Use PluginListenerHandle pattern
-      const handler = (status: { connected: boolean }) => {
+    import("@capacitor/network").then(({ Network }) => {
+      Network.addListener("networkStatusChange", (status) => {
         callback(status.connected);
-      };
-
-      // Fall back to web events if Network plugin not available
-      window.addEventListener("online", () => callback(true));
-      window.addEventListener("offline", () => callback(false));
-      cleanup = () => {
-        window.removeEventListener("online", () => callback(true));
-        window.removeEventListener("offline", () => callback(false));
-      };
+      }).then((handle) => {
+        listenerHandle = handle;
+      });
     });
 
-    return () => cleanup?.();
+    return () => {
+      listenerHandle?.remove();
+    };
   }
 
   // Web fallback

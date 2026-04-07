@@ -1,7 +1,9 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
+import PageTransition from './PageTransition';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, X, Plus, Camera, ChevronDown, Sparkles } from 'lucide-react';
 import { Liquor } from '../data';
+import { hapticTap } from '../lib/capacitor';
 import { levenshteinDistance } from '../utils/stringUtils';
 import LiquorCard from './LiquorCard';
 
@@ -320,7 +322,7 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
   ];
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <PageTransition><div className="space-y-8">
       <div className="surface-raised p-4 sm:p-6 space-y-6">
         <div className="flex flex-col xl:flex-row gap-6 xl:items-end xl:justify-between">
           <div className="space-y-3 max-w-2xl">
@@ -398,7 +400,7 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
             {visibleCategories.map(cat => (
               <button
                 key={cat}
-                onClick={() => toggleCategory(cat)}
+                onClick={() => { hapticTap(); toggleCategory(cat); }}
                 className={`seg-item px-3 sm:px-4 py-2 text-[10px] sm:text-xs tracking-wider sm:tracking-widest shrink-0 sm:shrink ${
                   activeCategories.has(cat) ? 'seg-item-active' : ''
                 }`}
@@ -425,7 +427,7 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
             {priceOptions.map(opt => (
               <button
                 key={opt.value}
-                onClick={() => setPriceFilter(opt.value)}
+                onClick={() => { hapticTap(); setPriceFilter(opt.value); }}
                 className={`seg-item px-3 py-2 text-[10px] sm:text-xs tracking-wider sm:tracking-widest ${
                   priceFilter === opt.value ? 'seg-item-active' : ''
                 }`}
@@ -441,7 +443,7 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
           <p className="micro-label text-on-surface-muted">Region</p>
           <div className="flex gap-2 flex-wrap">
             <button
-              onClick={() => setSelectedRegions(new Set())}
+              onClick={() => { hapticTap(); setSelectedRegions(new Set()); }}
               className={`seg-item px-3 py-2 text-[10px] sm:text-xs tracking-wider sm:tracking-widest ${
                 selectedRegions.size === 0 ? 'seg-item-active' : ''
               }`}
@@ -451,7 +453,7 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
             {topRegions.map(r => (
               <button
                 key={r}
-                onClick={() => toggleRegion(r)}
+                onClick={() => { hapticTap(); toggleRegion(r); }}
                 className={`seg-item px-3 py-2 text-[10px] sm:text-xs tracking-wider sm:tracking-widest flex items-center gap-1 ${
                   selectedRegions.has(r) ? 'seg-item-active' : ''
                 }`}
@@ -467,7 +469,7 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
               {Array.from(selectedRegions).filter(r => !topRegions.includes(r)).map(r => (
                 <button
                   key={r}
-                  onClick={() => toggleRegion(r)}
+                  onClick={() => { hapticTap(); toggleRegion(r); }}
                   className="seg-item seg-item-active px-3 py-2 text-[10px] sm:text-xs tracking-wider sm:tracking-widest flex items-center gap-1"
                 >
                   {r} <X size={10} />
@@ -543,35 +545,22 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
             />
           ))
         ) : (
-          <div className="col-span-full text-center py-20 space-y-6">
-            <div className="w-16 h-16 rounded-full vintage-border flex items-center justify-center mx-auto text-on-surface-muted">
-              <Search size={24} />
-            </div>
-            <div>
-              <h3 className="text-xl font-serif text-on-surface mb-2">No bottles matched this discovery view</h3>
-              <p className="text-on-surface-muted max-w-md mx-auto mb-6">Try broadening your filters or changing your search words.</p>
-              <div className="flex flex-wrap items-center justify-center gap-4">
-                <button
-                  onClick={resetAllFilters}
-                  className="btn btn-secondary px-6 py-3"
-                >
-                  Clear Filters
-                </button>
-                <button
-                  onClick={() => {
-                    const randomLiquor = liquors[Math.floor(Math.random() * liquors.length)];
-                    if (randomLiquor) navigate(`/liquor/${randomLiquor.id}`);
-                  }}
-                  className="btn btn-secondary px-6 py-3 inline-flex items-center gap-2"
-                >
-                  <Sparkles size={16} /> Random Discovery
-                </button>
-              </div>
+          <div className="col-span-full flex flex-col items-center justify-center text-center py-16 px-4">
+            <Search size={48} className="text-on-surface-accent/30 mb-5" />
+            <h3 className="font-serif text-xl text-on-surface mb-2">No bottles matched this discovery view</h3>
+            <p className="text-on-surface-muted text-sm mb-6 max-w-sm">Try broadening your search or submit a bottle to the community catalog.</p>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <button
+                onClick={resetAllFilters}
+                className="btn btn-primary"
+              >
+                Clear Filters
+              </button>
               <button
                 onClick={onOpenSubmit}
-                className="text-xs font-sans text-on-surface-muted hover:text-on-surface-accent transition-colors mt-2"
+                className="btn btn-secondary"
               >
-                or submit a new bottle
+                Submit a Bottle
               </button>
             </div>
           </div>
@@ -630,6 +619,6 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
           </p>
         </div>
       </div>
-    </div>
+    </div></PageTransition>
   );
 }

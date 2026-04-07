@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef, Suspense } from 'react';
 import { Routes, Route, useNavigate, useLocation, Link, Navigate as RouterNavigate } from 'react-router-dom';
-import { List as ListIcon, X, Plus, Menu, Shield, User as UserIcon, Search, Home, ChevronDown, Rss, Sun, Moon, WifiOff, Sparkles } from 'lucide-react';
+import { List as ListIcon, X, Plus, Menu, Shield, User as UserIcon, Search, Home, ChevronDown, Rss, Sun, Moon, WifiOff, Check } from 'lucide-react';
 import { SignInButton, SignUpButton, UserButton, useAuth as useClerkAuth } from '@clerk/react';
 import { getAvatarIcon } from './avatarIcons';
 import { Liquor } from './data';
@@ -16,7 +16,6 @@ import FeedView from './components/FeedView';
 
 const AdminPanel = React.lazy(() => import('./components/AdminPanel'));
 import UnifiedSearch from './components/UnifiedSearch';
-import AuthModal from './components/AuthModal';
 import { ToastStack } from './components/Toast';
 import InstallPrompt from './components/InstallPrompt';
 import { PageSkeleton } from './components/SkeletonCard';
@@ -35,8 +34,12 @@ import { useToast } from './hooks/useToast';
 import { useAdmin } from './hooks/useAdmin';
 import { useTheme } from './hooks/useTheme';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
+import { storage } from './lib/storage';
+import { hapticTap, hapticImpact, isNative } from './lib/capacitor';
 import { PhotoProvider } from './contexts/PhotoContext';
-import ChatBubble from './components/ChatBubble';
+import { useMediaQuery } from './hooks/useMediaQuery';
+
+const ChatBubble = React.lazy(() => import('./components/ChatBubble'));
 
 // --- Main App Component ---
 
@@ -44,6 +47,7 @@ export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
 
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showBarcodeScanner, setShowBarcodeScanner] = useState(false);
@@ -51,9 +55,19 @@ export default function App() {
   const [barcodePrefill, setBarcodePrefill] = useState<{ name: string; details: string; upc: string } | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showFooterLinks, setShowFooterLinks] = useState(false);
-  const [ageVerified, setAgeVerified] = useState(() => localStorage.getItem('bs_age_verified') === 'true');
+  const [ageVerified, setAgeVerified] = useState(() => storage.getSync('bs_age_verified') === 'true');
+  const [ageReady, setAgeReady] = useState(() => storage.getSync('bs_age_verified') !== null);
   const [ageCheckbox, setAgeCheckbox] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+
+  // Async age verification check (authoritative on native)
+  useEffect(() => {
+    if (ageReady && ageVerified) return; // already verified via sync read
+    storage.get('bs_age_verified').then(val => {
+      if (val === 'true') setAgeVerified(true);
+      setAgeReady(true);
+    });
+  }, []);
 
   useEffect(() => {
     if (!mobileMenuOpen) return;
@@ -71,16 +85,17 @@ export default function App() {
   }, [mobileMenuOpen]);
 
   const handleAgeVerify = () => {
-    localStorage.setItem('bs_age_verified', 'true');
+    storage.set('bs_age_verified', 'true');
     setAgeVerified(true);
   };
 
-  const { user, handleSignIn, handleGoogleSignIn, handleCredentialAuth, handleSignOut, showRulesModal, setShowRulesModal, showAuthModal, setShowAuthModal } = useAuth();
+  const { user, showRulesModal, setShowRulesModal } = useAuth();
   const { isSignedIn } = useClerkAuth();
   const { toasts, showToast, dismissToast } = useToast();
-  const { wantToTry, tried, toggleWantToTry, toggleTried } = useLiquorLists(user, showToast);
-  const { reviews, addReview, editReview, deleteReview, getReviewsForLiquor } = useReviews(user, showToast);
-  const { allLiquors, handleAddLiquor, deleteCustomLiquor } = useCustomLiquors();
+  const showError = useCallback((msg: string) => showToast(msg, 'error'), [showToast]);
+  const { wantToTry, tried, toggleWantToTry, toggleTried } = useLiquorLists(user, showError);
+  const { reviews, addReview, editReview, deleteReview, getReviewsForLiquor } = useReviews(user, showError);
+  const { allLiquors, handleAddLiquor, deleteCustomLiquor, isLoading: catalogLoading } = useCustomLiquors();
   const { isAdmin } = useAdmin(user);
   const isOnline = useOnlineStatus();
 
@@ -127,6 +142,7 @@ export default function App() {
   }, [addReview, showToast]);
 
   const onAddLiquor = (newLiquor: Liquor) => {
+    hapticImpact();
     const resultId = handleAddLiquor(newLiquor);
     setShowSubmitModal(false);
     navigate(`/liquor/${resultId}`);
@@ -135,6 +151,7 @@ export default function App() {
 
   const handleBarcodeScanResult = (result: BarcodeScanResult) => {
     setShowBarcodeScanner(false);
+    hapticImpact();
     if (result.type === 'match') {
       navigate(`/liquor/${result.liquorId}`);
     } else if (result.type === 'prefill') {
@@ -155,6 +172,17 @@ export default function App() {
   };
 
 
+  if (!ageReady) {
+    // Brief loading while checking async storage (avoids flash of age gate)
+    return (
+      <div className="min-h-screen bg-surface-base flex items-center justify-center">
+        <div className="w-16 h-16 rounded-full vintage-border flex items-center justify-center overflow-hidden p-1 animate-pulse">
+          <img src="/logo.svg" alt="FIREWATER" className="w-full h-full object-contain" />
+        </div>
+      </div>
+    );
+  }
+
   if (!ageVerified) {
     return (
       <div className="min-h-screen bg-surface-base flex items-center justify-center p-4">
@@ -169,17 +197,18 @@ export default function App() {
             This website contains information about alcoholic beverages. You must be <strong className="text-on-surface-accent">21 years of age or older</strong> to access this site. By entering, you agree that you are of legal drinking age in your jurisdiction.
           </p>
 
-          <label className="flex items-center justify-center gap-3 cursor-pointer group mb-8">
-            <input
-              type="checkbox"
-              checked={ageCheckbox}
-              onChange={(e) => setAgeCheckbox(e.target.checked)}
-              className="w-5 h-5 accent-on-surface-accent cursor-pointer flex-shrink-0"
-            />
-            <span className="text-sm text-on-surface-secondary group-hover:text-on-surface transition-colors">
+          <button
+            type="button"
+            onClick={() => setAgeCheckbox(prev => !prev)}
+            className="w-full surface-raised vintage-border p-4 flex items-center justify-between gap-4 cursor-pointer mb-8 text-left transition-all duration-200 hover:border-border-accent"
+          >
+            <span className="text-sm text-on-surface-secondary">
               I confirm that I am <strong className="text-on-surface-accent">21 years of age or older</strong>
             </span>
-          </label>
+            <span className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 transition-all duration-200 ${ageCheckbox ? 'bg-on-surface-accent' : 'border-2 border-border-subtle'}`}>
+              {ageCheckbox && <Check size={16} className="text-surface-base" strokeWidth={3} />}
+            </span>
+          </button>
 
           <button
             onClick={handleAgeVerify}
@@ -385,7 +414,7 @@ export default function App() {
 
       {/* Main Content */}
       <main className="max-w-5xl mx-auto px-3 sm:px-4 py-6 sm:py-8 pb-24 md:pb-8">
-        <Suspense fallback={<PageSkeleton />}>
+        {catalogLoading ? <PageSkeleton /> : <Suspense fallback={<PageSkeleton />}>
         <Routes>
           <Route path="/" element={
             <HomeView
@@ -397,7 +426,7 @@ export default function App() {
             />
           } />
           <Route path="/feed" element={
-            user ? <FeedView user={user} liquors={allLiquors} /> : <RouterNavigate to="/" replace />
+            <FeedView user={user} liquors={allLiquors} onOpenUserSearch={() => setShowUserSearch(true)} />
           } />
           <Route path="/catalog" element={
             <CatalogView
@@ -434,6 +463,7 @@ export default function App() {
               toggleTried={toggleTriedWithToast}
               liquors={allLiquors}
               reviews={reviews}
+              showToast={showToast}
             />
           } />
           <Route path="/admin" element={
@@ -458,7 +488,7 @@ export default function App() {
           <Route path="/acceptable-use" element={<AcceptableUsePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
-        </Suspense>
+        </Suspense>}
       </main>
 
       {/* Footer */}
@@ -478,8 +508,8 @@ export default function App() {
             <p className="text-on-surface-muted text-xs font-sans tracking-wide">&copy; 2026 FIREWATER. All rights reserved.</p>
           </div>
 
-          {/* Mobile footer */}
-          <div className="md:hidden text-center">
+          {/* Mobile footer — hidden on native (legal links live in ProfileView) */}
+          {!isNative && <div className="md:hidden text-center">
             <button
               onClick={() => setShowFooterLinks(prev => !prev)}
               className="text-on-surface-muted hover:text-on-surface-accent transition-colors text-xs font-sans font-semibold tracking-widest uppercase flex items-center gap-2 mx-auto"
@@ -496,7 +526,7 @@ export default function App() {
               </div>
             )}
             <p className="text-on-surface-muted text-xs font-sans tracking-wide mt-4">&copy; 2026 FIREWATER. All rights reserved.</p>
-          </div>
+          </div>}
         </div>
       </footer>
 
@@ -537,15 +567,6 @@ export default function App() {
       {/* Unified Search Modal */}
       {showUserSearch && (
         <UnifiedSearch onClose={() => setShowUserSearch(false)} liquors={allLiquors} />
-      )}
-
-      {/* Auth Modal */}
-      {showAuthModal && (
-        <AuthModal
-          onClose={() => setShowAuthModal(false)}
-          onGoogleSignIn={handleGoogleSignIn}
-          onCredentialAuth={handleCredentialAuth}
-        />
       )}
 
       {/* Rules Modal */}
@@ -611,61 +632,64 @@ export default function App() {
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass-surface border-t border-[var(--color-vintage-border)] safe-bottom shadow-[0_-4px_20px_rgba(0,0,0,0.3)]">
         <div className="flex items-center justify-around h-[4.25rem]">
           <button
-            onClick={() => navigate('/')}
+            onClick={() => { hapticTap(); navigate('/'); }}
             className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors ${location.pathname === '/' ? 'text-on-surface-accent' : 'text-on-surface-muted active:text-on-surface-secondary'}`}
           >
             <Home size={20} />
             <span className="text-[9px] font-semibold tracking-wider uppercase">Home</span>
           </button>
           <button
-            onClick={() => navigate('/catalog')}
+            onClick={() => { hapticTap(); navigate('/catalog'); }}
             className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors ${location.pathname === '/catalog' ? 'text-on-surface-accent' : 'text-on-surface-muted active:text-on-surface-secondary'}`}
           >
             <Search size={20} />
             <span className="text-[9px] font-semibold tracking-wider uppercase">Catalog</span>
           </button>
           <button
-            onClick={() => navigate('/lists')}
+            onClick={() => { hapticTap(); navigate('/lists'); }}
             className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors ${location.pathname === '/lists' ? 'text-on-surface-accent' : 'text-on-surface-muted active:text-on-surface-secondary'}`}
           >
             <ListIcon size={20} />
             <span className="text-[9px] font-semibold tracking-wider uppercase">Lists</span>
           </button>
+          <button
+            onClick={() => { hapticTap(); navigate('/feed'); }}
+            className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors ${location.pathname === '/feed' ? 'text-on-surface-accent' : 'text-on-surface-muted active:text-on-surface-secondary'}`}
+          >
+            <Rss size={20} />
+            <span className="text-[9px] font-semibold tracking-wider uppercase">Feed</span>
+          </button>
           {user ? (
             <button
-              onClick={() => navigate('/feed')}
-              className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors ${location.pathname === '/feed' ? 'text-on-surface-accent' : 'text-on-surface-muted active:text-on-surface-secondary'}`}
+              onClick={() => { hapticTap(); navigate(`/profile/${user.id}`); }}
+              className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors ${location.pathname.startsWith('/profile') ? 'text-on-surface-accent' : 'text-on-surface-muted active:text-on-surface-secondary'}`}
             >
-              <Rss size={20} />
-              <span className="text-[9px] font-semibold tracking-wider uppercase">Feed</span>
+              <UserIcon size={20} />
+              <span className="text-[9px] font-semibold tracking-wider uppercase">Profile</span>
             </button>
           ) : (
-            <button
-              onClick={() => {
-                const randomLiquor = allLiquors[Math.floor(Math.random() * allLiquors.length)];
-                if (randomLiquor) navigate(`/liquor/${randomLiquor.id}`);
-              }}
-              className="flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors text-on-surface-muted active:text-on-surface-secondary"
-            >
-              <Sparkles size={20} />
-              <span className="text-[9px] font-semibold tracking-wider uppercase">Random</span>
-            </button>
+            <SignInButton mode="modal">
+              <button
+                onClick={() => hapticTap()}
+                className="flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors text-on-surface-muted active:text-on-surface-secondary"
+              >
+                <UserIcon size={20} />
+                <span className="text-[9px] font-semibold tracking-wider uppercase">Sign In</span>
+              </button>
+            </SignInButton>
           )}
-          <button
-            onClick={() => user ? navigate(`/profile/${user.id}`) : handleSignIn()}
-            className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors ${location.pathname.startsWith('/profile') ? 'text-on-surface-accent' : 'text-on-surface-muted active:text-on-surface-secondary'}`}
-          >
-            <UserIcon size={20} />
-            <span className="text-[9px] font-semibold tracking-wider uppercase">{user ? 'Profile' : 'Sign In'}</span>
-          </button>
         </div>
       </nav>
 
       {/* PWA Install Prompt */}
       <InstallPrompt />
 
-      {/* Chat Bubble */}
-      <ChatBubble />
+      {/* Chat Bubble — desktop only, lazy-loaded */}
+      {isDesktop && (
+        <Suspense fallback={null}>
+          <ChatBubble allLiquors={allLiquors} />
+        </Suspense>
+      )}
 
       {/* Toast Notifications */}
       <ToastStack toasts={toasts} onDismiss={dismissToast} />
