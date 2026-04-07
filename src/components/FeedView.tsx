@@ -5,6 +5,7 @@ import { SignInButton } from '@clerk/react';
 import { Liquor } from '../data';
 import PageTransition from './PageTransition';
 import { FeedSkeleton } from './SkeletonCard';
+import { usePullToRefresh } from '../hooks/usePullToRefresh';
 
 interface User {
   id: string;
@@ -136,6 +137,8 @@ export default function FeedView({ user, liquors, onOpenUserSearch }: FeedViewPr
   useEffect(() => {
     fetchFeed();
   }, [fetchFeed]);
+
+  usePullToRefresh(useCallback(() => fetchFeed(true), [fetchFeed]));
 
   if (!user) {
     return (
