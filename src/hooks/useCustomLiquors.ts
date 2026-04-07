@@ -1,15 +1,25 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { ALL_LIQUORS, Liquor, FlavorProfile } from '../data';
+import { loadAllLiquors, Liquor, FlavorProfile } from '../data';
 import { normalizeLiquorName } from '../utils/stringUtils';
 import { storage } from '../lib/storage';
 
 export function useCustomLiquors() {
+  const [catalogLiquors, setCatalogLiquors] = useState<Liquor[]>([]);
+  const [catalogLoading, setCatalogLoading] = useState(true);
   const [customLiquors, setCustomLiquors] = useState<Liquor[]>(() =>
     storage.getSyncJSON<Liquor[]>('bs_customBourbons') || []
   );
   const loaded = useRef(false);
 
-  // Async load from storage (authoritative on native)
+  // Load catalog data via dynamic imports
+  useEffect(() => {
+    loadAllLiquors().then(data => {
+      setCatalogLiquors(data);
+      setCatalogLoading(false);
+    });
+  }, []);
+
+  // Async load custom liquors from storage (authoritative on native)
   useEffect(() => {
     storage.getJSON<Liquor[]>('bs_customBourbons').then(saved => {
       if (saved) setCustomLiquors(saved);
@@ -27,8 +37,8 @@ export function useCustomLiquors() {
   }, [customLiquors]);
 
   const allLiquors = useMemo(() => {
-    return [...ALL_LIQUORS, ...customLiquors];
-  }, [customLiquors]);
+    return [...catalogLiquors, ...customLiquors];
+  }, [catalogLiquors, customLiquors]);
 
   const handleAddLiquor = useCallback((newLiquor: Liquor): string => {
     let resultId = newLiquor.id;
@@ -76,5 +86,5 @@ export function useCustomLiquors() {
     setCustomLiquors(prev => prev.filter(l => l.id !== id));
   }, []);
 
-  return { allLiquors, customLiquors, handleAddLiquor, deleteCustomLiquor };
+  return { allLiquors, customLiquors, handleAddLiquor, deleteCustomLiquor, isLoading: catalogLoading };
 }

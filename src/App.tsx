@@ -91,7 +91,7 @@ export default function App() {
   const { toasts, showToast, dismissToast } = useToast();
   const { wantToTry, tried, toggleWantToTry, toggleTried } = useLiquorLists(user, showToast);
   const { reviews, addReview, editReview, deleteReview, getReviewsForLiquor } = useReviews(user, showToast);
-  const { allLiquors, handleAddLiquor, deleteCustomLiquor } = useCustomLiquors();
+  const { allLiquors, handleAddLiquor, deleteCustomLiquor, isLoading: catalogLoading } = useCustomLiquors();
   const { isAdmin } = useAdmin(user);
   const isOnline = useOnlineStatus();
 
@@ -407,7 +407,7 @@ export default function App() {
 
       {/* Main Content */}
       <main className="max-w-5xl mx-auto px-3 sm:px-4 py-6 sm:py-8 pb-24 md:pb-8">
-        <Suspense fallback={<PageSkeleton />}>
+        {catalogLoading ? <PageSkeleton /> : <Suspense fallback={<PageSkeleton />}>
         <Routes>
           <Route path="/" element={
             <HomeView
@@ -480,7 +480,7 @@ export default function App() {
           <Route path="/acceptable-use" element={<AcceptableUsePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
-        </Suspense>
+        </Suspense>}
       </main>
 
       {/* Footer */}
@@ -687,7 +687,7 @@ export default function App() {
       <InstallPrompt />
 
       {/* Chat Bubble */}
-      <ChatBubble />
+      <ChatBubble allLiquors={allLiquors} />
 
       {/* Toast Notifications */}
       <ToastStack toasts={toasts} onDismiss={dismissToast} />

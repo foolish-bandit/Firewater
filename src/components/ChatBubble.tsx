@@ -1,13 +1,12 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { MessageCircle, X, Send, Flame } from 'lucide-react';
-import { ALL_LIQUORS, BOURBONS } from '../data';
-import { Bourbon } from '../bourbonTypes';
+import { Liquor } from '../data';
 
 interface Message {
   id: number;
   text: string;
   sender: 'user' | 'bot';
-  bourbons?: Bourbon[];
+  bourbons?: Liquor[];
 }
 
 const BOT_NAME = 'Tipsy';
@@ -147,51 +146,51 @@ function normalize(s: string): string {
   return s.toLowerCase().replace(/['']/g, "'").replace(/[^a-z0-9' ]/g, ' ').trim();
 }
 
-function findBourbonsByName(query: string): Bourbon[] {
+function findBourbonsByName(liquors: Liquor[], query: string): Liquor[] {
   const q = normalize(query);
-  return ALL_LIQUORS.filter(b => normalize(b.name).includes(q)).slice(0, 3);
+  return liquors.filter(b => normalize(b.name).includes(q)).slice(0, 3);
 }
 
-function findByDistillery(query: string): Bourbon[] {
+function findByDistillery(liquors: Liquor[], query: string): Liquor[] {
   const q = normalize(query);
-  return ALL_LIQUORS.filter(b => normalize(b.distillery).includes(q)).slice(0, 5);
+  return liquors.filter(b => normalize(b.distillery).includes(q)).slice(0, 5);
 }
 
-function findByPriceRange(min: number, max: number): Bourbon[] {
-  return BOURBONS.filter(b => b.price >= min && b.price <= max)
+function findByPriceRange(liquors: Liquor[], min: number, max: number): Liquor[] {
+  return liquors.filter(b => b.price >= min && b.price <= max)
     .sort((a, b) => b.flavorProfile.complexity - a.flavorProfile.complexity)
     .slice(0, 5);
 }
 
-function findByFlavor(flavor: keyof Bourbon['flavorProfile'], minScore = 7): Bourbon[] {
-  return BOURBONS.filter(b => b.flavorProfile[flavor] >= minScore)
+function findByFlavor(liquors: Liquor[], flavor: keyof Liquor['flavorProfile'], minScore = 7): Liquor[] {
+  return liquors.filter(b => b.flavorProfile[flavor] >= minScore)
     .sort((a, b) => b.flavorProfile[flavor] - a.flavorProfile[flavor])
     .slice(0, 5);
 }
 
-function findHighProof(minProof = 110): Bourbon[] {
-  return BOURBONS.filter(b => b.proof >= minProof)
+function findHighProof(liquors: Liquor[], minProof = 110): Liquor[] {
+  return liquors.filter(b => b.proof >= minProof)
     .sort((a, b) => b.proof - a.proof)
     .slice(0, 5);
 }
 
-function findSmooth(): Bourbon[] {
-  return BOURBONS.filter(b => b.flavorProfile.heat <= 4 && b.flavorProfile.sweetness >= 6)
+function findSmooth(liquors: Liquor[]): Liquor[] {
+  return liquors.filter(b => b.flavorProfile.heat <= 4 && b.flavorProfile.sweetness >= 6)
     .sort((a, b) => a.flavorProfile.heat - b.flavorProfile.heat || b.flavorProfile.sweetness - a.flavorProfile.sweetness)
     .slice(0, 5);
 }
 
-function formatBourbonCard(b: Bourbon): string {
+function formatBourbonCard(b: Liquor): string {
   return `**${b.name}** — ${b.distillery}\n${b.proof} proof · ${b.age ? b.age + ' yr' : 'NAS'} · ~$${b.price}`;
 }
 
-function formatList(bourbons: Bourbon[]): string {
+function formatList(bourbons: Liquor[]): string {
   if (!bourbons.length) return "I... I can't find anything for that and it's making me ANGRY. *hic* Try again but like... better this time.";
   return bourbons.map(formatBourbonCard).join('\n\n');
 }
 
 // Pattern-matched response engine
-function generateResponse(input: string): { text: string; bourbons?: Bourbon[] } {
+function generateResponse(input: string, liquors: Liquor[]): { text: string; bourbons?: Liquor[] } {
   messageCount++;
   const q = normalize(input);
   const words = q.split(/\s+/);
@@ -253,7 +252,7 @@ function generateResponse(input: string): { text: string; bourbons?: Bourbon[] }
   // Specific bourbon lookup
   const aboutMatch = q.match(/(?:tell me about|what is|what'?s|know about|info on|details on|how is)\s+(.+)/);
   if (aboutMatch) {
-    const results = findBourbonsByName(aboutMatch[1]);
+    const results = findBourbonsByName(liquors, aboutMatch[1]);
     if (results.length) {
       const b = results[0];
       const topFlavors = Object.entries(b.flavorProfile)
@@ -274,11 +273,11 @@ function generateResponse(input: string): { text: string; bourbons?: Bourbon[] }
   // Compare two bourbons
   const compareMatch = q.match(/compare\s+(.+?)\s+(?:and|vs|versus|with|to)\s+(.+)/);
   if (compareMatch) {
-    const a = findBourbonsByName(compareMatch[1]);
-    const b = findBourbonsByName(compareMatch[2]);
+    const a = findBourbonsByName(liquors, compareMatch[1]);
+    const b = findBourbonsByName(liquors, compareMatch[2]);
     if (a.length && b.length) {
       const ba = a[0], bb = b[0];
-      const diff = (key: keyof Bourbon['flavorProfile']) => {
+      const diff = (key: keyof Liquor['flavorProfile']) => {
         const d = ba.flavorProfile[key] - bb.flavorProfile[key];
         return d > 0 ? `${ba.name} is ${key === 'heat' ? 'hotter' : 'higher'}` : d < 0 ? `${bb.name} is ${key === 'heat' ? 'hotter' : 'higher'}` : 'tied';
       };
@@ -294,7 +293,7 @@ function generateResponse(input: string): { text: string; bourbons?: Bourbon[] }
   const priceMatch = q.match(/(?:under|below|less than|cheaper than)\s*\$?(\d+)/);
   if (priceMatch) {
     const max = parseInt(priceMatch[1]);
-    const results = findByPriceRange(0, max);
+    const results = findByPriceRange(liquors, 0, max);
     const commentary = max < 25 ? "Cheapskate... *hic* ...just kidding I love you. Here's what I got:" : max > 100 ? "Oooh big spender!! I LIKE you! Check THESE out:" : "Solid budget. I respect that. Here's what you should be drinking:";
     return { text: drunkify(`${commentary}\n\n${formatList(results)}`), bourbons: results };
   }
@@ -302,12 +301,12 @@ function generateResponse(input: string): { text: string; bourbons?: Bourbon[] }
   if (priceRangeMatch) {
     const min = parseInt(priceRangeMatch[1]);
     const max = parseInt(priceRangeMatch[2]);
-    const results = findByPriceRange(min, max);
+    const results = findByPriceRange(liquors, min, max);
     return { text: drunkify(`$${min} to $${max} huh? That's a SWEET spot my friend. *hic* Here's what I'd grab if my hands weren't so... shaky right now:\n\n${formatList(results)}`), bourbons: results };
   }
 
   // Flavor-based searches
-  const flavorMap: Record<string, keyof Bourbon['flavorProfile']> = {
+  const flavorMap: Record<string, keyof Liquor['flavorProfile']> = {
     sweet: 'sweetness', sugary: 'sweetness', dessert: 'sweetness',
     spicy: 'spice', spice: 'spice', pepper: 'spice', cinnamon: 'spice',
     oak: 'oak', oaky: 'oak', woody: 'oak', wood: 'oak',
@@ -338,7 +337,7 @@ function generateResponse(input: string): { text: string; bourbons?: Bourbon[] }
   for (const word of words) {
     if (flavorMap[word]) {
       const flavor = flavorMap[word];
-      const results = findByFlavor(flavor);
+      const results = findByFlavor(liquors, flavor);
       const comment = flavorComments[flavor] || `Top bourbons for **${word}** flavor:`;
       return { text: drunkify(`${comment}\n\n${formatList(results)}`), bourbons: results };
     }
@@ -346,20 +345,20 @@ function generateResponse(input: string): { text: string; bourbons?: Bourbon[] }
 
   // Smooth / easy drinking
   if (/smooth|easy|beginner|gentle|mellow|sipping|starter|first bourbon|new to bourbon/.test(q)) {
-    const results = findSmooth();
+    const results = findSmooth(liquors);
     return { text: drunkify(`Ahhhh a smooth sipper! *hic* Look, no judgment... I mean I PERSONALLY drink barrel proof straight from the bottle but not everyone can be as... *gestures vaguely at self* ...incredible as me. Here are some nice gentle ones for ya:\n\n${formatList(results)}`), bourbons: results };
   }
 
   // High proof / strong
   if (/high proof|strong|strongest|barrel.?proof|cask.?strength|overproof|most proof/.test(q)) {
-    const results = findHighProof();
+    const results = findHighProof(liquors);
     return { text: drunkify(`NOW we're TALKING!! *stands up too fast and grabs the table* HIGH PROOF BABY!! These are the ones that MEAN BUSINESS. The ones that look at your taste buds and say "I'm in charge now." I've had all of these tonight and I'm FINE:\n\n${formatList(results)}`), bourbons: results };
   }
 
   // Distillery search
   const distilleryMatch = q.match(/(?:from|by|made by|what does|what do)\s+(.+?)(?:\s+make|\s+produce|\s+distill|$)/);
   if (distilleryMatch) {
-    const results = findByDistillery(distilleryMatch[1]);
+    const results = findByDistillery(liquors, distilleryMatch[1]);
     if (results.length) {
       return { text: drunkify(`Oh OH! **${results[0].distillery}**!! *hic* Great distillery... GREAT distillery. I once tried to break in there for a tour after hours and... well that's a story for another time. Here's what they make:\n\n${formatList(results)}`), bourbons: results };
     }
@@ -394,15 +393,15 @@ function generateResponse(input: string): { text: string; bourbons?: Bourbon[] }
     return { text: drunkify("Ohhh good question! *hic*\n\n**Single Barrel** — One barrel, one beautiful unique snowflake of bourbon. Each bottle is different and that's EXCITING. It's like a surprise every time! Sometimes the surprise is amazing and sometimes... well, that's the adventure.\n\n**Small Batch** — A select few barrels blended together. There's actually NO legal definition of \"small\" which is WILD. Could be 5 barrels, could be 200. It's the Wild West out here and I LOVE it.") };
   }
   if (/best bourbon|top bourbon|number one|favorite|recommend/.test(q)) {
-    const picks = BOURBONS.filter(b => b.flavorProfile.complexity >= 8).sort((a, b) => b.flavorProfile.complexity - a.flavorProfile.complexity).slice(0, 5);
+    const picks = liquors.filter(b => b.flavorProfile.complexity >= 8).sort((a, b) => b.flavorProfile.complexity - a.flavorProfile.complexity).slice(0, 5);
     return { text: drunkify(`THE BEST?? You want THE BEST?? *stands on chair* *hic* THESE are the most complex, most INCREDIBLE bourbons in our catalog and I have PERSONALLY verified each one... multiple times... tonight:\n\n${formatList(picks)}\n\nEvery single one of these is a MASTERPIECE and if you disagree you're WRONG.`), bourbons: picks };
   }
   if (/cheap|budget|affordable|value|bang for.*buck|inexpensive/.test(q)) {
-    const results = findByPriceRange(0, 35).slice(0, 5);
+    const results = findByPriceRange(liquors, 0, 35);
     return { text: drunkify(`Budget bourbon! No shame in that game! *hic* Some of the best bourbon experiences of my life were under $35... actually most of them were because I drink A LOT:\n\n${formatList(results)}\n\nDon't let anyone bourbon-shame you. These are LEGIT.`), bourbons: results };
   }
   if (/gift|present|special occasion|birthday|anniversary/.test(q)) {
-    const results = BOURBONS.filter(b => b.price >= 50 && b.price <= 150 && b.flavorProfile.complexity >= 7).slice(0, 5);
+    const results = liquors.filter(b => b.price >= 50 && b.price <= 150 && b.flavorProfile.complexity >= 7).slice(0, 5);
     return { text: drunkify(`A GIFT?? Oh that's so NICE of you! *gets emotional* *hic* I wish someone would gift ME bourbon... Here are some bottles that'll make whoever you give them to fall in LOVE with you:\n\n${formatList(results)}\n\nIf they don't appreciate these, they don't deserve your friendship. I said what I said.`), bourbons: results };
   }
   if (/rye|what is rye/.test(q)) {
@@ -413,7 +412,7 @@ function generateResponse(input: string): { text: string; bourbons?: Bourbon[] }
   }
 
   // Name search fallback — try to find a matching bourbon
-  const nameResults = findBourbonsByName(q);
+  const nameResults = findBourbonsByName(liquors, q);
   if (nameResults.length) {
     const b = nameResults[0];
     return {
@@ -423,7 +422,7 @@ function generateResponse(input: string): { text: string; bourbons?: Bourbon[] }
   }
 
   // Distillery fallback
-  const distResults = findByDistillery(q);
+  const distResults = findByDistillery(liquors, q);
   if (distResults.length) {
     return { text: drunkify(`Hang on hang on... *squints* ...I THINK I know what you're talking about. From that distillery:\n\n${formatList(distResults)}`), bourbons: distResults };
   }
@@ -445,7 +444,7 @@ function generateResponse(input: string): { text: string; bourbons?: Bourbon[] }
 
 // --- Component ---
 
-export default function ChatBubble() {
+export default function ChatBubble({ allLiquors }: { allLiquors: Liquor[] }) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     { id: 0, text: `Heyyyyy! I'm ${BOT_NAME} 🥃 — your spirit guide. And by spirits I mean LIQUOR, not ghosts. Although after enough bourbon who knows!! *hic* I know EVERYTHING about every spirit ever poured — bourbon, tequila, whiskey, rum, gin, mezcal, you name it. Fair warning: I've had a few already and I only get drunker from here. Ask me anything! Just... don't ask me anything stupid or I WILL roast you. 🔥`, sender: 'bot' },
@@ -480,7 +479,7 @@ export default function ChatBubble() {
     // Simulate a brief "thinking" delay for natural feel
     const delay = 400 + Math.random() * 600;
     setTimeout(() => {
-      const response = generateResponse(trimmed);
+      const response = generateResponse(trimmed, allLiquors);
       const botMsg: Message = {
         id: nextId.current++,
         text: response.text,
