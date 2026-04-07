@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import PageTransition from './PageTransition';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, X, Plus, Camera, ChevronDown, Sparkles } from 'lucide-react';
@@ -6,6 +6,7 @@ import { Liquor } from '../data';
 import { hapticTap } from '../lib/capacitor';
 import { levenshteinDistance } from '../utils/stringUtils';
 import LiquorCard from './LiquorCard';
+import { usePullToRefresh } from '../hooks/usePullToRefresh';
 
 interface CatalogViewProps {
   wantToTry: string[];
@@ -310,6 +311,8 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
     setRegionSearch('');
     setSortBy('name');
   };
+
+  usePullToRefresh(useCallback(() => { resetAllFilters(); window.scrollTo(0, 0); }, []));
 
   const visibleCategories = showAllCategories ? CATEGORIES : CATEGORIES.slice(0, DEFAULT_VISIBLE);
 

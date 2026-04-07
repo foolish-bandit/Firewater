@@ -13,6 +13,7 @@ import StatBox from './StatBox';
 import PhotoUpload from './PhotoUpload';
 import PhotoGallery from './PhotoGallery';
 import { usePhotoUrl } from '../contexts/PhotoContext';
+import { hapticTap, hapticImpact } from '../lib/capacitor';
 
 const REVIEW_TAGS = [
   'Neat', 'On the Rocks', 'With Water', 'In a Cocktail',
@@ -126,6 +127,7 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
   const handleSubmitReview = (e: React.FormEvent) => {
     e.preventDefault();
     if (!reviewValid) return;
+    hapticTap();
     if (reviewMode === 'tasting') {
       onAddReview({ liquorId: id, rating, text: '', nose, palate, finish, tags: selectedTags.length > 0 ? selectedTags : undefined });
       setNose('');
@@ -135,6 +137,7 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
       onAddReview({ liquorId: id, rating, text: reviewText, tags: selectedTags.length > 0 ? selectedTags : undefined });
       setReviewText('');
     }
+    hapticImpact();
     setRating(0);
     setSelectedTags([]);
   };
@@ -224,14 +227,14 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
               {/* Action buttons */}
               <div className="grid grid-cols-4 gap-2 sm:gap-4 max-w-xl">
                 <button
-                  onClick={() => toggleWantToTry(id)}
+                  onClick={() => { hapticTap(); toggleWantToTry(id); }}
                   className={`flex items-center justify-center gap-2 sm:gap-3 py-3 sm:py-4 vintage-border transition-all duration-300 font-sans font-semibold tracking-widest uppercase text-[10px] sm:text-xs ${isWanted ? 'icon-toggle-active' : 'icon-toggle'}`}
                 >
                   <Heart size={16} className={isWanted ? "fill-current" : ""} />
                   <span className="hidden xs:inline">{isWanted ? 'Wanted' : 'Want'}</span>
                 </button>
                 <button
-                  onClick={() => toggleTried(id)}
+                  onClick={() => { hapticTap(); toggleTried(id); }}
                   className={`flex items-center justify-center gap-2 sm:gap-3 py-3 sm:py-4 vintage-border transition-all duration-300 font-sans font-semibold tracking-widest uppercase text-[10px] sm:text-xs ${isTried ? 'icon-toggle-active' : 'icon-toggle'}`}
                 >
                   <CheckCircle size={16} className={isTried ? "fill-current" : ""} />

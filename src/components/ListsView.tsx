@@ -1,4 +1,4 @@
-import { useMemo, useState, type MouseEvent } from 'react';
+import { useMemo, useState, useCallback, type MouseEvent } from 'react';
 import PageTransition from './PageTransition';
 import { useNavigate } from 'react-router-dom';
 import { Heart, CheckCircle, Download, ChevronDown, Sparkles, Trophy, Compass, Flame } from 'lucide-react';
@@ -7,6 +7,7 @@ import { hapticTap, isNative } from '../lib/capacitor';
 import { Review } from '../types';
 import LiquorCard from './LiquorCard';
 import InsightsPanel from './InsightsPanel';
+import { usePullToRefresh } from '../hooks/usePullToRefresh';
 
 interface ListsViewProps {
   wantToTry: string[];
@@ -90,6 +91,8 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'want' | 'tried'>('want');
   const [insightsOpen, setInsightsOpen] = useState(false);
+
+  usePullToRefresh(useCallback(() => { window.scrollTo({ top: 0, behavior: 'smooth' }); }, []));
   const wantLiquors = wantToTry.map((id) => liquors.find((b) => b.id === id)).filter(Boolean) as Liquor[];
   const triedLiquors = tried.map((id) => liquors.find((b) => b.id === id)).filter(Boolean) as Liquor[];
 
@@ -334,8 +337,8 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
                   onClick={() => navigate(`/liquor/${b.id}`)}
                   isWanted={wantToTry.includes(b.id)}
                   isTried={tried.includes(b.id)}
-                  onToggleWant={(e: MouseEvent) => { e.stopPropagation(); toggleWantToTry(b.id); }}
-                  onToggleTried={(e: MouseEvent) => { e.stopPropagation(); toggleTried(b.id); }}
+                  onToggleWant={(e: MouseEvent) => { e.stopPropagation(); hapticTap(); toggleWantToTry(b.id); }}
+                  onToggleTried={(e: MouseEvent) => { e.stopPropagation(); hapticTap(); toggleTried(b.id); }}
                 />
               ))}
             </div>
@@ -366,8 +369,8 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
                   onClick={() => navigate(`/liquor/${b.id}`)}
                   isWanted={wantToTry.includes(b.id)}
                   isTried={tried.includes(b.id)}
-                  onToggleWant={(e: MouseEvent) => { e.stopPropagation(); toggleWantToTry(b.id); }}
-                  onToggleTried={(e: MouseEvent) => { e.stopPropagation(); toggleTried(b.id); }}
+                  onToggleWant={(e: MouseEvent) => { e.stopPropagation(); hapticTap(); toggleWantToTry(b.id); }}
+                  onToggleTried={(e: MouseEvent) => { e.stopPropagation(); hapticTap(); toggleTried(b.id); }}
                 />
               ))}
             </div>

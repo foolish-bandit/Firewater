@@ -3,6 +3,7 @@ import { Heart, CheckCircle } from 'lucide-react';
 import { Liquor } from '../data';
 import { usePhotoUrl } from '../contexts/PhotoContext';
 import LiquorMedia from './LiquorMedia';
+import { hapticTap } from '../lib/capacitor';
 
 interface LiquorCardProps {
   liquor: Liquor;
@@ -40,7 +41,7 @@ export default function LiquorCard({ liquor, onClick, isWanted, isTried, onToggl
 
   return (
     <div
-      onClick={onClick}
+      onClick={() => { hapticTap(); onClick(); }}
       className="group surface-raised overflow-hidden cursor-pointer hover:border-border-accent-strong card-elevated card-elevated-hover transition-all duration-300 ease-out flex flex-col h-full relative hover:-translate-y-1.5"
     >
       <div className="h-[2px] w-[30%] group-hover:w-full bg-gradient-to-r from-on-surface-accent to-on-surface-accent/60 transition-all duration-500 ease-out" />
