@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef, Suspense } from 'react';
 import { Routes, Route, useNavigate, useLocation, Link, Navigate as RouterNavigate } from 'react-router-dom';
-import { List as ListIcon, X, Plus, Menu, Shield, User as UserIcon, Search, Home, ChevronDown, Rss, Sun, Moon, WifiOff, Sparkles } from 'lucide-react';
+import { List as ListIcon, X, Plus, Menu, Shield, User as UserIcon, Search, Home, ChevronDown, Rss, Sun, Moon, WifiOff } from 'lucide-react';
 import { SignInButton, SignUpButton, UserButton, useAuth as useClerkAuth } from '@clerk/react';
 import { getAvatarIcon } from './avatarIcons';
 import { Liquor } from './data';
@@ -425,7 +425,7 @@ export default function App() {
             />
           } />
           <Route path="/feed" element={
-            user ? <FeedView user={user} liquors={allLiquors} /> : <RouterNavigate to="/" replace />
+            <FeedView user={user} liquors={allLiquors} />
           } />
           <Route path="/catalog" element={
             <CatalogView
@@ -660,27 +660,13 @@ export default function App() {
             <ListIcon size={20} />
             <span className="text-[9px] font-semibold tracking-wider uppercase">Lists</span>
           </button>
-          {user ? (
-            <button
-              onClick={() => { hapticTap(); navigate('/feed'); }}
-              className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors ${location.pathname === '/feed' ? 'text-on-surface-accent' : 'text-on-surface-muted active:text-on-surface-secondary'}`}
-            >
-              <Rss size={20} />
-              <span className="text-[9px] font-semibold tracking-wider uppercase">Feed</span>
-            </button>
-          ) : (
-            <button
-              onClick={() => {
-                hapticTap();
-                const randomLiquor = allLiquors[Math.floor(Math.random() * allLiquors.length)];
-                if (randomLiquor) navigate(`/liquor/${randomLiquor.id}`);
-              }}
-              className="flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors text-on-surface-muted active:text-on-surface-secondary"
-            >
-              <Sparkles size={20} />
-              <span className="text-[9px] font-semibold tracking-wider uppercase">Random</span>
-            </button>
-          )}
+          <button
+            onClick={() => { hapticTap(); navigate('/feed'); }}
+            className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors ${location.pathname === '/feed' ? 'text-on-surface-accent' : 'text-on-surface-muted active:text-on-surface-secondary'}`}
+          >
+            <Rss size={20} />
+            <span className="text-[9px] font-semibold tracking-wider uppercase">Feed</span>
+          </button>
           <button
             onClick={() => { hapticTap(); user ? navigate(`/profile/${user.id}`) : handleSignIn(); }}
             className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors ${location.pathname.startsWith('/profile') ? 'text-on-surface-accent' : 'text-on-surface-muted active:text-on-surface-secondary'}`}

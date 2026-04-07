@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { RefreshCw, Star, CheckCircle2, Heart, Loader2, Users, Quote, GlassWater, Sparkles } from 'lucide-react';
+import { RefreshCw, Star, CheckCircle2, Heart, Loader2, Users, Quote, GlassWater, Sparkles, Rss } from 'lucide-react';
+import { SignInButton } from '@clerk/react';
 import { Liquor } from '../data';
 
 interface User {
@@ -139,6 +140,23 @@ export default function FeedView({ user, liquors }: FeedViewProps) {
         <p className="text-on-surface-muted font-serif italic text-lg">
           Sign in to see your activity feed.
         </p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <div className="w-14 h-14 rounded-full vintage-border flex items-center justify-center mb-5">
+          <Rss size={24} className="text-on-surface-accent" />
+        </div>
+        <h2 className="font-serif text-2xl text-on-surface mb-2">Your Feed</h2>
+        <p className="text-on-surface-secondary text-sm max-w-xs mb-6">
+          Sign in to see reviews, lists, and activity from people you follow.
+        </p>
+        <SignInButton mode="modal">
+          <button className="btn btn-secondary btn-md">Sign In</button>
+        </SignInButton>
       </div>
     );
   }
