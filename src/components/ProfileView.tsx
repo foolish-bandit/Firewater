@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Star, CheckCircle, ChevronLeft, BookOpen, Edit2, Eye, EyeOff, Calendar, Flame, Sparkles, Trophy, Orbit, Users2 } from 'lucide-react';
+import { Star, CheckCircle, ChevronLeft, BookOpen, Edit2, Eye, EyeOff, Calendar, Flame, Sparkles, Trophy, Orbit, Users2, FileText, Shield, ScrollText, LogOut, ChevronRight } from 'lucide-react';
+import { SignOutButton } from '@clerk/react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts';
 import { User, Review } from '../types';
 import { Liquor, FlavorProfile } from '../liquorTypes';
@@ -568,6 +569,38 @@ export default function ProfileView({ user, liquors }: ProfileViewProps) {
           }}
           onClose={() => setEditing(false)}
         />
+      )}
+
+      {profile.is_own && (
+        <div className="md:hidden surface-raised p-5 space-y-1">
+          <p className="micro-label text-on-surface-accent mb-3">Settings & Legal</p>
+          {[
+            { to: '/terms', label: 'Terms & Conditions', icon: FileText },
+            { to: '/privacy', label: 'Privacy Policy', icon: Shield },
+            { to: '/eula', label: 'End-User License Agreement', icon: ScrollText },
+            { to: '/acceptable-use', label: 'Acceptable Use Policy', icon: Shield },
+          ].map(link => (
+            <button
+              key={link.to}
+              onClick={() => navigate(link.to)}
+              className="w-full flex items-center justify-between py-3 border-b border-border-subtle last:border-0 text-left group"
+            >
+              <span className="flex items-center gap-3 text-sm text-on-surface-secondary group-hover:text-on-surface transition-colors">
+                <link.icon size={16} className="text-on-surface-muted" />
+                {link.label}
+              </span>
+              <ChevronRight size={14} className="text-on-surface-muted" />
+            </button>
+          ))}
+          <p className="text-[10px] text-on-surface-muted text-center pt-3 tracking-wider">FIREWATER v1.0.0</p>
+          {user && (
+            <SignOutButton>
+              <button className="w-full flex items-center justify-center gap-2 text-sm text-red-400 hover:text-red-300 transition-colors pt-3 mt-2 border-t border-border-subtle">
+                <LogOut size={16} /> Sign Out
+              </button>
+            </SignOutButton>
+          )}
+        </div>
       )}
 
       {showFollows && userId && (

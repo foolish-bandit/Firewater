@@ -35,7 +35,7 @@ import { useAdmin } from './hooks/useAdmin';
 import { useTheme } from './hooks/useTheme';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
 import { storage } from './lib/storage';
-import { hapticTap, hapticImpact } from './lib/capacitor';
+import { hapticTap, hapticImpact, isNative } from './lib/capacitor';
 import { PhotoProvider } from './contexts/PhotoContext';
 import { useMediaQuery } from './hooks/useMediaQuery';
 
@@ -508,8 +508,8 @@ export default function App() {
             <p className="text-on-surface-muted text-xs font-sans tracking-wide">&copy; 2026 FIREWATER. All rights reserved.</p>
           </div>
 
-          {/* Mobile footer */}
-          <div className="md:hidden text-center">
+          {/* Mobile footer — hidden on native (legal links live in ProfileView) */}
+          {!isNative && <div className="md:hidden text-center">
             <button
               onClick={() => setShowFooterLinks(prev => !prev)}
               className="text-on-surface-muted hover:text-on-surface-accent transition-colors text-xs font-sans font-semibold tracking-widest uppercase flex items-center gap-2 mx-auto"
@@ -526,7 +526,7 @@ export default function App() {
               </div>
             )}
             <p className="text-on-surface-muted text-xs font-sans tracking-wide mt-4">&copy; 2026 FIREWATER. All rights reserved.</p>
-          </div>
+          </div>}
         </div>
       </footer>
 
