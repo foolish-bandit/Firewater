@@ -8,7 +8,6 @@ export function useAuth() {
   const { user: clerkUser, isLoaded, isSignedIn } = useUser();
   const { getToken } = useClerkAuth();
   const [showRulesModal, setShowRulesModal] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
 
   // Wire up Clerk token getter for API calls
   useEffect(() => {
@@ -42,21 +41,9 @@ export function useAuth() {
     });
   }, [user?.id]);
 
-  // Clerk components handle sign-in/sign-out; these are kept for interface compat
-  const handleSignIn = () => setShowAuthModal(true);
-  const handleGoogleSignIn = async () => {};
-  const handleCredentialAuth = () => {};
-  const handleSignOut = async () => {};
-
   return {
     user,
-    handleSignIn,
-    handleGoogleSignIn,
-    handleCredentialAuth,
-    handleSignOut,
     showRulesModal,
     setShowRulesModal,
-    showAuthModal,
-    setShowAuthModal,
   };
 }

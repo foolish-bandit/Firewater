@@ -16,7 +16,6 @@ import FeedView from './components/FeedView';
 
 const AdminPanel = React.lazy(() => import('./components/AdminPanel'));
 import UnifiedSearch from './components/UnifiedSearch';
-import AuthModal from './components/AuthModal';
 import { ToastStack } from './components/Toast';
 import InstallPrompt from './components/InstallPrompt';
 import { PageSkeleton } from './components/SkeletonCard';
@@ -90,7 +89,7 @@ export default function App() {
     setAgeVerified(true);
   };
 
-  const { user, handleSignIn, handleGoogleSignIn, handleCredentialAuth, handleSignOut, showRulesModal, setShowRulesModal, showAuthModal, setShowAuthModal } = useAuth();
+  const { user, showRulesModal, setShowRulesModal } = useAuth();
   const { isSignedIn } = useClerkAuth();
   const { toasts, showToast, dismissToast } = useToast();
   const { wantToTry, tried, toggleWantToTry, toggleTried } = useLiquorLists(user, showToast);
@@ -568,15 +567,6 @@ export default function App() {
         <UnifiedSearch onClose={() => setShowUserSearch(false)} liquors={allLiquors} />
       )}
 
-      {/* Auth Modal */}
-      {showAuthModal && (
-        <AuthModal
-          onClose={() => setShowAuthModal(false)}
-          onGoogleSignIn={handleGoogleSignIn}
-          onCredentialAuth={handleCredentialAuth}
-        />
-      )}
-
       {/* Rules Modal */}
       {showRulesModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[var(--color-vintage-bg)]/90 backdrop-blur-md animate-in fade-in duration-300" role="dialog" aria-modal="true" aria-label="Welcome to FIREWATER">
@@ -667,13 +657,25 @@ export default function App() {
             <Rss size={20} />
             <span className="text-[9px] font-semibold tracking-wider uppercase">Feed</span>
           </button>
-          <button
-            onClick={() => { hapticTap(); user ? navigate(`/profile/${user.id}`) : handleSignIn(); }}
-            className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors ${location.pathname.startsWith('/profile') ? 'text-on-surface-accent' : 'text-on-surface-muted active:text-on-surface-secondary'}`}
-          >
-            <UserIcon size={20} />
-            <span className="text-[9px] font-semibold tracking-wider uppercase">{user ? 'Profile' : 'Sign In'}</span>
-          </button>
+          {user ? (
+            <button
+              onClick={() => { hapticTap(); navigate(`/profile/${user.id}`); }}
+              className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors ${location.pathname.startsWith('/profile') ? 'text-on-surface-accent' : 'text-on-surface-muted active:text-on-surface-secondary'}`}
+            >
+              <UserIcon size={20} />
+              <span className="text-[9px] font-semibold tracking-wider uppercase">Profile</span>
+            </button>
+          ) : (
+            <SignInButton mode="modal">
+              <button
+                onClick={() => hapticTap()}
+                className="flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors text-on-surface-muted active:text-on-surface-secondary"
+              >
+                <UserIcon size={20} />
+                <span className="text-[9px] font-semibold tracking-wider uppercase">Sign In</span>
+              </button>
+            </SignInButton>
+          )}
         </div>
       </nav>
 
