@@ -78,6 +78,11 @@
   --elevation-1: 0 1px 3px rgba(0,0,0,0.3), 0 4px 20px rgba(0,0,0,0.15);
   --elevation-2: 0 4px 12px rgba(0,0,0,0.4), 0 8px 30px rgba(200,155,60,0.08);
   --elevation-3: 0 8px 24px rgba(0,0,0,0.4), 0 16px 48px rgba(0,0,0,0.2);
+
+  /* Media / bottle art palette */
+  --media-bg: #141210;
+  --media-text: #EAE4D9;
+  --media-accent: #C89B3C;
 }
 
 [data-theme="light"] {
@@ -103,6 +108,10 @@
   --elevation-1: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.08);
   --elevation-2: 0 4px 12px rgba(0,0,0,0.08), 0 8px 24px rgba(154,116,32,0.06);
   --elevation-3: 0 8px 24px rgba(0,0,0,0.1), 0 16px 48px rgba(0,0,0,0.08);
+
+  --media-bg: #F5F0E8;
+  --media-text: #2A2520;
+  --media-accent: #9A7420;
 }
 
 body {
@@ -120,56 +129,18 @@ button, a, input, select, textarea, [role="button"] {
 }
 
 /* ================================================================
-   Light-mode overrides for hardcoded Tailwind arbitrary values
+   Light-mode overrides for remaining Tailwind arbitrary values
    ================================================================ */
-
-/* Background colors (kept: patterns still used in ChatBubble, LiquorMedia, PhotoGallery) */
-[data-theme="light"] .bg-\[\#141210\] { background-color: var(--bg-primary) !important; }
-[data-theme="light"] .bg-\[var\(--color-vintage-bg\)\] { background-color: var(--bg-primary) !important; }
-
-/* Text colors (kept: patterns still used in ChatBubble, LiquorMedia) */
-[data-theme="light"] .text-\[\#C89B3C\] { color: var(--text-accent) !important; }
-[data-theme="light"] .text-\[\#141210\] { color: var(--bg-primary) !important; }
-[data-theme="light"] .text-\[var\(--color-vintage-text\)\] { color: var(--text-primary) !important; }
-
-/* Accent background and related (kept: patterns still used) */
-[data-theme="light"] .bg-\[\#C89B3C\] { background-color: var(--text-accent) !important; }
-[data-theme="light"] .bg-\[\#C89B3C\]\/20 { background-color: rgba(154, 116, 32, 0.2) !important; }
-[data-theme="light"] .bg-\[\#C89B3C\]\/10 { background-color: rgba(154, 116, 32, 0.1) !important; }
-
-/* Border colors (kept: patterns still used in decorative elements) */
-[data-theme="light"] .border-\[\#C89B3C\] { border-color: var(--text-accent) !important; }
-[data-theme="light"] .border-\[\#C89B3C\]\/25 { border-color: rgba(154, 116, 32, 0.25) !important; }
 
 /* Shadow overrides for light mode */
 [data-theme="light"] .shadow-\[0_4px_30px_rgba\(0\,0\,0\,0\.4\)\] { box-shadow: 0 4px 30px rgba(0,0,0,0.1) !important; }
 [data-theme="light"] .shadow-\[0_-4px_20px_rgba\(0\,0\,0\,0\.3\)\] { box-shadow: 0 -4px 20px rgba(0,0,0,0.06) !important; }
 
-/* bg-[var(--color-vintage-bg)]/95 and /90 */
+/* Modal overlay backgrounds using var(--color-vintage-bg) */
+[data-theme="light"] .bg-\[var\(--color-vintage-bg\)\] { background-color: var(--bg-primary) !important; }
 [data-theme="light"] .bg-\[var\(--color-vintage-bg\)\]\/95 { background-color: rgba(245, 240, 232, 0.95) !important; }
 [data-theme="light"] .bg-\[var\(--color-vintage-bg\)\]\/90 { background-color: rgba(245, 240, 232, 0.90) !important; }
-
-/* Logo filter removed — new logo handles its own rendering */
-
-/* Background opacity variants (kept: patterns still in decorative use) */
-[data-theme="light"] .bg-\[\#C89B3C\]\/50 { background-color: rgba(154, 116, 32, 0.5) !important; }
-[data-theme="light"] .bg-\[\#C89B3C\]\/60 { background-color: rgba(154, 116, 32, 0.6) !important; }
-[data-theme="light"] .bg-\[\#EAE4D9\]\/10 { background-color: rgba(42, 37, 32, 0.1) !important; }
-
-/* Border opacity variants (kept: patterns still used in LiquorMedia) */
-[data-theme="light"] .border-\[\#EAE4D9\]\/15 { border-color: rgba(42, 37, 32, 0.15) !important; }
-
-/* Text color opacity variants (kept: pattern still used in LiquorMedia) */
-[data-theme="light"] .text-\[\#EAE4D9\]\/24 { color: rgba(42, 37, 32, 0.24) !important; }
-
-/* Gradient colors (kept: patterns still used in decorative gradients) */
-[data-theme="light"] .from-\[\#C89B3C\]\/40 { --tw-gradient-from: rgba(154, 116, 32, 0.4) !important; }
-[data-theme="light"] .from-\[\#EAE4D9\]\/20 { --tw-gradient-from: rgba(42, 37, 32, 0.2) !important; }
-[data-theme="light"] .to-\[\#E8C56D\] { --tw-gradient-to: #B8922E !important; }
-
-/* Hover background states (kept: patterns still used) */
-[data-theme="light"] .hover\:bg-\[\#B08832\]:hover { background-color: #8A6B28 !important; }
-[data-theme="light"] .hover\:bg-\[\#D4A843\]:hover { background-color: #B08832 !important; }
+[data-theme="light"] .text-\[var\(--color-vintage-text\)\] { color: var(--text-primary) !important; }
 
 /* ================================================================
    End light-mode overrides
@@ -564,6 +535,16 @@ body::before {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+/* Premium card gradient — adapts to theme via CSS vars */
+.premium-gradient {
+  background: radial-gradient(circle at top left, rgba(200,155,60,0.16), transparent 38%),
+              linear-gradient(145deg, var(--bg-surface) 0%, var(--bg-primary) 100%);
+}
+[data-theme="light"] .premium-gradient {
+  background: radial-gradient(circle at top left, rgba(154,116,32,0.1), transparent 38%),
+              linear-gradient(145deg, var(--bg-surface) 0%, var(--bg-primary) 100%);
 }
 
 @keyframes shimmer {

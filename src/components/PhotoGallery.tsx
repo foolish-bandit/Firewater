@@ -44,19 +44,19 @@ export default function PhotoGallery({ liquorId, liquor, onUploadClick }: PhotoG
               onClick={() => setLightbox(primaryPhoto)}
               className="group block w-full text-left"
             >
-              <div className="relative overflow-hidden vintage-border bg-[#141210] aspect-[5/4] sm:aspect-[4/3]">
+              <div className="relative overflow-hidden vintage-border bg-surface-base aspect-[5/4] sm:aspect-[4/3]">
                 <img
                   src={primaryPhoto.blob_url}
                   alt={`${liquor.name} photo`}
                   className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#141210]/82 via-[#141210]/12 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-surface-base/82 via-surface-base/12 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 flex items-end justify-between gap-4">
                   <div>
                     <p className="text-[10px] font-sans font-semibold tracking-[0.24em] uppercase text-on-surface-accent">Featured Community Photo</p>
                     <p className="mt-1 font-display text-lg sm:text-2xl text-on-surface line-clamp-2">{identity.typeLabel}</p>
                   </div>
-                  <span className="rounded-full border border-border-subtle bg-[#141210]/65 px-3 py-1 text-[10px] font-sans font-semibold tracking-[0.22em] uppercase text-on-surface-secondary backdrop-blur-sm">
+                  <span className="rounded-full border border-border-subtle bg-surface-base/65 px-3 py-1 text-[10px] font-sans font-semibold tracking-[0.22em] uppercase text-on-surface-secondary backdrop-blur-sm">
                     Tap to expand
                   </span>
                 </div>
@@ -86,7 +86,7 @@ export default function PhotoGallery({ liquorId, liquor, onUploadClick }: PhotoG
                 <button
                   key={photo.id}
                   onClick={() => setLightbox(photo)}
-                  className="group overflow-hidden vintage-border bg-[#141210] aspect-square"
+                  className="group overflow-hidden vintage-border bg-surface-base aspect-square"
                 >
                   <img
                     src={photo.blob_url}

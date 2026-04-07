@@ -93,20 +93,20 @@ function getSpiritFamily(liquor: Liquor): SpiritFamily {
     return {
       family: 'Fireside Reserve',
       mood: 'Oak stave · low light · tasting room hush',
-      gradient: 'from-[#C89B3C]/35 via-[#7A3B1D]/10 to-[#E8C56D]/15',
+      gradient: 'from-on-surface-accent/35 via-[#7A3B1D]/10 to-on-surface-accent/15',
       glow: 'bg-[radial-gradient(circle_at_28%_18%,rgba(200,155,60,0.2),transparent_35%),radial-gradient(circle_at_78%_26%,rgba(176,80,80,0.12),transparent_32%),linear-gradient(180deg,rgba(36,22,16,0.96),rgba(20,18,16,1))]',
-      edge: 'border-[#C89B3C]/25',
-      bottleFill: 'from-[#F7E7B8]/16 via-[#C89B3C]/10 to-[#7A3B1D]/12',
+      edge: 'border-on-surface-accent/25',
+      bottleFill: 'from-[#F7E7B8]/16 via-on-surface-accent/10 to-[#7A3B1D]/12',
     };
   }
 
   return {
     family: 'Collector Selection',
     mood: 'Studio light · polished glass · archival label',
-    gradient: 'from-[#EAE4D9]/20 via-[#C89B3C]/10 to-[#C89B3C]/20',
+    gradient: 'from-[var(--media-text)]/20 via-on-surface-accent/10 to-on-surface-accent/20',
     glow: 'bg-[radial-gradient(circle_at_28%_18%,rgba(234,228,217,0.16),transparent_35%),radial-gradient(circle_at_78%_28%,rgba(200,155,60,0.12),transparent_32%),linear-gradient(180deg,rgba(28,24,22,0.95),rgba(20,18,16,1))]',
-    edge: 'border-[#EAE4D9]/15',
-    bottleFill: 'from-[#EAE4D9]/15 via-[#C89B3C]/10 to-[#EAE4D9]/8',
+    edge: 'border-[var(--media-text)]/15',
+    bottleFill: 'from-[var(--media-text)]/15 via-on-surface-accent/10 to-[var(--media-text)]/8',
   };
 }
 
@@ -151,14 +151,14 @@ export default function LiquorMedia({
             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
             loading={priority ? 'eager' : 'lazy'}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#141210]/88 via-[#141210]/18 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[var(--media-bg)]/88 via-[var(--media-bg)]/18 to-transparent" />
           <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
             <div className="flex items-end justify-between gap-3">
               <div className="space-y-1">
                 <p className="text-[10px] font-sans font-semibold tracking-[0.28em] uppercase text-on-surface-muted">Bottle Portrait</p>
                 <p className="font-serif text-lg italic text-on-surface line-clamp-2">{identity.typeLabel}</p>
               </div>
-              <span className="shrink-0 rounded-full border border-border-subtle bg-[#141210]/60 px-3 py-1 text-[10px] font-sans font-semibold tracking-[0.22em] uppercase text-on-surface-accent backdrop-blur-sm">
+              <span className="shrink-0 rounded-full border border-border-subtle bg-[var(--media-bg)]/60 px-3 py-1 text-[10px] font-sans font-semibold tracking-[0.22em] uppercase text-on-surface-accent backdrop-blur-sm">
                 {identity.proofLabel}
               </span>
             </div>
@@ -169,10 +169,10 @@ export default function LiquorMedia({
           <div className={`absolute inset-0 ${identity.glow}`} />
           <div className={`absolute inset-x-0 top-0 h-24 bg-gradient-to-r ${identity.gradient} opacity-70`} />
           <div className="absolute inset-0 opacity-40 [background-image:linear-gradient(rgba(234,228,217,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(234,228,217,0.04)_1px,transparent_1px)] [background-size:22px_22px]" />
-          <div className="absolute -left-8 top-10 h-28 w-28 rounded-full bg-[#C89B3C]/10 blur-3xl" />
+          <div className="absolute -left-8 top-10 h-28 w-28 rounded-full bg-on-surface-accent/10 blur-3xl" />
           <div className="absolute -right-10 bottom-14 h-36 w-36 rounded-full bg-white/6 blur-3xl" />
 
-          <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full border border-border-subtle bg-[#141210]/55 px-3 py-1.5 backdrop-blur-sm">
+          <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full border border-border-subtle bg-[var(--media-bg)]/55 px-3 py-1.5 backdrop-blur-sm">
             <Sparkles size={12} className="text-on-surface-accent" />
             <span className="text-[10px] font-sans font-semibold tracking-[0.24em] uppercase text-on-surface-secondary">
               {identity.family}
@@ -185,20 +185,20 @@ export default function LiquorMedia({
           </div>
 
           <div className="absolute inset-x-[31%] bottom-[15%] top-[20%]">
-            <div className={`absolute inset-x-[22%] top-0 h-[12%] rounded-t-[18px] border border-[#EAE4D9]/15 bg-gradient-to-b ${identity.bottleFill}`} />
-            <div className="absolute inset-x-[34%] top-[-4.5%] h-[8%] rounded-t-md border border-[#EAE4D9]/15 bg-[#EAE4D9]/10" />
+            <div className={`absolute inset-x-[22%] top-0 h-[12%] rounded-t-[18px] border border-[var(--media-text)]/15 bg-gradient-to-b ${identity.bottleFill}`} />
+            <div className="absolute inset-x-[34%] top-[-4.5%] h-[8%] rounded-t-md border border-[var(--media-text)]/15 bg-[var(--media-text)]/10" />
             <div className={`absolute inset-x-0 bottom-0 top-[8%] rounded-[40%_40%_18%_18%/12%_12%_22%_22%] border ${identity.edge} bg-gradient-to-b ${identity.bottleFill} shadow-[0_30px_80px_rgba(0,0,0,0.35)] backdrop-blur-[2px]`}>
-              <div className="absolute inset-x-[14%] top-[18%] h-[36%] rounded-[32px] border border-border-subtle bg-[#141210]/20" />
-              <div className="absolute inset-x-[18%] bottom-[14%] top-[58%] rounded-[28px] border border-[#EAE4D9]/12 bg-[#141210]/26" />
+              <div className="absolute inset-x-[14%] top-[18%] h-[36%] rounded-[32px] border border-border-subtle bg-[var(--media-bg)]/20" />
+              <div className="absolute inset-x-[18%] bottom-[14%] top-[58%] rounded-[28px] border border-[var(--media-text)]/12 bg-[var(--media-bg)]/26" />
             </div>
             <div className="absolute left-1/2 top-[30%] -translate-x-1/2 text-center">
-              <div className="font-display text-4xl sm:text-5xl tracking-[0.18em] text-[#EAE4D9]/24">{identity.monogram}</div>
-              <div className="mt-1 h-px w-16 bg-gradient-to-r from-transparent via-[#C89B3C]/45 to-transparent" />
+              <div className="font-display text-4xl sm:text-5xl tracking-[0.18em] text-[var(--media-text)]/24">{identity.monogram}</div>
+              <div className="mt-1 h-px w-16 bg-gradient-to-r from-transparent via-on-surface-accent/45 to-transparent" />
             </div>
           </div>
 
           {showCaption && (
-            <div className="absolute inset-x-4 bottom-4 rounded-2xl border border-border-subtle bg-[#141210]/58 p-4 backdrop-blur-md">
+            <div className="absolute inset-x-4 bottom-4 rounded-2xl border border-border-subtle bg-[var(--media-bg)]/58 p-4 backdrop-blur-md">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-[10px] font-sans font-semibold tracking-[0.26em] uppercase text-on-surface-accent">{identity.distilleryLabel}</p>

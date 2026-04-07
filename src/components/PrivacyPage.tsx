@@ -18,7 +18,7 @@ export default function PrivacyPage() {
       <div className="mt-8 mb-10">
         <p className="micro-label mb-2 text-on-surface-accent">Legal</p>
         <h1 className="font-display text-3xl md:text-4xl font-normal text-on-surface mb-3">Privacy Policy</h1>
-        <div className="w-12 h-px bg-[#C89B3C]/50 mb-4"></div>
+        <div className="w-12 h-px bg-on-surface-accent/50 mb-4"></div>
         <p className="text-on-surface-muted font-sans text-xs tracking-wide">Last updated: March 20, 2026</p>
       </div>
 

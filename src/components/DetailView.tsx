@@ -154,7 +154,7 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
       </button>
 
       {photoUrl && (
-        <div className="w-full max-h-64 overflow-hidden bg-[#1A1816] rounded-lg mt-4">
+        <div className="w-full max-h-64 overflow-hidden bg-surface-raised rounded-lg mt-4">
           <img
             src={photoUrl}
             alt={liquor.name}
@@ -347,7 +347,7 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
               <RadarChart cx="50%" cy="50%" outerRadius="70%" data={flavorData}>
                 <PolarGrid stroke="rgba(234, 228, 217, 0.1)" />
                 <PolarAngleAxis dataKey="subject" tick={{ fill: 'rgba(234, 228, 217, 0.5)', fontSize: 11, fontFamily: 'Montserrat', textTransform: 'uppercase', letterSpacing: '0.1em' }} />
-                <Radar name={liquor.name} dataKey="A" stroke="#C89B3C" fill="#C89B3C" fillOpacity={0.2} />
+                <Radar name={liquor.name} dataKey="A" stroke="var(--text-accent)" fill="var(--text-accent)" fillOpacity={0.2} />
               </RadarChart>
             </ResponsiveContainer>
           </div>
@@ -356,7 +356,7 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
               <RadarChart cx="50%" cy="50%" outerRadius="65%" data={flavorData}>
                 <PolarGrid stroke="rgba(234, 228, 217, 0.08)" />
                 <PolarAngleAxis dataKey="subject" tick={{ fill: 'rgba(234, 228, 217, 0.35)', fontSize: 9, fontFamily: 'Montserrat' }} />
-                <Radar name={liquor.name} dataKey="A" stroke="#C89B3C" fill="#C89B3C" fillOpacity={0.18} />
+                <Radar name={liquor.name} dataKey="A" stroke="var(--text-accent)" fill="var(--text-accent)" fillOpacity={0.18} />
               </RadarChart>
             </ResponsiveContainer>
           </div>

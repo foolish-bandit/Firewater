@@ -372,7 +372,7 @@ export default function ProfileView({ user, liquors }: ProfileViewProps) {
                     <button
                       key={liquor.id}
                       onClick={() => navigate(`/liquor/${liquor.id}`)}
-                      className={`group relative overflow-hidden rounded-[28px] border text-left transition-all duration-300 hover:-translate-y-1 hover:border-border-accent ${isLead ? 'md:col-span-6 p-6 bg-[radial-gradient(circle_at_top_left,rgba(200,155,60,0.16),transparent_40%),linear-gradient(145deg,#1B1713_0%,#141210_100%)] border-border-accent min-h-[260px]' : 'md:col-span-3 p-5 bg-surface-raised border-border-subtle min-h-[220px]'}`}
+                      className={`group relative overflow-hidden rounded-[28px] border text-left transition-all duration-300 hover:-translate-y-1 hover:border-border-accent ${isLead ? 'md:col-span-6 p-6 premium-gradient border-border-accent min-h-[260px]' : 'md:col-span-3 p-5 bg-surface-raised border-border-subtle min-h-[220px]'}`}
                     >
                       <div className="absolute right-4 top-4 text-[56px] leading-none font-serif text-on-surface-accent opacity-10">{String(i + 1).padStart(2, '0')}</div>
                       <div className="relative z-10 flex h-full flex-col justify-between gap-6">
@@ -428,7 +428,7 @@ export default function ProfileView({ user, liquors }: ProfileViewProps) {
                     <RadarChart cx="50%" cy="50%" outerRadius="70%" data={flavorDNA}>
                       <PolarGrid stroke="rgba(234, 228, 217, 0.1)" />
                       <PolarAngleAxis dataKey="subject" tick={{ fill: 'rgba(234, 228, 217, 0.4)', fontSize: 10, fontFamily: 'Montserrat' }} />
-                      <Radar name="Flavor DNA" dataKey="A" stroke="#C89B3C" fill="#C89B3C" fillOpacity={0.22} />
+                      <Radar name="Flavor DNA" dataKey="A" stroke="var(--text-accent)" fill="var(--text-accent)" fillOpacity={0.22} />
                     </RadarChart>
                   </ResponsiveContainer>
                 </div>
@@ -506,7 +506,7 @@ export default function ProfileView({ user, liquors }: ProfileViewProps) {
                 {recentReviews.map((review, index) => (
                   <div
                     key={review.id}
-                    className={`group relative overflow-hidden rounded-[28px] border p-5 sm:p-6 transition-all duration-300 hover:-translate-y-1 ${index === 0 ? 'border-border-accent bg-[radial-gradient(circle_at_top_left,rgba(200,155,60,0.14),transparent_38%),linear-gradient(145deg,#1B1713_0%,#141210_100%)] lg:col-span-2' : 'border-border-subtle bg-surface-raised'}`}
+                    className={`group relative overflow-hidden rounded-[28px] border p-5 sm:p-6 transition-all duration-300 hover:-translate-y-1 ${index === 0 ? 'border-border-accent premium-gradient lg:col-span-2' : 'border-border-subtle bg-surface-raised'}`}
                   >
                     <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-on-surface/15 to-transparent" />
                     <div className="flex items-start justify-between gap-4">

@@ -142,7 +142,7 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
       value: `${triedLiquors.length} tasted`,
       note: nextMilestone.remaining === 0 ? `Milestone ${nextMilestone.target} reached.` : `${nextMilestone.remaining} more to hit ${nextMilestone.target}.`,
       icon: Trophy,
-      accent: 'text-[#E2C27A] border-[#C89B3C]/18 bg-on-surface-accent/10',
+      accent: 'text-on-surface-accent border-border-accent bg-on-surface-accent/10',
     },
     {
       title: 'Category trail',
@@ -170,7 +170,7 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
 
       {total > 0 && (
         <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)] gap-5">
-          <div className="rounded-[30px] border border-[#C89B3C]/18 bg-[radial-gradient(circle_at_top_left,rgba(200,155,60,0.18),transparent_36%),linear-gradient(145deg,#1B1713_0%,#141210_100%)] p-5 sm:p-7">
+          <div className="rounded-[30px] border border-border-accent premium-gradient p-5 sm:p-7">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-5 mb-5">
               <div>
                 <p className="micro-label text-on-surface-accent mb-2">Progress Story</p>
@@ -188,7 +188,7 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
                 <span>{wantLiquors.length} still chasing</span>
               </div>
               <div className="h-3 rounded-full bg-[#0F0D0B] overflow-hidden">
-                <div className="h-full rounded-full bg-gradient-to-r from-[#A37A2B] via-[#C89B3C] to-[#F0D490] transition-all duration-700" style={{ width: `${completionPct}%` }} />
+                <div className="h-full rounded-full bg-gradient-to-r from-on-surface-accent/70 via-on-surface-accent to-on-surface-accent/50 transition-all duration-700" style={{ width: `${completionPct}%` }} />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3">
                 {journeyCards.map((card) => {
@@ -215,7 +215,7 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
             </div>
 
             <div className="space-y-4">
-              <div className="rounded-[22px] border border-[#C89B3C]/16 bg-[#C89B3C]/8 p-4">
+              <div className="rounded-[22px] border border-border-accent bg-on-surface-accent/8 p-4">
                 <p className="text-[10px] font-semibold tracking-[0.26em] uppercase text-on-surface-muted">Next unlock</p>
                 <p className="mt-2 font-serif text-3xl text-on-surface">{nextMilestone.target} bottles</p>
                 <p className="mt-2 text-sm text-on-surface-muted">{nextMilestone.remaining === 0 ? 'Milestone secured — keep climbing.' : `${nextMilestone.remaining} more tasted bottles to unlock your next badge.`}</p>
@@ -229,7 +229,7 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
                       <span className="text-[10px] tracking-[0.26em] uppercase text-on-surface-accent">{category.pct}% complete</span>
                     </div>
                     <div className="h-2 rounded-full bg-[#0F0D0B] overflow-hidden">
-                      <div className="h-full rounded-full bg-gradient-to-r from-[#8F6A23] to-[#C89B3C]" style={{ width: `${category.pct}%` }} />
+                      <div className="h-full rounded-full bg-gradient-to-r from-on-surface-accent/60 to-on-surface-accent" style={{ width: `${category.pct}%` }} />
                     </div>
                     <p className="mt-2 text-sm text-on-surface-muted">{category.categoryTried} of {category.categoryTotal} bottles in this lane have been tasted.</p>
                   </div>
