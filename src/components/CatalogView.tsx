@@ -544,35 +544,22 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
             />
           ))
         ) : (
-          <div className="col-span-full text-center py-20 space-y-6">
-            <div className="w-16 h-16 rounded-full vintage-border flex items-center justify-center mx-auto text-on-surface-muted">
-              <Search size={24} />
-            </div>
-            <div>
-              <h3 className="text-xl font-serif text-on-surface mb-2">No bottles matched this discovery view</h3>
-              <p className="text-on-surface-muted max-w-md mx-auto mb-6">Try broadening your filters or changing your search words.</p>
-              <div className="flex flex-wrap items-center justify-center gap-4">
-                <button
-                  onClick={resetAllFilters}
-                  className="btn btn-secondary px-6 py-3"
-                >
-                  Clear Filters
-                </button>
-                <button
-                  onClick={() => {
-                    const randomLiquor = liquors[Math.floor(Math.random() * liquors.length)];
-                    if (randomLiquor) navigate(`/liquor/${randomLiquor.id}`);
-                  }}
-                  className="btn btn-secondary px-6 py-3 inline-flex items-center gap-2"
-                >
-                  <Sparkles size={16} /> Random Discovery
-                </button>
-              </div>
+          <div className="col-span-full flex flex-col items-center justify-center text-center py-16 px-4">
+            <Search size={48} className="text-on-surface-accent/30 mb-5" />
+            <h3 className="font-serif text-xl text-on-surface mb-2">No bottles matched this discovery view</h3>
+            <p className="text-on-surface-muted text-sm mb-6 max-w-sm">Try broadening your search or submit a bottle to the community catalog.</p>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <button
+                onClick={resetAllFilters}
+                className="btn btn-primary"
+              >
+                Clear Filters
+              </button>
               <button
                 onClick={onOpenSubmit}
-                className="text-xs font-sans text-on-surface-muted hover:text-on-surface-accent transition-colors mt-2"
+                className="btn btn-secondary"
               >
-                or submit a new bottle
+                Submit a Bottle
               </button>
             </div>
           </div>

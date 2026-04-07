@@ -312,18 +312,17 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
       {activeTab === 'want' && (
         <div>
           {wantLiquors.length === 0 ? (
-            <div className="surface-raised border-dashed p-8 sm:p-16 text-center relative overflow-hidden">
-              <img src="/logo.svg" alt="" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 opacity-[0.03] pointer-events-none" />
-              <div className="relative z-10">
-                <Heart size={32} className="text-on-surface-accent/30 mx-auto mb-4" />
-                <p className="text-on-surface-muted font-serif italic text-lg mb-6">Your wishlist is empty. Explore the catalog to find new pours.</p>
-                <button
-                  onClick={() => navigate('/catalog')}
-                  className="btn btn-secondary font-sans font-semibold tracking-widest uppercase px-6 py-3 text-xs transition-all duration-300"
-                >
-                  Browse Catalog
-                </button>
-              </div>
+            <div className="flex flex-col items-center justify-center text-center py-16 px-4">
+              <Heart size={48} className="text-on-surface-accent/30 mb-5" />
+              <h3 className="font-serif text-xl text-on-surface mb-2">Your wishlist is empty</h3>
+              <p className="text-on-surface-muted text-sm mb-1 max-w-xs">Tap the heart icon on any bottle to save it here.</p>
+              <p className="text-on-surface-muted font-serif italic text-sm mb-6 max-w-xs">Explore the catalog to find new pours.</p>
+              <button
+                onClick={() => navigate('/catalog')}
+                className="btn btn-primary"
+              >
+                Explore the Catalog
+              </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -346,18 +345,16 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
       {activeTab === 'tried' && (
         <div>
           {triedLiquors.length === 0 ? (
-            <div className="surface-raised border-dashed p-8 sm:p-16 text-center relative overflow-hidden">
-              <img src="/logo.svg" alt="" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 opacity-[0.03] pointer-events-none" />
-              <div className="relative z-10">
-                <CheckCircle size={32} className="text-on-surface-accent/30 mx-auto mb-4" />
-                <p className="text-on-surface-muted font-serif italic text-lg mb-6">You haven't marked any liquors as tried yet.</p>
-                <button
-                  onClick={() => navigate('/catalog')}
-                  className="btn btn-secondary font-sans font-semibold tracking-widest uppercase px-6 py-3 text-xs transition-all duration-300"
-                >
-                  Browse Catalog
-                </button>
-              </div>
+            <div className="flex flex-col items-center justify-center text-center py-16 px-4">
+              <CheckCircle size={48} className="text-on-surface-accent/30 mb-5" />
+              <h3 className="font-serif text-xl text-on-surface mb-2">Nothing tried yet</h3>
+              <p className="text-on-surface-muted text-sm mb-6 max-w-xs">Mark bottles as tried to track your journey.</p>
+              <button
+                onClick={() => navigate('/catalog')}
+                className="btn btn-primary"
+              >
+                Browse the Catalog
+              </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

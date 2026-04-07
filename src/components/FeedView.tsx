@@ -26,6 +26,7 @@ interface Activity {
 interface FeedViewProps {
   user: User | null;
   liquors: Liquor[];
+  onOpenUserSearch?: () => void;
 }
 
 function relativeTime(dateStr: string): string {
@@ -96,7 +97,7 @@ const activityStyles = {
   },
 } as const;
 
-export default function FeedView({ user, liquors }: FeedViewProps) {
+export default function FeedView({ user, liquors, onOpenUserSearch }: FeedViewProps) {
   const navigate = useNavigate();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
@@ -182,21 +183,19 @@ export default function FeedView({ user, liquors }: FeedViewProps) {
       {loading ? (
         <FeedSkeleton count={4} />
       ) : activities.length === 0 ? (
-        <div className="bg-surface-raised vintage-border border-dashed p-8 sm:p-16 text-center relative overflow-hidden">
-          <img src="/logo.svg" alt="" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 opacity-[0.03] pointer-events-none" />
-          <div className="relative z-10">
-            <Users size={32} className="text-on-surface-accent/30 mx-auto mb-4" />
-            <h3 className="font-serif text-xl text-on-surface mb-2">Your feed is quiet</h3>
-            <p className="text-on-surface-muted font-serif italic text-lg mb-6 max-w-md mx-auto">
-              Follow some liquor enthusiasts to see their reviews, wishlists, and new pours here.
-            </p>
-            <button
-              onClick={() => navigate('/catalog')}
-              className="bg-transparent vintage-border hover:bg-on-surface-accent hover:text-surface-base hover:border-on-surface-accent text-on-surface-accent font-sans font-semibold tracking-widest uppercase px-6 py-3 text-xs transition-all duration-300"
-            >
+        <div className="flex flex-col items-center justify-center text-center py-16 px-4">
+          <Users size={48} className="text-on-surface-accent/30 mb-5" />
+          <h3 className="font-serif text-xl text-on-surface mb-2">Your feed is empty</h3>
+          <p className="text-on-surface-muted text-sm mb-6 max-w-xs">Follow other collectors to see their activity here.</p>
+          {onOpenUserSearch ? (
+            <button onClick={onOpenUserSearch} className="btn btn-primary">
               Find People to Follow
             </button>
-          </div>
+          ) : (
+            <button onClick={() => navigate('/catalog')} className="btn btn-primary">
+              Explore the Catalog
+            </button>
+          )}
         </div>
       ) : (
         <div className="space-y-4">

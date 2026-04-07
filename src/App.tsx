@@ -425,7 +425,7 @@ export default function App() {
             />
           } />
           <Route path="/feed" element={
-            <FeedView user={user} liquors={allLiquors} />
+            <FeedView user={user} liquors={allLiquors} onOpenUserSearch={() => setShowUserSearch(true)} />
           } />
           <Route path="/catalog" element={
             <CatalogView
