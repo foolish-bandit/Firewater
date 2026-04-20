@@ -7,6 +7,7 @@ import { hapticTap } from '../lib/capacitor';
 import { levenshteinDistance } from '../utils/stringUtils';
 import LiquorCard from './LiquorCard';
 import { usePullToRefresh } from '../hooks/usePullToRefresh';
+import { SectionRule } from './ornaments';
 
 interface CatalogViewProps {
   wantToTry: string[];
@@ -329,10 +330,10 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
       <div className="surface-raised p-4 sm:p-6 space-y-6">
         <div className="flex flex-col xl:flex-row gap-6 xl:items-end xl:justify-between">
           <div className="space-y-3 max-w-2xl">
-            <div className="flex items-baseline gap-3 flex-wrap">
-              <h2 className="font-serif text-3xl text-on-surface">Discover the catalog</h2>
-              <span className="micro-label text-on-surface-accent">{sortedLiquors.length} bottles</span>
-            </div>
+            <p className="micro-label text-on-surface-accent">
+              The Cellar &middot; {sortedLiquors.length.toLocaleString()} entries
+            </p>
+            <h2 className="heading-xl font-serif text-4xl text-on-surface">Catalog</h2>
             <p className="text-on-surface-muted font-serif italic text-base leading-relaxed">
               Use search, scan, and filters here to narrow the shelf to the right bottle.
             </p>

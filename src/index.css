@@ -340,6 +340,14 @@ select:focus-visible {
   border-color: var(--text-accent);
 }
 
+[data-theme="light"] .seg-item {
+  border-width: 1.5px;
+}
+
+[data-theme="light"] .catalog-row {
+  border-bottom-style: dashed;
+}
+
 /* ── Badges ── */
 .badge {
   display: inline-flex;
