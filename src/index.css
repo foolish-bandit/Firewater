@@ -4,7 +4,9 @@
 @theme {
   --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Cormorant Garamond", ui-serif, Georgia, serif;
-  --font-display: "Cinzel", ui-serif, Georgia, serif;
+  --font-display: "DM Serif Display", ui-serif, Georgia, serif;
+  --font-display-light: "Old Standard TT", ui-serif, Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --color-vintage-bg: #141210;
   --color-vintage-text: #EAE4D9;
   --color-vintage-accent: #C89B3C;
@@ -50,15 +52,17 @@
 /* Theme-aware CSS custom properties */
 :root {
   --bg-primary: #141210;
-  --bg-surface: #1A1816;
-  --bg-surface-alt: #1E1C19;
+  --bg-surface: #1C1815;
+  --bg-surface-alt: #231E19;
   --text-primary: #EAE4D9;
   --text-secondary: rgba(234, 228, 217, 0.7);
   --text-muted: rgba(234, 228, 217, 0.5);
   --text-accent: #C89B3C;
   --text-accent-muted: rgba(200, 155, 60, 0.7);
-  --border-primary: rgba(234, 228, 217, 0.15);
+  --text-accent-alt: #B85C3A;
+  --border-primary: rgba(234, 228, 217, 0.12);
   --border-accent: rgba(200, 155, 60, 0.3);
+  --border-accent-strong: rgba(200, 155, 60, 0.55);
 
   /* Spacing scale */
   --space-xs: 0.25rem;
@@ -87,32 +91,34 @@
 }
 
 [data-theme="light"] {
-  --color-vintage-bg: #F5F0E8;
-  --color-vintage-text: #2A2520;
-  --color-vintage-accent: #9A7420;
-  --color-vintage-accent-hover: #B08832;
-  --color-vintage-border: rgba(42, 37, 32, 0.15);
-  --color-vintage-surface: #EDE7DB;
-  --color-vintage-surface-alt: #E5DFD3;
+  --color-vintage-bg: #F2ECDF;
+  --color-vintage-text: #231D16;
+  --color-vintage-accent: #B24A2C;
+  --color-vintage-accent-hover: #C45A3A;
+  --color-vintage-border: rgba(35, 29, 22, 0.2);
+  --color-vintage-surface: #E8E0CF;
+  --color-vintage-surface-alt: #FAF4E4;
 
-  --bg-primary: #F5F0E8;
-  --bg-surface: #EDE7DB;
-  --bg-surface-alt: #E5DFD3;
-  --text-primary: #2A2520;
-  --text-secondary: rgba(42, 37, 32, 0.7);
-  --text-muted: rgba(42, 37, 32, 0.5);
-  --text-accent: #9A7420;
-  --text-accent-muted: rgba(154, 116, 32, 0.7);
-  --border-primary: rgba(42, 37, 32, 0.15);
-  --border-accent: rgba(154, 116, 32, 0.3);
+  --bg-primary: #F2ECDF;
+  --bg-surface: #E8E0CF;
+  --bg-surface-alt: #FAF4E4;
+  --text-primary: #231D16;
+  --text-secondary: rgba(35, 29, 22, 0.7);
+  --text-muted: rgba(35, 29, 22, 0.5);
+  --text-accent: #B24A2C;
+  --text-accent-muted: rgba(178, 74, 44, 0.7);
+  --text-accent-alt: #6F7E5B;
+  --border-primary: rgba(35, 29, 22, 0.2);
+  --border-accent: rgba(178, 74, 44, 0.35);
+  --border-accent-strong: rgba(178, 74, 44, 0.6);
 
-  --elevation-1: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.08);
-  --elevation-2: 0 4px 12px rgba(0,0,0,0.08), 0 8px 24px rgba(154,116,32,0.06);
-  --elevation-3: 0 8px 24px rgba(0,0,0,0.1), 0 16px 48px rgba(0,0,0,0.08);
+  --elevation-1: 0 1px 3px rgba(80, 55, 30, 0.08), 0 4px 16px rgba(80, 55, 30, 0.08);
+  --elevation-2: 0 4px 12px rgba(80, 55, 30, 0.1), 0 8px 24px rgba(178, 74, 44, 0.06);
+  --elevation-3: 0 8px 24px rgba(80, 55, 30, 0.12), 0 16px 48px rgba(80, 55, 30, 0.08);
 
-  --media-bg: #F5F0E8;
-  --media-text: #2A2520;
-  --media-accent: #9A7420;
+  --media-bg: #F2ECDF;
+  --media-text: #231D16;
+  --media-accent: #B24A2C;
 }
 
 body {
@@ -228,10 +234,10 @@ select:focus-visible {
 }
 
 .micro-label {
-  font-family: var(--font-sans);
+  font-family: var(--font-mono);
   font-size: 0.65rem;
   text-transform: uppercase;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.22em;
   font-weight: 500;
   color: rgba(234, 228, 217, 0.7);
 }
@@ -332,6 +338,14 @@ select:focus-visible {
   background-color: var(--text-accent);
   color: var(--bg-primary);
   border-color: var(--text-accent);
+}
+
+[data-theme="light"] .seg-item {
+  border-width: 1.5px;
+}
+
+[data-theme="light"] .catalog-row {
+  border-bottom-style: dashed;
 }
 
 /* ── Badges ── */
@@ -500,11 +514,19 @@ select:focus-visible {
   font-style: italic;
 }
 .label-text {
-  font-family: var(--font-sans);
+  font-family: var(--font-mono);
   font-size: 0.6875rem;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-weight: 600;
+  letter-spacing: 0.18em;
+  font-weight: 500;
+}
+
+[data-theme="light"] .heading-xl,
+[data-theme="light"] .heading-lg,
+[data-theme="light"] .heading-md {
+  font-family: var(--font-display-light);
+  font-weight: 700;
+  letter-spacing: -0.005em;
 }
 
 /* Ambient page glow */
@@ -531,7 +553,7 @@ body::before {
 }
 
 [data-theme="light"] .gold-gradient-text {
-  background: linear-gradient(135deg, #9A7420 0%, #B8922E 50%, #9A7420 100%);
+  background: linear-gradient(135deg, #B24A2C 0%, #D46244 50%, #B24A2C 100%);
   background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;

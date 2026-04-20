@@ -14,6 +14,7 @@ import PhotoUpload from './PhotoUpload';
 import PhotoGallery from './PhotoGallery';
 import { usePhotoUrl } from '../contexts/PhotoContext';
 import { hapticTap, hapticImpact } from '../lib/capacitor';
+import { SectionRule, Flourish } from './ornaments';
 
 const REVIEW_TAGS = [
   'Neat', 'On the Rocks', 'With Water', 'In a Cocktail',
@@ -182,7 +183,8 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
                   Community Submission
                 </span>
               )}
-              <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-normal text-on-surface leading-none">{liquor.name}</h1>
+              <h1 className="heading-xl font-serif text-4xl sm:text-5xl md:text-6xl font-normal text-on-surface leading-none">{liquor.name}</h1>
+              <Flourish className="text-on-surface-accent mt-1" width={100} />
             </div>
             {avgRating && (
               <div className="flex items-center gap-2 surface-raised px-4 py-2 self-start shrink-0">
@@ -309,6 +311,9 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
       </div>
 
       {/* Flavor Profile Chart */}
+      <div className="mt-subsection">
+        <SectionRule title="FLAVOR PROFILE" align="left" />
+      </div>
       <div className="surface-raised p-5 sm:p-8">
         <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
           <div className="max-w-2xl">
@@ -429,11 +434,14 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
       )}
 
       {/* Reviews Section */}
-      <div className="space-y-10 mt-subsection">
+      <div className="mt-subsection">
+        <SectionRule title="REVIEWS" align="left" />
+      </div>
+      <div className="space-y-10">
         <div className="flex items-center justify-between">
           <div>
             <p className="micro-label text-on-surface-accent mb-2">Thoughts</p>
-            <h2 className="font-serif text-4xl font-normal text-on-surface">Reviews</h2>
+            <h2 className="heading-xl font-serif text-4xl font-normal text-on-surface">Reviews</h2>
           </div>
           {avgRating && (
             <div className="text-right">

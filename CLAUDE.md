@@ -99,9 +99,20 @@ The app uses a custom design system defined in `src/index.css`. **Always use the
 - Borders: `border-border-subtle`, `border-border-accent`, `border-border-accent-strong`
 
 **Typography:**
-- `font-serif` (Cormorant Garamond) — headlines, bottle names, descriptive text, search inputs
-- `font-sans` (Montserrat) — labels, buttons, metadata, UI chrome
-- `font-display` (Cinzel) — rarely used, display/logo contexts only
+- `font-serif` (Cormorant Garamond) — body copy, descriptive text, search inputs, bottle names
+- `font-sans` (Montserrat) — buttons, segmented controls, some UI chrome
+- `font-display` (DM Serif Display in Dusk / Old Standard TT in Sundown) — page headlines, hero titles, bottle names. Switches automatically based on `data-theme`. Use the `.heading-xl / -lg / -md` classes to inherit the mode-aware face.
+- `font-mono` (JetBrains Mono) — micro-labels (`.micro-label`, `.label-text`), tab-bar labels, and any small uppercase editorial chrome.
+
+**Accent palette:**
+- Dusk (dark): brass `#C89B3C`, ember alt `#B85C3A` via `--text-accent-alt`.
+- Sundown (light): terracotta `#B24A2C`, sagebrush alt `#6F7E5B` via `--text-accent-alt`.
+
+**Editorial primitives** (`src/components/ornaments.ts`):
+- `<AppMasthead />` — newspaper-style masthead (Discover hero).
+- `<SectionRule title="..." />` — `─ ◆ TITLE ◆ ─` section header; supports `align="left"` and an optional `trailing` node.
+- `<Flourish />` — small ornamental rule placed under hero titles.
+- `<CompassMark />` — decorative compass rose used sparingly (Profile header, etc.).
 
 **Dark/light theming:** Supported via `data-theme` attribute on `<html>`. CSS vars switch automatically. Always use the semantic tokens above, never hardcode colors.
 

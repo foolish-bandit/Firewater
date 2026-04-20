@@ -13,6 +13,7 @@ import { ProfileSkeleton } from './SkeletonCard';
 import PageTransition from './PageTransition';
 import FollowButton from './FollowButton';
 import FollowList from './FollowList';
+import { SectionRule, CompassMark } from './ornaments';
 
 interface ProfileViewProps {
   user: User | null;
@@ -166,6 +167,7 @@ export default function ProfileView({ user, liquors }: ProfileViewProps) {
 
       <div className="relative overflow-hidden rounded-[32px] border border-border-accent bg-[radial-gradient(circle_at_top_left,rgba(200,155,60,0.22),transparent_38%),linear-gradient(135deg,#1C1814_0%,#151311_55%,#101010_100%)] px-5 py-6 sm:px-8 sm:py-8">
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-on-surface/16 to-transparent" />
+        <CompassMark size={48} opacity={0.3} className="absolute top-5 right-5 text-on-surface-accent pointer-events-none" />
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(280px,0.9fr)]">
           <div className="space-y-6">
             <div className="flex flex-col md:flex-row gap-6 items-start">
@@ -358,10 +360,11 @@ export default function ProfileView({ user, liquors }: ProfileViewProps) {
         <>
           {topShelfLiquors.length > 0 && (
             <div className="space-y-6 mt-section">
+              <SectionRule title="TOP SHELF" />
               <div className="flex items-end justify-between gap-4">
                 <div>
                   <p className="micro-label text-on-surface-accent mb-2">Signature Bottles</p>
-                  <h2 className="font-serif text-3xl font-normal text-on-surface">Top Shelf</h2>
+                  <h2 className="heading-lg font-serif text-3xl font-normal text-on-surface">Top Shelf</h2>
                 </div>
                 <p className="hidden md:block text-sm text-on-surface-muted font-serif italic">The bottles most associated with this collector.</p>
               </div>
@@ -488,10 +491,11 @@ export default function ProfileView({ user, liquors }: ProfileViewProps) {
           <div className="section-divider" />
 
           <div className="space-y-8">
+            <SectionRule title="THE LOG" />
             <div className="flex items-end justify-between gap-4">
               <div>
                 <p className="micro-label text-on-surface-accent mb-2">Recent Tasting Opinions</p>
-                <h2 className="font-serif text-3xl font-normal text-on-surface">Journal</h2>
+                <h2 className="heading-lg font-serif text-3xl font-normal text-on-surface">Journal</h2>
               </div>
               <p className="hidden md:block text-sm text-on-surface-muted font-serif italic">A more personal view into what they praise, revisit, and remember.</p>
             </div>

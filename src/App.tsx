@@ -650,28 +650,28 @@ export default function App() {
             className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors ${location.pathname === '/' ? 'text-on-surface-accent' : 'text-on-surface-muted active:text-on-surface-secondary'}`}
           >
             <Home size={20} />
-            <span className="text-[9px] font-semibold tracking-wider uppercase">Home</span>
+            <span className="text-[9px] font-medium tracking-[0.18em] uppercase" style={{ fontFamily: 'var(--font-mono)' }}>Discover</span>
           </button>
           <button
             onClick={() => { hapticTap(); navigate('/catalog'); }}
             className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors ${location.pathname === '/catalog' ? 'text-on-surface-accent' : 'text-on-surface-muted active:text-on-surface-secondary'}`}
           >
             <Search size={20} />
-            <span className="text-[9px] font-semibold tracking-wider uppercase">Catalog</span>
+            <span className="text-[9px] font-medium tracking-[0.18em] uppercase" style={{ fontFamily: 'var(--font-mono)' }}>Catalog</span>
           </button>
           <button
             onClick={() => { hapticTap(); navigate('/lists'); }}
             className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors ${location.pathname === '/lists' ? 'text-on-surface-accent' : 'text-on-surface-muted active:text-on-surface-secondary'}`}
           >
             <ListIcon size={20} />
-            <span className="text-[9px] font-semibold tracking-wider uppercase">Lists</span>
+            <span className="text-[9px] font-medium tracking-[0.18em] uppercase" style={{ fontFamily: 'var(--font-mono)' }}>Lists</span>
           </button>
           <button
             onClick={() => { hapticTap(); navigate('/feed'); }}
             className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors ${location.pathname === '/feed' ? 'text-on-surface-accent' : 'text-on-surface-muted active:text-on-surface-secondary'}`}
           >
             <Rss size={20} />
-            <span className="text-[9px] font-semibold tracking-wider uppercase">Feed</span>
+            <span className="text-[9px] font-medium tracking-[0.18em] uppercase" style={{ fontFamily: 'var(--font-mono)' }}>Feed</span>
           </button>
           {user ? (
             <button
@@ -679,7 +679,7 @@ export default function App() {
               className={`flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors ${location.pathname.startsWith('/profile') ? 'text-on-surface-accent' : 'text-on-surface-muted active:text-on-surface-secondary'}`}
             >
               <UserIcon size={20} />
-              <span className="text-[9px] font-semibold tracking-wider uppercase">Profile</span>
+              <span className="text-[9px] font-medium tracking-[0.18em] uppercase" style={{ fontFamily: 'var(--font-mono)' }}>Profile</span>
             </button>
           ) : (
             <SignInButton mode="modal">
@@ -688,7 +688,7 @@ export default function App() {
                 className="flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors text-on-surface-muted active:text-on-surface-secondary"
               >
                 <UserIcon size={20} />
-                <span className="text-[9px] font-semibold tracking-wider uppercase">Sign In</span>
+                <span className="text-[9px] font-medium tracking-[0.18em] uppercase" style={{ fontFamily: 'var(--font-mono)' }}>Sign In</span>
               </button>
             </SignInButton>
           )}
