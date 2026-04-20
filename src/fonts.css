@@ -81,15 +81,6 @@
   src: url("/fonts/montserrat-latin-600-normal.woff2") format("woff2");
 }
 
-/* Cinzel — Regular 400 */
-@font-face {
-  font-family: "Cinzel";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("/fonts/cinzel-latin-400-normal.woff2") format("woff2");
-}
-
 /* DM Serif Display — Regular 400 */
 @font-face {
   font-family: "DM Serif Display";
