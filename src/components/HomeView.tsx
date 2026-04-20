@@ -6,6 +6,7 @@ import { SignUpButton } from '@clerk/react';
 import { User, Review } from '../types';
 import { Liquor } from '../data';
 import { storage } from '../lib/storage';
+import { AppMasthead, SectionRule } from './ornaments';
 
 interface HomeViewProps {
   user: User | null;
@@ -175,26 +176,28 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
 
   return (
     <PageTransition><div className="flex flex-col min-h-[80vh]">
-      <div className="w-full max-w-5xl mx-auto px-4 pt-4 md:pt-8 mb-10">
-        <div className="surface-raised p-6 md:p-8 lg:p-10 relative overflow-hidden">
+      <div className="w-full max-w-5xl mx-auto pt-4 md:pt-8 mb-6">
+        <AppMasthead />
+        <div className="flex items-center justify-between px-9 pt-2">
+          {user ? (
+            <p className="text-on-surface-muted text-sm font-sans">Howdy, <span className="text-on-surface">{user.name?.split(' ')[0] || 'partner'}</span></p>
+          ) : (
+            <p className="text-on-surface-muted text-sm font-sans">Howdy, <span className="text-on-surface">stranger</span></p>
+          )}
+          <div className="flex items-center gap-2">
+            <Users size={11} className="text-on-surface-accent" />
+            <span className="micro-label text-on-surface-accent">{liquors.length} Bottles</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="w-full max-w-5xl mx-auto px-4 mb-10">
+        <div
+          className="surface-raised p-6 md:p-8 lg:p-10 relative overflow-hidden"
+          style={{ borderTop: '2px solid var(--text-accent)', borderTopColor: 'color-mix(in srgb, var(--text-accent) 60%, transparent)' }}
+        >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(200,155,60,0.18),transparent_35%),radial-gradient(circle_at_bottom_left,rgba(200,155,60,0.08),transparent_30%)] pointer-events-none" />
           <div className="relative flex flex-col gap-8">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full vintage-border flex items-center justify-center overflow-hidden p-1.5 flex-shrink-0">
-                <img src="/logo.svg" alt="FIREWATER" className="w-full h-full object-contain opacity-80" />
-              </div>
-              <div>
-                {user ? (
-                  <p className="text-on-surface-muted text-sm font-sans">Howdy, <span className="text-on-surface">{user.name?.split(' ')[0] || 'partner'}</span></p>
-                ) : (
-                  <p className="text-on-surface-muted text-sm font-sans">Howdy, <span className="text-on-surface">stranger</span></p>
-                )}
-                <div className="flex items-center gap-2">
-                  <Users size={11} className="text-on-surface-accent" />
-                  <span className="micro-label text-on-surface-accent">{liquors.length} Bottles Ready to Discover</span>
-                </div>
-              </div>
-            </div>
 
             <div className="grid lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)] gap-8 items-start">
               <div>
@@ -298,7 +301,10 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
       )}
 
       <div className="w-full max-w-5xl mx-auto mb-section">
-        <div className="flex items-center justify-between px-4 mb-4">
+        <div className="px-4">
+          <SectionRule title="TONIGHT'S POUR" />
+        </div>
+        <div className="flex items-center justify-between px-4 mb-2">
           <h2 className="font-serif text-xl md:text-2xl text-on-surface">Popular discoveries right now</h2>
           <button
             onClick={() => navigate('/catalog')}
@@ -307,7 +313,7 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
             Browse Catalog <ChevronRight size={14} />
           </button>
         </div>
-        <p className="text-sm font-serif italic text-on-surface-muted px-4 -mt-2 mb-2">
+        <p className="text-sm font-serif italic text-on-surface-muted px-4 mb-2">
           Bottles the community keeps coming back to — a rotating selection based on what fellow explorers are discovering.
         </p>
         <div className="relative">
@@ -356,7 +362,10 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
 
       {wantToTryLiquors.length > 0 && (
         <div className="w-full max-w-5xl mx-auto mb-subsection">
-          <div className="flex items-center justify-between px-4 mb-4">
+          <div className="px-4">
+            <SectionRule title="THE SHORTLIST" />
+          </div>
+          <div className="flex items-center justify-between px-4 mb-2">
             <div className="flex items-center gap-3">
               <h2 className="font-serif text-xl md:text-2xl text-on-surface">Your discovery shortlist</h2>
               <span className="badge badge-accent text-[10px]">
@@ -370,7 +379,7 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
               View Lists <ChevronRight size={14} />
             </button>
           </div>
-          <p className="text-sm font-serif italic text-on-surface-muted px-4 -mt-2 mb-2">
+          <p className="text-sm font-serif italic text-on-surface-muted px-4 mb-2">
             Bottles you've flagged to try next. Tap any to see tasting notes, or head to your full shelf to manage the list.
           </p>
           <div className="relative">
@@ -408,7 +417,8 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
       )}
 
       <div className="w-full max-w-5xl mx-auto px-4 mb-section">
-        <div className="flex items-center justify-between mb-4">
+        <SectionRule title="VEINS OF SPIRIT" />
+        <div className="flex items-center justify-between mb-2">
           <h2 className="font-serif text-xl md:text-2xl text-on-surface">Browse by starting point</h2>
           <button
             onClick={() => navigate('/catalog')}
@@ -417,7 +427,7 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
             Browse Catalog <ChevronRight size={14} />
           </button>
         </div>
-        <p className="text-sm font-serif italic text-on-surface-muted mb-1">
+        <p className="text-sm font-serif italic text-on-surface-muted mb-4">
           Pick a lane — high proof, wheated, budget-friendly — and see every bottle that fits. A quick way to narrow the shelf before you search.
         </p>
         <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-6 gap-3">
