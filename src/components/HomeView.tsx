@@ -202,7 +202,7 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
             <div className="grid lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)] gap-8 items-start">
               <div>
                 <p className="micro-label text-on-surface-accent mb-3">Discover your next bottle</p>
-                <h1 className="font-serif text-4xl md:text-6xl font-normal gold-gradient-text mb-4 leading-tight">
+                <h1 className="heading-xl text-4xl md:text-6xl font-normal gold-gradient-text mb-4 leading-tight">
                   Start with a match.
                   <br />
                   Keep exploring from there.
