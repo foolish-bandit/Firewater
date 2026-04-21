@@ -183,7 +183,7 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
                   Community Submission
                 </span>
               )}
-              <h1 className="heading-xl font-serif text-4xl sm:text-5xl md:text-6xl font-normal text-on-surface leading-none">{liquor.name}</h1>
+              <h1 className="heading-xl text-4xl sm:text-5xl md:text-6xl font-normal text-on-surface leading-none">{liquor.name}</h1>
               <Flourish className="text-on-surface-accent mt-1" width={100} />
             </div>
             {avgRating && (
@@ -441,7 +441,7 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
         <div className="flex items-center justify-between">
           <div>
             <p className="micro-label text-on-surface-accent mb-2">Thoughts</p>
-            <h2 className="heading-xl font-serif text-4xl font-normal text-on-surface">Reviews</h2>
+            <h2 className="heading-xl text-4xl font-normal text-on-surface">Reviews</h2>
           </div>
           {avgRating && (
             <div className="text-right">

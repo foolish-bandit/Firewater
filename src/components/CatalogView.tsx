@@ -333,7 +333,7 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
             <p className="micro-label text-on-surface-accent">
               The Cellar &middot; {sortedLiquors.length.toLocaleString()} entries
             </p>
-            <h2 className="heading-xl font-serif text-4xl text-on-surface">Catalog</h2>
+            <h2 className="heading-xl text-4xl text-on-surface">Catalog</h2>
             <p className="text-on-surface-muted font-serif italic text-base leading-relaxed">
               Use search, scan, and filters here to narrow the shelf to the right bottle.
             </p>

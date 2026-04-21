@@ -214,7 +214,7 @@ export default function ProfileView({ user, liquors }: ProfileViewProps) {
                   <div className="space-y-3 min-w-0">
                     <div className="space-y-2">
                       <p className="micro-label text-on-surface-accent">Member Persona</p>
-                      <h1 className="font-serif text-3xl sm:text-5xl font-normal text-on-surface break-words">{profile.display_name || profile.name}</h1>
+                      <h1 className="heading-xl text-3xl sm:text-5xl font-normal text-on-surface break-words">{profile.display_name || profile.name}</h1>
                     </div>
 
                     {profile.bio ? (
@@ -364,7 +364,7 @@ export default function ProfileView({ user, liquors }: ProfileViewProps) {
               <div className="flex items-end justify-between gap-4">
                 <div>
                   <p className="micro-label text-on-surface-accent mb-2">Signature Bottles</p>
-                  <h2 className="heading-lg font-serif text-3xl font-normal text-on-surface">Top Shelf</h2>
+                  <h2 className="heading-lg text-3xl font-normal text-on-surface">Top Shelf</h2>
                 </div>
                 <p className="hidden md:block text-sm text-on-surface-muted font-serif italic">The bottles most associated with this collector.</p>
               </div>
@@ -495,7 +495,7 @@ export default function ProfileView({ user, liquors }: ProfileViewProps) {
             <div className="flex items-end justify-between gap-4">
               <div>
                 <p className="micro-label text-on-surface-accent mb-2">Recent Tasting Opinions</p>
-                <h2 className="heading-lg font-serif text-3xl font-normal text-on-surface">Journal</h2>
+                <h2 className="heading-lg text-3xl font-normal text-on-surface">Journal</h2>
               </div>
               <p className="hidden md:block text-sm text-on-surface-muted font-serif italic">A more personal view into what they praise, revisit, and remember.</p>
             </div>
