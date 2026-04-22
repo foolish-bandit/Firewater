@@ -1,13 +1,14 @@
 import { useMemo, useState, useCallback, type MouseEvent } from 'react';
 import PageTransition from './PageTransition';
 import { useNavigate } from 'react-router-dom';
-import { Heart, CheckCircle, Download, ChevronDown, Sparkles, Trophy, Compass, Flame } from 'lucide-react';
+import { Heart, CheckCircle, Download, ChevronDown, Compass, Flame, Trophy } from 'lucide-react';
 import { Liquor } from '../data';
 import { hapticTap, isNative } from '../lib/capacitor';
 import { Review } from '../types';
 import LiquorCard from './LiquorCard';
 import InsightsPanel from './InsightsPanel';
 import { usePullToRefresh } from '../hooks/usePullToRefresh';
+import { SectionRule, Flourish } from './ornaments';
 
 interface ListsViewProps {
   wantToTry: string[];
@@ -141,69 +142,92 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
 
   const journeyCards = [
     {
-      title: 'Collection depth',
-      value: `${triedLiquors.length} tasted`,
+      title: 'Collection Depth',
+      value: `${triedLiquors.length}`,
+      unit: 'TASTED',
       note: nextMilestone.remaining === 0 ? `Milestone ${nextMilestone.target} reached.` : `${nextMilestone.remaining} more to hit ${nextMilestone.target}.`,
       icon: Trophy,
-      accent: 'text-on-surface-accent border-border-accent bg-on-surface-accent/10',
     },
     {
-      title: 'Category trail',
+      title: 'Category Trail',
       value: `${categoryJourney.discovered}/${categoryJourney.total}`,
+      unit: 'SPIRITS',
       note: 'Spirit categories discovered through tasted bottles.',
       icon: Compass,
-      accent: 'text-emerald-300 border-emerald-500/18 bg-emerald-500/10',
     },
     {
       title: 'Momentum',
       value: recentActivity.momentumLabel,
-      note: recentActivity.reviewBurst > 0 ? `${recentActivity.reviewBurst} review${recentActivity.reviewBurst === 1 ? '' : 's'} in the last 30 days.` : 'Drop a few notes to spark your next streak.',
+      unit: recentActivity.reviewBurst > 0 ? `${recentActivity.reviewBurst} NOTE${recentActivity.reviewBurst === 1 ? '' : 'S'} · 30D` : 'READY',
+      note: recentActivity.reviewBurst > 0 ? 'Tasting notes logged in the last 30 days.' : 'Drop a few notes to spark your next streak.',
       icon: Flame,
-      accent: 'text-rose-300 border-rose-500/18 bg-rose-500/10',
     },
   ];
 
   return (
     <PageTransition><div className="space-y-10">
       <div className="text-center space-y-4 py-8">
-        <p className="micro-label text-on-surface-accent">Collection Journey</p>
-        <h1 className="font-serif text-4xl md:text-5xl font-normal text-on-surface">My Shelf</h1>
-        <p className="text-on-surface-muted font-serif italic max-w-2xl mx-auto text-lg">Not just a list of bottles — a map of what you've explored, what you've claimed, and what still calls your name.</p>
+        <p className="micro-label text-on-surface-accent">
+          <span className="text-on-surface-accent">◆</span> Collection Journey
+        </p>
+        <h1 className="heading-xl text-4xl md:text-5xl italic font-normal text-on-surface leading-[1.05]">My Shelf</h1>
+        <Flourish className="text-on-surface-accent mx-auto" width={110} />
+        <p className="text-on-surface-muted font-serif italic max-w-2xl mx-auto text-base">Not just a list of bottles — a map of what you've explored, what you've claimed, and what still calls your name.</p>
       </div>
 
       {total > 0 && (
         <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)] gap-5">
-          <div className="rounded-[30px] border border-border-accent premium-gradient p-5 sm:p-7">
-            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-5 mb-5">
+          <div className="border border-border-accent bg-surface-raised p-5 sm:p-7">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-5 mb-5 pb-5 border-b border-border-subtle">
               <div>
-                <p className="micro-label text-on-surface-accent mb-2">Progress Story</p>
-                <h2 className="font-serif text-3xl text-on-surface">Your collection arc</h2>
+                <p className="micro-label text-on-surface-accent mb-2">
+                  <span className="text-on-surface-accent">◆</span> Progress Story
+                </p>
+                <h2 className="heading-md text-2xl italic text-on-surface">Your collection arc</h2>
               </div>
               <div className="text-left md:text-right">
-                <p className="text-[10px] tracking-[0.28em] uppercase text-on-surface-muted">Journey completion</p>
-                <p className="font-serif text-4xl text-on-surface">{completionPct}%</p>
+                <p className="micro-label text-on-surface-muted">Journey complete</p>
+                <p className="heading-xl text-5xl italic text-on-surface-accent leading-none mt-1">{completionPct}%</p>
               </div>
             </div>
 
-            <div className="space-y-3">
-              <div className="flex items-center justify-between text-[10px] font-semibold tracking-[0.26em] uppercase text-on-surface-muted">
+            <div className="space-y-4">
+              <div
+                className="flex items-center justify-between text-[10px] tracking-[0.22em] uppercase text-on-surface-muted"
+                style={{ fontFamily: 'var(--font-mono)' }}
+              >
                 <span>{triedLiquors.length} conquered</span>
                 <span>{wantLiquors.length} still chasing</span>
               </div>
-              <div className="h-3 rounded-full bg-[#0F0D0B] overflow-hidden">
-                <div className="h-full rounded-full bg-gradient-to-r from-on-surface-accent/70 via-on-surface-accent to-on-surface-accent/50 transition-all duration-700" style={{ width: `${completionPct}%` }} />
+              <div className="h-[3px] bg-surface-base overflow-hidden">
+                <div className="h-full bg-on-surface-accent transition-all duration-700" style={{ width: `${completionPct}%` }} />
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3">
-                {journeyCards.map((card) => {
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 border border-border-subtle mt-4">
+                {journeyCards.map((card, idx) => {
                   const Icon = card.icon;
                   return (
-                    <div key={card.title} className="rounded-[22px] border border-border-subtle bg-on-surface/[0.03] p-4">
-                      <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-full border ${card.accent}`}>
-                        <Icon size={17} />
+                    <div
+                      key={card.title}
+                      className={`p-4 border-border-subtle ${idx < journeyCards.length - 1 ? 'border-b sm:border-b-0 sm:border-r' : ''}`}
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <span
+                          className="text-[10px] tracking-[0.22em] text-on-surface-accent"
+                          style={{ fontFamily: 'var(--font-mono)' }}
+                        >
+                          {String(idx + 1).padStart(2, '0')}
+                        </span>
+                        <Icon size={14} className="text-on-surface-accent" />
                       </div>
-                      <p className="text-[10px] font-semibold tracking-[0.26em] uppercase text-on-surface-muted">{card.title}</p>
-                      <p className="mt-2 font-serif text-2xl text-on-surface leading-tight">{card.value}</p>
-                      <p className="mt-2 text-sm text-on-surface-muted leading-relaxed">{card.note}</p>
+                      <p className="micro-label text-on-surface-muted">{card.title}</p>
+                      <p className="heading-md text-xl italic text-on-surface mt-2 leading-tight">{card.value}</p>
+                      <p
+                        className="mt-1 text-[10px] tracking-[0.22em] text-on-surface-accent"
+                        style={{ fontFamily: 'var(--font-mono)' }}
+                      >
+                        {card.unit}
+                      </p>
+                      <p className="mt-2 text-xs font-serif italic text-on-surface-muted leading-relaxed">{card.note}</p>
                     </div>
                   );
                 })}
@@ -211,33 +235,55 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
             </div>
           </div>
 
-          <div className="rounded-[30px] border border-border-subtle bg-surface-raised p-5 sm:p-6">
-            <div className="flex items-center gap-2 mb-5">
-              <Sparkles size={16} className="text-on-surface-accent" />
-              <p className="micro-label text-on-surface-accent">Milestones & Categories</p>
+          <div className="border border-border-subtle bg-surface-raised p-5 sm:p-6">
+            <div className="flex items-center justify-between gap-2 mb-5 pb-4 border-b border-border-subtle">
+              <p className="micro-label text-on-surface-accent">
+                <span className="text-on-surface-accent">◆</span> Milestones &amp; Categories
+              </p>
+              <Trophy size={14} className="text-on-surface-accent" />
             </div>
 
             <div className="space-y-4">
-              <div className="rounded-[22px] border border-border-accent bg-on-surface-accent/8 p-4">
-                <p className="text-[10px] font-semibold tracking-[0.26em] uppercase text-on-surface-muted">Next unlock</p>
-                <p className="mt-2 font-serif text-3xl text-on-surface">{nextMilestone.target} bottles</p>
-                <p className="mt-2 text-sm text-on-surface-muted">{nextMilestone.remaining === 0 ? 'Milestone secured — keep climbing.' : `${nextMilestone.remaining} more tasted bottles to unlock your next badge.`}</p>
+              <div className="border border-border-accent bg-on-surface-accent/5 p-4">
+                <p className="micro-label text-on-surface-muted">Next unlock</p>
+                <p className="heading-md text-3xl italic text-on-surface mt-1 leading-none">{nextMilestone.target} <span className="text-on-surface-muted text-base">bottles</span></p>
+                <p className="mt-2 text-sm font-serif italic text-on-surface-muted">
+                  {nextMilestone.remaining === 0 ? 'Milestone secured — keep climbing.' : `${nextMilestone.remaining} more tasted to unlock your next badge.`}
+                </p>
               </div>
 
-              <div className="space-y-3">
-                {categoryJourney.completionByCategory.length > 0 ? categoryJourney.completionByCategory.map((category) => (
-                  <div key={category.type} className="rounded-[20px] border border-border-subtle bg-on-surface/[0.03] p-4">
+              <div className="space-y-0 border border-border-subtle">
+                {categoryJourney.completionByCategory.length > 0 ? categoryJourney.completionByCategory.map((category, i) => (
+                  <div
+                    key={category.type}
+                    className={`p-4 ${i < categoryJourney.completionByCategory.length - 1 ? 'border-b border-border-subtle' : ''}`}
+                  >
                     <div className="flex items-center justify-between gap-3 mb-2">
-                      <p className="font-serif text-lg text-on-surface">{category.type}</p>
-                      <span className="text-[10px] tracking-[0.26em] uppercase text-on-surface-accent">{category.pct}% complete</span>
+                      <div className="flex items-baseline gap-3 min-w-0">
+                        <span
+                          className="text-[10px] tracking-[0.22em] text-on-surface-accent shrink-0"
+                          style={{ fontFamily: 'var(--font-mono)' }}
+                        >
+                          {String(i + 1).padStart(2, '0')}
+                        </span>
+                        <p className="heading-md text-lg italic text-on-surface leading-tight truncate">{category.type}</p>
+                      </div>
+                      <span
+                        className="text-[10px] tracking-[0.22em] text-on-surface-accent shrink-0"
+                        style={{ fontFamily: 'var(--font-mono)' }}
+                      >
+                        {category.pct}%
+                      </span>
                     </div>
-                    <div className="h-2 rounded-full bg-[#0F0D0B] overflow-hidden">
-                      <div className="h-full rounded-full bg-gradient-to-r from-on-surface-accent/60 to-on-surface-accent" style={{ width: `${category.pct}%` }} />
+                    <div className="h-[2px] bg-surface-base overflow-hidden">
+                      <div className="h-full bg-on-surface-accent" style={{ width: `${category.pct}%` }} />
                     </div>
-                    <p className="mt-2 text-sm text-on-surface-muted">{category.categoryTried} of {category.categoryTotal} bottles in this lane have been tasted.</p>
+                    <p className="mt-2 text-xs font-serif italic text-on-surface-muted">
+                      {category.categoryTried} of {category.categoryTotal} in this lane have been tasted.
+                    </p>
                   </div>
                 )) : (
-                  <p className="text-on-surface-muted font-serif italic">Build your shelf to surface category completion cues.</p>
+                  <p className="p-4 text-on-surface-muted font-serif italic">Build your shelf to surface category completion cues.</p>
                 )}
               </div>
             </div>
@@ -246,19 +292,21 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
       )}
 
       {tried.length >= 3 && (
-        <div className="surface-raised overflow-hidden rounded-[28px]">
+        <div className="border border-border-subtle bg-surface-raised overflow-hidden">
           <button
             onClick={() => setInsightsOpen(prev => !prev)}
             className="w-full flex items-center justify-between p-4 sm:p-5 text-left group"
           >
-            <span className="micro-label text-on-surface-accent group-hover:text-on-surface-accent/80 transition-colors">Your Insights</span>
+            <span className="micro-label text-on-surface-accent group-hover:text-on-surface transition-colors">
+              <span className="text-on-surface-accent">◆</span> Your Insights
+            </span>
             <ChevronDown
-              size={18}
+              size={16}
               className={`text-on-surface-accent transition-transform duration-300 ${insightsOpen ? 'rotate-180' : ''}`}
             />
           </button>
           {insightsOpen && (
-            <div className="px-4 sm:px-5 pb-5">
+            <div className="px-4 sm:px-5 pb-5 border-t border-border-subtle pt-5">
               <InsightsPanel
                 triedIds={tried}
                 wantIds={wantToTry}
@@ -270,34 +318,40 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
         </div>
       )}
 
+      <div className="border-t border-border-subtle pt-6">
+        <SectionRule title={activeTab === 'want' ? 'THE SHORTLIST' : 'THE TASTED'} />
+      </div>
+
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex gap-1 surface-raised p-1 rounded-full">
+        <div className="flex gap-0 border border-border-subtle">
           <button
             onClick={() => { hapticTap(); setActiveTab('want'); }}
-            className={`px-3 sm:px-6 py-2.5 text-[10px] sm:text-xs font-semibold tracking-wider sm:tracking-widest uppercase transition-all duration-300 rounded-full ${
+            className={`px-4 sm:px-6 py-2.5 text-[10px] sm:text-xs tracking-[0.22em] uppercase transition-colors border-r border-border-subtle ${
               activeTab === 'want'
-                ? 'seg-item-active'
-                : 'seg-item hover:text-on-surface'
+                ? 'bg-on-surface-accent text-on-surface-invert'
+                : 'text-on-surface-muted hover:text-on-surface'
             }`}
+            style={{ fontFamily: 'var(--font-mono)' }}
           >
             <span className="flex items-center gap-1.5 sm:gap-2">
-              <Heart size={14} />
-              <span className="hidden sm:inline">Want to try</span>
-              <span className="sm:hidden">Want</span>
-              ({wantLiquors.length})
+              <Heart size={12} />
+              <span className="hidden sm:inline">Want</span>
+              <span>({wantLiquors.length})</span>
             </span>
           </button>
           <button
             onClick={() => { hapticTap(); setActiveTab('tried'); }}
-            className={`px-3 sm:px-6 py-2.5 text-[10px] sm:text-xs font-semibold tracking-wider sm:tracking-widest uppercase transition-all duration-300 rounded-full ${
+            className={`px-4 sm:px-6 py-2.5 text-[10px] sm:text-xs tracking-[0.22em] uppercase transition-colors ${
               activeTab === 'tried'
-                ? 'seg-item-active'
-                : 'seg-item hover:text-on-surface'
+                ? 'bg-on-surface-accent text-on-surface-invert'
+                : 'text-on-surface-muted hover:text-on-surface'
             }`}
+            style={{ fontFamily: 'var(--font-mono)' }}
           >
             <span className="flex items-center gap-1.5 sm:gap-2">
-              <CheckCircle size={14} />
-              Tried &amp; tasted ({triedLiquors.length})
+              <CheckCircle size={12} />
+              <span className="hidden sm:inline">Tried</span>
+              <span>({triedLiquors.length})</span>
             </span>
           </button>
         </div>
@@ -305,9 +359,10 @@ export default function ListsView({ wantToTry, tried, toggleWantToTry, toggleTri
         {total > 0 && (
           <button
             onClick={() => exportLists(wantLiquors, triedLiquors, showToast)}
-            className="btn btn-secondary inline-flex items-center gap-2 font-sans font-semibold tracking-widest uppercase text-xs px-6 py-2 transition-colors"
+            className="inline-flex items-center gap-2 border border-border-subtle hover:border-border-accent-strong text-[10px] tracking-[0.22em] uppercase text-on-surface-secondary px-4 py-2 transition-colors"
+            style={{ fontFamily: 'var(--font-mono)' }}
           >
-            <Download size={14} />
+            <Download size={12} />
             Export
           </button>
         )}
