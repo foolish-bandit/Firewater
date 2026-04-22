@@ -195,18 +195,25 @@ export default function SubmitLiquorModal({ onClose, onSubmit, onSelectExisting,
         </button>
 
         <div>
-          <h2 className="font-display text-3xl text-on-surface mb-2">Submit a Liquor</h2>
-          <p className="text-on-surface-muted mb-4">Help grow the community database.</p>
+          <p className="micro-label text-on-surface-accent mb-2">
+            <span className="text-on-surface-accent">◆</span> Community Submission
+          </p>
+          <h2 className="heading-xl text-3xl italic text-on-surface mb-2 leading-tight">Submit a Liquor</h2>
+          <p className="text-on-surface-muted font-serif italic mb-5">Help grow the community database.</p>
 
           {/* Step indicator */}
-          <div className="flex items-center gap-2 mb-6">
-            {(['input', 'duplicate-check', 'loading', 'review'] as const).map((s, i) => (
-              <div key={s} className={`w-2 h-2 rounded-full transition-colors ${
-                s === step ? 'bg-on-surface-accent' :
-                (['input', 'duplicate-check', 'loading', 'review'].indexOf(step) > i) ? 'bg-on-surface-accent/50' :
-                'bg-on-surface/15'
-              }`} />
-            ))}
+          <div className="flex items-center gap-1.5 mb-6 max-w-md">
+            {(['input', 'duplicate-check', 'loading', 'review'] as const).map((s, i) => {
+              const currentIdx = ['input', 'duplicate-check', 'loading', 'review'].indexOf(step);
+              return (
+                <div
+                  key={s}
+                  className={`h-[2px] flex-1 transition-colors duration-300 ${
+                    i <= currentIdx ? 'bg-on-surface-accent' : 'bg-border-subtle'
+                  }`}
+                />
+              );
+            })}
           </div>
 
           {error && (
