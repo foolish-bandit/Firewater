@@ -191,78 +191,36 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
         </div>
       </div>
 
-      <div className="w-full max-w-5xl mx-auto px-4 mb-10">
-        <div
-          className="surface-raised p-6 md:p-8 lg:p-10 relative overflow-hidden"
-          style={{ borderTop: '2px solid var(--text-accent)', borderTopColor: 'color-mix(in srgb, var(--text-accent) 60%, transparent)' }}
-        >
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(200,155,60,0.18),transparent_35%),radial-gradient(circle_at_bottom_left,rgba(200,155,60,0.08),transparent_30%)] pointer-events-none" />
-          <div className="relative flex flex-col gap-8">
-
-            <div className="grid lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)] gap-8 items-start">
-              <div>
-                <p className="micro-label text-on-surface-accent mb-3">Discover your next bottle</p>
-                <h1 className="heading-xl text-4xl md:text-6xl font-normal gold-gradient-text mb-4 leading-tight">
-                  Start with a match.
-                  <br />
-                  Keep exploring from there.
-                </h1>
-                <p className="text-on-surface-secondary text-base md:text-lg font-serif italic mb-8 max-w-2xl leading-relaxed">
-                  Browse the catalog for the full shelf, search by flavor or budget, scan a bottle, or let us surprise you with something new.
-                </p>
-                <p className="text-sm text-on-surface-muted max-w-2xl leading-relaxed mb-2">
-                  Firewater helps you find bottles that match your palate, track what you've tasted, and build a personal shelf — whether you're just getting started or deep into the journey.
-                </p>
-
-              </div>
-
-              <div className="bg-surface-base/80 border border-border-subtle p-5 md:p-6 space-y-4">
-                <div>
-                  <p className="micro-label text-on-surface-accent mb-2">Quick search</p>
-                  <h2 className="font-serif text-2xl text-on-surface mb-2">Know what you want?</h2>
-                  <p className="text-sm text-on-surface-muted leading-relaxed">
-                    Search by flavor, distillery, proof, or budget to jump straight into the shelf.
-                  </p>
-                </div>
-                <form onSubmit={handleSearch} className="bg-surface-raised vintage-border search-pulse p-1 relative group focus-within:border-border-accent transition-colors">
-                  <div className="w-full flex items-center gap-4 px-5 py-3.5 relative">
-                    <Search className="h-5 w-5 text-on-surface-accent flex-shrink-0" />
-                    <div className="relative flex-1">
-                      <input
-                        ref={inputRef}
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-transparent text-base sm:text-lg font-serif italic text-on-surface focus:outline-none pr-10"
-                      />
-                      {!searchQuery && (
-                        <span
-                          className={`absolute inset-0 flex items-center text-base sm:text-lg font-serif italic text-on-surface-muted pointer-events-none transition-opacity duration-300 ${placeholderVisible ? 'opacity-100' : 'opacity-0'}`}
-                        >
-                          {PLACEHOLDERS[placeholderIdx]}
-                        </span>
-                      )}
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => navigate('/catalog?scan=1')}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-muted hover:text-on-surface-accent transition-colors p-1"
-                      aria-label="Scan a bottle"
-                    >
-                      <Camera size={20} />
-                    </button>
-                  </div>
-                </form>
-                <button
-                  onClick={handleSearch}
-                  className="inline-flex items-center justify-center gap-2 btn btn-primary px-5 py-3 w-full gold-glow"
+      <div className="w-full max-w-2xl mx-auto px-4 mb-section">
+        <form onSubmit={handleSearch} className="relative">
+          <div className="w-full flex items-center gap-3 border border-border-subtle bg-surface-raised px-5 py-4 focus-within:border-border-accent-strong transition-colors">
+            <Search className="h-4 w-4 text-on-surface-muted flex-shrink-0" />
+            <div className="relative flex-1">
+              <input
+                ref={inputRef}
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-transparent text-base sm:text-lg font-serif italic text-on-surface focus:outline-none"
+              />
+              {!searchQuery && (
+                <span
+                  className={`absolute inset-0 flex items-center text-base sm:text-lg font-serif italic text-on-surface-muted pointer-events-none transition-opacity duration-300 ${placeholderVisible ? 'opacity-100' : 'opacity-0'}`}
                 >
-                  <Search size={16} /> Search the Catalog
-                </button>
-              </div>
+                  {PLACEHOLDERS[placeholderIdx]}
+                </span>
+              )}
             </div>
+            <button
+              type="button"
+              onClick={() => navigate('/catalog?scan=1')}
+              className="text-on-surface-muted hover:text-on-surface-accent transition-colors p-1 shrink-0"
+              aria-label="Scan a bottle"
+            >
+              <Camera size={18} />
+            </button>
           </div>
-        </div>
+        </form>
       </div>
 
       {showOnboarding && (
@@ -305,7 +263,7 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
           <SectionRule title="TONIGHT'S POUR" />
         </div>
         <div className="flex items-center justify-between px-4 mb-2">
-          <h2 className="font-serif text-xl md:text-2xl text-on-surface">Popular discoveries right now</h2>
+          <h2 className="heading-md text-xl md:text-2xl italic text-on-surface">Popular discoveries right now</h2>
           <button
             onClick={() => navigate('/catalog')}
             className="text-on-surface-accent text-xs font-semibold tracking-widest uppercase flex items-center gap-1 hover:gap-2 transition-all"
@@ -334,7 +292,7 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
                   </span>
                 </div>
                 <div className="p-3">
-                  <h3 className="font-serif text-sm text-on-surface leading-tight line-clamp-2 mb-1 group-hover:text-on-surface-accent transition-colors">
+                  <h3 className="font-serif italic text-sm text-on-surface leading-tight line-clamp-2 mb-1 group-hover:text-on-surface-accent transition-colors">
                     {liquor.name}
                   </h3>
                   <p className="text-[10px] text-on-surface-muted uppercase tracking-widest font-sans truncate">{liquor.distillery}</p>
@@ -367,7 +325,7 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
           </div>
           <div className="flex items-center justify-between px-4 mb-2">
             <div className="flex items-center gap-3">
-              <h2 className="font-serif text-xl md:text-2xl text-on-surface">Your discovery shortlist</h2>
+              <h2 className="heading-md text-xl md:text-2xl italic text-on-surface">Your discovery shortlist</h2>
               <span className="badge badge-accent text-[10px]">
                 {wantToTry.length}
               </span>
@@ -418,35 +376,36 @@ export default function HomeView({ user, liquors, wantToTry, tried, reviews }: H
 
       <div className="w-full max-w-5xl mx-auto px-4 mb-section">
         <SectionRule title="VEINS OF SPIRIT" />
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="font-serif text-xl md:text-2xl text-on-surface">Browse by starting point</h2>
+        <div className="flex items-baseline justify-between mb-4 mt-2">
+          <p className="text-sm font-serif italic text-on-surface-muted">
+            Pick a lane. High proof, wheated, budget-friendly — a quick way to narrow the shelf.
+          </p>
           <button
             onClick={() => navigate('/catalog')}
-            className="text-on-surface-accent text-xs font-semibold tracking-widest uppercase flex items-center gap-1 hover:gap-2 transition-all"
+            className="micro-label text-on-surface-accent flex items-center gap-1 hover:text-on-surface transition-colors shrink-0 ml-4"
           >
-            Browse Catalog <ChevronRight size={14} />
+            Browse All <ChevronRight size={12} />
           </button>
         </div>
-        <p className="text-sm font-serif italic text-on-surface-muted mb-4">
-          Pick a lane — high proof, wheated, budget-friendly — and see every bottle that fits. A quick way to narrow the shelf before you search.
-        </p>
-        <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-6 gap-3">
-          {CATEGORIES.map(cat => {
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-0 border border-border-subtle">
+          {CATEGORIES.map((cat, i) => {
             const Icon = cat.icon;
+            const isLastCol = (i + 1) % 2 === 0;
+            const isLastColMd = (i + 1) % 3 === 0;
             return (
               <button
                 key={cat.filter}
                 onClick={() => handleCategoryClick(cat.filter)}
-                className="flex flex-col items-center gap-3 p-4 surface-raised hover:border-border-accent-strong card-elevated card-elevated-hover transition-all hover:-translate-y-0.5 duration-300 group"
+                className={`group flex items-center justify-between px-5 py-5 bg-surface-raised hover:bg-surface-alt transition-colors border-b border-border-subtle ${isLastCol ? '' : 'border-r md:border-r-0'} ${isLastColMd ? 'md:border-r-0' : 'md:border-r'} border-border-subtle`}
               >
-                <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
-                  style={{ backgroundColor: `${cat.color}15` }}
-                >
-                  <Icon size={20} style={{ color: cat.color }} />
+                <div className="flex items-center gap-3 min-w-0">
+                  <Icon size={14} className="text-on-surface-accent shrink-0" />
+                  <span className="heading-md text-lg md:text-xl text-on-surface leading-none group-hover:text-on-surface-accent transition-colors truncate">
+                    {cat.label}
+                  </span>
                 </div>
-                <span className="text-[11px] text-on-surface-muted uppercase tracking-widest font-sans text-center group-hover:text-on-surface transition-colors">
-                  {cat.label}
+                <span className="text-[10px] text-on-surface-muted tracking-[0.18em] shrink-0" style={{ fontFamily: 'var(--font-mono)' }}>
+                  {cat.filter === 'all' ? String(liquors.length) : '↗'}
                 </span>
               </button>
             );
