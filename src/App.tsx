@@ -252,7 +252,12 @@ export default function App() {
             <div className="w-10 h-10 rounded-full vintage-border flex items-center justify-center group-hover:border-border-accent-strong transition-colors overflow-hidden p-1">
               <img src="/logo.svg" alt="FIREWATER Logo" className="w-full h-full object-contain" />
             </div>
-            <span className="font-serif text-2xl font-bold tracking-widest text-on-surface uppercase">FIREWATER</span>
+            <span
+              className="text-2xl tracking-[0.04em] text-on-surface uppercase leading-none"
+              style={{ fontFamily: 'var(--font-display)' }}
+            >
+              FIRE<span className="text-on-surface-accent">·</span>WATER
+            </span>
           </div>
 
           {/* Desktop nav */}
@@ -260,7 +265,8 @@ export default function App() {
             {user && (
               <button
                 onClick={() => navigate('/feed')}
-                className={`relative text-xs font-semibold tracking-widest uppercase transition-colors flex items-center gap-2 py-1 ${location.pathname === '/feed' ? 'text-on-surface-accent' : 'text-on-surface-muted hover:text-on-surface'}`}
+                className={`relative text-[11px] font-medium tracking-[0.22em] uppercase transition-colors flex items-center gap-2 py-1 ${location.pathname === '/feed' ? 'text-on-surface-accent' : 'text-on-surface-muted hover:text-on-surface'}`}
+                style={{ fontFamily: 'var(--font-mono)' }}
               >
                 <Rss size={14} /> Feed
                 {location.pathname === '/feed' && <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-on-surface-accent" />}
@@ -268,28 +274,32 @@ export default function App() {
             )}
             <button
               onClick={() => navigate('/catalog')}
-              className={`relative text-xs font-semibold tracking-widest uppercase transition-colors py-1 ${location.pathname === '/catalog' ? 'text-on-surface-accent' : 'text-on-surface-muted hover:text-on-surface'}`}
+              className={`relative text-[11px] font-medium tracking-[0.22em] uppercase transition-colors py-1 ${location.pathname === '/catalog' ? 'text-on-surface-accent' : 'text-on-surface-muted hover:text-on-surface'}`}
+              style={{ fontFamily: 'var(--font-mono)' }}
             >
               Catalog
               {location.pathname === '/catalog' && <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-on-surface-accent" />}
             </button>
             <button
               onClick={() => navigate('/lists')}
-              className={`relative text-xs font-semibold tracking-widest uppercase transition-colors flex items-center gap-2 py-1 ${location.pathname === '/lists' ? 'text-on-surface-accent' : 'text-on-surface-muted hover:text-on-surface'}`}
+              className={`relative text-[11px] font-medium tracking-[0.22em] uppercase transition-colors flex items-center gap-2 py-1 ${location.pathname === '/lists' ? 'text-on-surface-accent' : 'text-on-surface-muted hover:text-on-surface'}`}
+              style={{ fontFamily: 'var(--font-mono)' }}
             >
               <ListIcon size={14} /> My Lists
               {location.pathname === '/lists' && <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-on-surface-accent" />}
             </button>
             <button
               onClick={() => setShowSubmitModal(true)}
-              className="text-xs font-semibold tracking-widest uppercase transition-colors flex items-center gap-2 text-on-surface-muted hover:text-on-surface"
+              className="text-[11px] font-medium tracking-[0.22em] uppercase transition-colors flex items-center gap-2 text-on-surface-muted hover:text-on-surface"
+              style={{ fontFamily: 'var(--font-mono)' }}
             >
               <Plus size={14} /> Submit
             </button>
             {isAdmin && (
               <button
                 onClick={() => navigate('/admin')}
-                className={`relative text-xs font-semibold tracking-widest uppercase transition-colors flex items-center gap-2 py-1 ${location.pathname === '/admin' ? 'text-on-surface-accent' : 'text-on-surface-muted hover:text-on-surface'}`}
+                className={`relative text-[11px] font-medium tracking-[0.22em] uppercase transition-colors flex items-center gap-2 py-1 ${location.pathname === '/admin' ? 'text-on-surface-accent' : 'text-on-surface-muted hover:text-on-surface'}`}
+                style={{ fontFamily: 'var(--font-mono)' }}
               >
                 <Shield size={14} /> Admin
                 {location.pathname === '/admin' && <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-on-surface-accent" />}
@@ -315,12 +325,18 @@ export default function App() {
             ) : (
               <div className="flex items-center gap-4">
                 <SignInButton mode="modal">
-                  <button className="text-xs font-semibold tracking-widest uppercase btn btn-secondary px-5 py-2 rounded-full">
+                  <button
+                    className="text-[11px] tracking-[0.22em] uppercase btn btn-secondary px-5 py-2"
+                    style={{ fontFamily: 'var(--font-mono)' }}
+                  >
                     Sign In
                   </button>
                 </SignInButton>
                 <SignUpButton mode="modal">
-                  <button className="text-xs font-semibold tracking-widest uppercase text-on-surface-muted hover:text-on-surface transition-colors">
+                  <button
+                    className="text-[11px] tracking-[0.22em] uppercase text-on-surface-muted hover:text-on-surface transition-colors"
+                    style={{ fontFamily: 'var(--font-mono)' }}
+                  >
                     Sign Up
                   </button>
                 </SignUpButton>

@@ -1,10 +1,11 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, RotateCcw, Sparkles, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, RotateCcw, ChevronRight } from 'lucide-react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts';
 import { Liquor, FlavorProfile } from '../data';
 import { getFlavorSummary, getSortedFlavorEntries } from '../utils/flavorStory';
 import { getFlavorVector, cosineSimilarity } from '../utils/liquorUtils';
+import { SectionRule, Flourish } from './ornaments';
 
 interface RecommendViewProps {
   liquors: Liquor[];
@@ -183,16 +184,12 @@ function profileToRadarData(profile: FlavorProfile) {
 
 function ProgressDots({ current, total }: { current: number; total: number }) {
   return (
-    <div className="flex items-center justify-center gap-2 mb-8">
+    <div className="flex items-center justify-center gap-1.5 mb-8 max-w-md mx-auto">
       {Array.from({ length: total }).map((_, i) => (
         <div
           key={i}
-          className={`rounded-full transition-all duration-300 ${
-            i === current
-              ? 'w-3 h-3 bg-on-surface-accent'
-              : i < current
-              ? 'w-2 h-2 bg-on-surface-accent/50'
-              : 'w-2 h-2 bg-on-surface/15'
+          className={`h-[2px] flex-1 transition-colors duration-300 ${
+            i <= current ? 'bg-on-surface-accent' : 'bg-border-subtle'
           }`}
         />
       ))}
@@ -220,10 +217,13 @@ function QuizStep({
       <ProgressDots current={currentStep} total={totalSteps} />
 
       <div className="text-center mb-10">
-        <p className="micro-label text-on-surface-accent mb-3">
-          Question {currentStep + 1} of {totalSteps}
+        <p
+          className="micro-label text-on-surface-accent mb-3"
+          style={{ fontFamily: 'var(--font-mono)' }}
+        >
+          STEP {String(currentStep + 1).padStart(2, '0')} / {String(totalSteps).padStart(2, '0')}
         </p>
-        <h2 className="font-serif text-3xl md:text-4xl text-on-surface leading-tight">
+        <h2 className="heading-xl text-3xl md:text-4xl italic text-on-surface leading-[1.1]">
           {question.question}
         </h2>
         {question.hint && (
@@ -233,24 +233,32 @@ function QuizStep({
         )}
       </div>
 
-      <div className="space-y-4">
-        {question.answers.map((answer) => (
+      <div className="space-y-0 border border-border-subtle">
+        {question.answers.map((answer, i) => (
           <button
             key={answer.value}
             onClick={() => onAnswer(answer.value)}
-            className={`w-full p-6 surface-raised text-left transition-all duration-300 group hover:border-border-accent-strong hover:-translate-y-0.5 ${
+            className={`w-full p-5 bg-surface-raised text-left transition-colors duration-200 group hover:bg-surface-alt ${i < question.answers.length - 1 ? 'border-b border-border-subtle' : ''} ${
               selectedValue === answer.value
-                ? 'border-border-accent-strong bg-on-surface-accent/10'
+                ? 'bg-on-surface-accent/10'
                 : ''
             }`}
           >
-            <div className="flex items-center justify-between">
-              <span className="font-serif text-xl text-on-surface group-hover:text-on-surface-accent transition-colors">
-                {answer.label}
-              </span>
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-baseline gap-4 min-w-0">
+                <span
+                  className="text-[10px] tracking-[0.22em] text-on-surface-accent shrink-0"
+                  style={{ fontFamily: 'var(--font-mono)' }}
+                >
+                  {String.fromCharCode(65 + i)}
+                </span>
+                <span className="heading-md text-lg md:text-xl italic text-on-surface group-hover:text-on-surface-accent transition-colors leading-tight">
+                  {answer.label}
+                </span>
+              </div>
               <ChevronRight
-                size={18}
-                className="text-on-surface/20 group-hover:text-on-surface-accent group-hover:translate-x-1 transition-all"
+                size={16}
+                className="text-on-surface/20 group-hover:text-on-surface-accent group-hover:translate-x-1 transition-all shrink-0"
               />
             </div>
           </button>
@@ -260,9 +268,10 @@ function QuizStep({
       {onBack && (
         <button
           onClick={onBack}
-          className="mt-8 flex items-center gap-2 text-on-surface-muted hover:text-on-surface-accent transition-colors text-sm font-semibold tracking-widest uppercase mx-auto"
+          className="mt-8 flex items-center gap-2 text-on-surface-muted hover:text-on-surface-accent transition-colors text-[11px] tracking-[0.22em] uppercase mx-auto"
+          style={{ fontFamily: 'var(--font-mono)' }}
         >
-          <ArrowLeft size={14} /> Back
+          <ArrowLeft size={12} /> Back
         </button>
       )}
     </div>
@@ -288,55 +297,48 @@ function RecommendationCard({
   return (
     <div
       onClick={onClick}
-      className="group surface-raised overflow-hidden cursor-pointer hover:border-border-accent-strong card-glow-hover transition-all duration-500 flex flex-col h-full relative hover:-translate-y-1"
+      className="group border border-border-subtle bg-surface-raised cursor-pointer hover:border-border-accent-strong transition-colors duration-200 flex flex-col h-full relative"
     >
-      {/* Top accent bar */}
-      <div className="h-[2px] w-[15%] group-hover:w-full bg-gradient-to-r from-on-surface-accent to-on-surface-accent/60 transition-all duration-700 ease-out" />
-
-      {/* Match badge */}
-      <div className="absolute top-4 right-4 z-10">
-        <div className="badge badge-accent px-3 py-1.5 backdrop-blur-sm">
-          <span className="text-on-surface-accent text-xs font-sans font-bold tracking-wider">
-            {matchPercent}% Match
-          </span>
-        </div>
+      <div className="absolute top-4 right-4 z-10 border border-border-accent bg-on-surface-accent/10 px-2 py-1">
+        <span
+          className="text-on-surface-accent text-[10px] tracking-[0.22em] uppercase"
+          style={{ fontFamily: 'var(--font-mono)' }}
+        >
+          {matchPercent}% Match
+        </span>
       </div>
 
-      <div className="p-6 flex-1 flex flex-col">
-        <h3 className="font-serif text-2xl font-normal text-on-surface group-hover:text-on-surface-accent transition-colors leading-tight mb-2 pr-24">
+      <div className="p-5 flex-1 flex flex-col">
+        <p className="micro-label text-on-surface-accent mb-2 pr-24">
+          <span className="text-on-surface-accent">◆</span> {liquor.distillery}
+        </p>
+
+        <h3 className="heading-md text-xl md:text-2xl italic text-on-surface group-hover:text-on-surface-accent transition-colors leading-tight mb-3 pr-24">
           {liquor.name}
         </h3>
 
-        <p className="micro-label text-on-surface-accent mb-3">{liquor.distillery}</p>
-
-        <div className="flex items-center gap-3 mb-3">
-          <span className="badge badge-solid px-3 py-1 text-[10px] font-sans font-semibold tracking-widest uppercase text-on-surface-accent">
-            {liquor.proof} Proof
+        <div className="pt-3 border-t border-border-subtle flex items-baseline justify-between gap-3 mb-3">
+          <span
+            className="text-[10px] tracking-[0.22em] uppercase text-on-surface-muted"
+            style={{ fontFamily: 'var(--font-mono)' }}
+          >
+            {liquor.proof} PR &middot; {topFlavors.join(' · ')}
           </span>
-          <span className="font-serif text-lg italic text-on-surface-secondary">
+          <span className="font-serif text-xl italic text-on-surface-accent">
             ${liquor.price}
           </span>
-        </div>
-
-        {/* Top flavors */}
-        <div className="flex gap-2 mb-4">
-          {topFlavors.map((flavor) => (
-            <span
-              key={flavor}
-              className="badge badge-muted px-2 py-0.5 text-[9px] font-sans font-medium tracking-wider uppercase"
-            >
-              {flavor}
-            </span>
-          ))}
         </div>
 
         <p className="text-sm text-on-surface-muted line-clamp-2 flex-1 font-serif italic leading-relaxed">
           {liquor.description}
         </p>
 
-        <div className="flex items-center gap-2 text-on-surface-accent text-xs font-semibold tracking-widest uppercase mt-4 group-hover:gap-3 transition-all">
+        <div
+          className="flex items-center gap-2 text-on-surface-accent text-[10px] tracking-[0.22em] uppercase mt-4 group-hover:gap-3 transition-all"
+          style={{ fontFamily: 'var(--font-mono)' }}
+        >
           <span>View Details</span>
-          <ChevronRight size={14} />
+          <ChevronRight size={12} />
         </div>
       </div>
     </div>
@@ -438,28 +440,23 @@ function ResultsView({
 
   return (
     <div className="animate-in fade-in duration-700 space-y-12">
-      {/* Header */}
-      <div className="text-center space-y-3">
-        <div className="w-14 h-14 rounded-full vintage-border flex items-center justify-center mx-auto mb-4 text-on-surface-accent">
-          <Sparkles size={24} />
-        </div>
-        <h1 className="font-serif text-4xl md:text-5xl text-on-surface">{title}</h1>
-        <p className="text-on-surface-muted font-serif italic text-lg">{subtitle}</p>
+      <div className="text-center space-y-4">
+        <p className="micro-label text-on-surface-accent">
+          <span className="text-on-surface-accent">◆</span> Matched Picks
+        </p>
+        <h1 className="heading-xl text-4xl md:text-5xl italic text-on-surface leading-[1.05]">{title}</h1>
+        <Flourish className="text-on-surface-accent mx-auto" width={110} />
+        <p className="text-on-surface-muted font-serif italic text-base max-w-xl mx-auto">{subtitle}</p>
       </div>
 
-      {/* Radar Chart */}
-      <div className="surface-raised p-6 max-w-lg mx-auto">
+      <div className="border border-border-subtle bg-surface-raised p-6 max-w-lg mx-auto">
         <FlavorRadar profile={profile} />
       </div>
 
-      {/* Results Grid */}
       <div>
-        <div className="text-center mb-8">
-          <p className="micro-label text-on-surface-accent mb-2">Top Picks</p>
-          <h2 className="font-serif text-3xl text-on-surface">We Think You'll Love</h2>
-        </div>
+        <SectionRule title="WE THINK YOU'LL LOVE" />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
           {recommendations.map(({ liquor, score }) => (
             <RecommendationCard
               key={liquor.id}
@@ -471,22 +468,22 @@ function ResultsView({
         </div>
 
         {recommendations.length === 0 && (
-          <div className="text-center py-16">
-            <p className="text-on-surface-muted font-serif italic text-lg">
+          <div className="text-center py-16 border border-dashed border-border-subtle mt-6">
+            <p className="text-on-surface-muted font-serif italic text-base">
               No matches found with those filters. Try broadening your preferences.
             </p>
           </div>
         )}
       </div>
 
-      {/* Reset */}
       {onReset && (
         <div className="text-center pt-4">
           <button
             onClick={onReset}
-            className="inline-flex items-center gap-2 vintage-border hover:bg-on-surface-accent hover:text-on-surface-invert hover:border-border-accent-strong text-on-surface-accent font-sans font-semibold tracking-widest uppercase px-8 py-4 transition-all duration-300 text-sm"
+            className="inline-flex items-center gap-2 border border-border-subtle hover:border-border-accent-strong text-on-surface-secondary hover:text-on-surface-accent text-[11px] tracking-[0.22em] uppercase px-6 py-3 transition-colors"
+            style={{ fontFamily: 'var(--font-mono)' }}
           >
-            <RotateCcw size={16} /> Retake Quiz
+            <RotateCcw size={12} /> Retake Quiz
           </button>
         </div>
       )}
@@ -618,11 +615,12 @@ export default function RecommendView({ liquors, wantToTry, tried }: RecommendVi
       {/* Quiz intro header (only on first step) */}
       {quizStep === 0 && (
         <div className="text-center space-y-4 mb-12">
-          <div className="w-14 h-14 rounded-full vintage-border flex items-center justify-center mx-auto mb-4 text-on-surface-accent">
-            <Sparkles size={24} />
-          </div>
-          <h1 className="font-serif text-4xl md:text-5xl text-on-surface">Discovery Quiz</h1>
-          <p className="text-on-surface-muted font-serif italic text-lg max-w-md mx-auto">
+          <p className="micro-label text-on-surface-accent">
+            <span className="text-on-surface-accent">◆</span> The Discovery Quiz
+          </p>
+          <h1 className="heading-xl text-4xl md:text-5xl italic text-on-surface leading-[1.05]">What fire are you chasing?</h1>
+          <Flourish className="text-on-surface-accent mx-auto" width={110} />
+          <p className="text-on-surface-muted font-serif italic text-base max-w-md mx-auto">
             Answer five quick questions and we'll guide you to bottles worth discovering.
           </p>
         </div>

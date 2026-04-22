@@ -21,15 +21,15 @@ export default function ListCard({ liquor, onClick }: ListCardProps) {
   return (
     <div
       onClick={onClick}
-      className="flex items-center gap-4 surface-raised p-5 cursor-pointer hover:border-border-accent-strong card-elevated card-elevated-hover transition-all duration-300 group border-l-2 border-l-transparent hover:border-l-border-accent-strong"
+      className="flex items-center gap-4 border border-border-subtle bg-surface-raised p-5 cursor-pointer hover:border-border-accent-strong transition-colors duration-200 group"
     >
       {/* Mini flavor signature */}
       <div className="w-14 shrink-0 space-y-1">
         {topFlavors.map(f => (
           <div key={f.name} className="flex items-center gap-1">
-            <div className="h-[3px] bg-surface-base rounded-full flex-1 overflow-hidden">
+            <div className="h-[2px] bg-surface-base flex-1 overflow-hidden">
               <div
-                className="h-full bg-on-surface-accent/60 rounded-full"
+                className="h-full bg-on-surface-accent/60"
                 style={{ width: `${(f.value / 10) * 100}%` }}
               />
             </div>
@@ -38,17 +38,31 @@ export default function ListCard({ liquor, onClick }: ListCardProps) {
       </div>
 
       <div className="flex-1 min-w-0">
-        <h4 className="font-display text-lg text-on-surface group-hover:text-on-surface-accent transition-colors truncate">{liquor.name}</h4>
-        <p className="micro-label text-on-surface-accent">{liquor.distillery}</p>
-        {liquor.type && <p className="micro-label text-on-surface/40 mt-0.5">{liquor.type}</p>}
+        <p className="micro-label text-on-surface-accent">
+          <span className="text-on-surface-accent">◆</span> {liquor.distillery}
+        </p>
+        <h4 className="heading-md text-lg italic text-on-surface group-hover:text-on-surface-accent transition-colors truncate mt-1">{liquor.name}</h4>
+        {liquor.type && (
+          <p
+            className="text-[10px] tracking-[0.22em] uppercase text-on-surface-muted mt-1"
+            style={{ fontFamily: 'var(--font-mono)' }}
+          >
+            {liquor.type}
+          </p>
+        )}
       </div>
 
       <div className="text-right shrink-0">
-        <p className="text-sm font-display text-on-surface/60">{liquor.proof}°</p>
-        <p className="text-sm font-serif text-on-surface/40 italic">${liquor.price}</p>
+        <p
+          className="text-[10px] tracking-[0.22em] uppercase text-on-surface-muted"
+          style={{ fontFamily: 'var(--font-mono)' }}
+        >
+          {liquor.proof} PR
+        </p>
+        <p className="font-serif text-lg italic text-on-surface-accent mt-0.5">${liquor.price}</p>
       </div>
 
-      <ChevronRight size={16} className="text-on-surface/20 group-hover:text-on-surface-accent transition-colors shrink-0" />
+      <ChevronRight size={14} className="text-on-surface/20 group-hover:text-on-surface-accent transition-colors shrink-0" />
     </div>
   );
 }

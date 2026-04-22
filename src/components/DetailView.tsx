@@ -175,51 +175,59 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
           {liquor.proof}
         </div>
 
-        <div className="relative z-10 space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-6">
-            <div className="flex flex-col gap-2">
-              {liquor.source === 'community' && (
-                <span className="self-start px-2 py-1 bg-on-surface-accent/20 text-[10px] font-sans font-semibold tracking-widest uppercase text-on-surface-accent border border-border-accent rounded-sm">
-                  Community Submission
-                </span>
-              )}
-              <h1 className="heading-xl text-4xl sm:text-5xl md:text-6xl font-normal text-on-surface leading-none">{liquor.name}</h1>
-              <Flourish className="text-on-surface-accent mt-1" width={100} />
-            </div>
-            {avgRating && (
-              <div className="flex items-center gap-2 surface-raised px-4 py-2 self-start shrink-0">
-                <Star size={18} className="fill-on-surface-accent text-on-surface-accent" />
-                <span className="font-serif text-xl italic text-on-surface">{avgRating}</span>
-                <span className="text-on-surface-muted text-xs">({reviews.length})</span>
+        <div className="relative z-10 space-y-8">
+          <div className="text-center space-y-4">
+            {liquor.source === 'community' && (
+              <span className="inline-block px-2 py-1 bg-on-surface-accent/20 text-[10px] font-sans font-semibold tracking-widest uppercase text-on-surface-accent border border-border-accent rounded-sm">
+                Community Submission
+              </span>
+            )}
+            <p className="micro-label text-on-surface-accent">
+              <span className="text-on-surface-accent">◆</span> {liquor.type} &middot; {liquor.region}{liquor.age && liquor.age !== 'NAS' ? ` · ${liquor.age}` : ''}
+            </p>
+            <h1 className="heading-xl text-4xl sm:text-5xl md:text-6xl font-normal italic text-on-surface leading-[1.05] max-w-3xl mx-auto">{liquor.name}</h1>
+            <Flourish className="text-on-surface-accent mx-auto" width={110} />
+            {avgRating ? (
+              <div className="flex items-center justify-center gap-3">
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4, 5].map(star => (
+                    <Star
+                      key={star}
+                      size={16}
+                      className={star <= Math.round(parseFloat(avgRating)) ? 'fill-on-surface-accent text-on-surface-accent' : 'text-on-surface-invert'}
+                    />
+                  ))}
+                </div>
+                <span className="font-serif text-lg italic text-on-surface">{avgRating}</span>
+                <span className="micro-label text-on-surface-muted">&middot; {reviews.length} {reviews.length === 1 ? 'Note' : 'Notes'}</span>
               </div>
+            ) : (
+              <p className="micro-label text-on-surface-muted">No tasting notes yet</p>
             )}
           </div>
+
           <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] gap-8 xl:gap-10 items-start">
             <PhotoGallery liquorId={id} liquor={liquor} />
 
             <div className="space-y-6">
-              <div className="space-y-3">
-                <p className="micro-label text-on-surface-accent">{liquor.distillery}</p>
-                <div className="flex flex-wrap gap-2">
-                  <span className="px-3 py-1 surface-raised text-[10px] font-sans font-semibold tracking-[0.22em] uppercase text-on-surface-accent">
-                    {liquor.type}
-                  </span>
-                  <span className="px-3 py-1 border border-border-subtle rounded-full text-[10px] font-sans font-semibold tracking-[0.22em] uppercase text-on-surface-muted">
-                    {liquor.region}
-                  </span>
-                  <span className="px-3 py-1 border border-border-subtle rounded-full text-[10px] font-sans font-semibold tracking-[0.22em] uppercase text-on-surface-muted">
-                    {liquor.age}
-                  </span>
-                </div>
+              <div className="space-y-2">
+                <p className="micro-label text-on-surface-accent">From the distillery</p>
+                <p className="heading-md text-xl italic text-on-surface">{liquor.distillery}</p>
               </div>
 
               <p className="text-on-surface-secondary text-lg leading-relaxed font-serif italic">{liquor.description}</p>
 
               <div>
-                <p className="micro-label text-on-surface-accent mb-3">Primary tasting notes</p>
+                <p className="micro-label text-on-surface-accent mb-3">
+                  <span className="text-on-surface-accent">◆</span> Primary tasting notes
+                </p>
                 <div className="flex flex-wrap gap-2">
                   {topFlavors.map(flavor => (
-                    <span key={flavor} className="px-3 py-1 text-[10px] font-sans font-semibold tracking-[0.22em] uppercase text-on-surface-secondary border border-border-subtle rounded-full bg-surface-raised/60">
+                    <span
+                      key={flavor}
+                      className="px-3 py-1 text-[10px] tracking-[0.22em] uppercase text-on-surface-secondary border border-border-subtle bg-surface-raised"
+                      style={{ fontFamily: 'var(--font-mono)' }}
+                    >
                       {flavor}
                     </span>
                   ))}
@@ -284,10 +292,12 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
       </div>
 
       {/* Two-column: Mash Bill + Dominant Notes */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-subsection">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-0 mt-subsection border border-border-subtle">
         {/* Mash Bill */}
-        <div className="surface-raised p-5 sm:p-8">
-          <h3 className="micro-label text-on-surface-accent mb-3">Mash Bill</h3>
+        <div className="p-5 sm:p-8 bg-surface-raised border-b md:border-b-0 md:border-r border-border-subtle">
+          <h3 className="micro-label text-on-surface-accent mb-3">
+            <span className="text-on-surface-accent">◆</span> Mash Bill
+          </h3>
           <p className="text-on-surface font-serif text-xl italic">{liquor.mashBill}</p>
           {liquor.mashBillDetail && (
             <p className="text-on-surface-muted text-sm mt-3 font-serif italic">{liquor.mashBillDetail}</p>
@@ -295,11 +305,17 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
         </div>
 
         {/* Dominant Flavors */}
-        <div className="surface-raised p-5 sm:p-8">
-          <h3 className="micro-label text-on-surface-accent mb-3">Dominant Notes</h3>
+        <div className="p-5 sm:p-8 bg-surface-raised">
+          <h3 className="micro-label text-on-surface-accent mb-3">
+            <span className="text-on-surface-accent">◆</span> Dominant Notes
+          </h3>
           <div className="flex flex-wrap gap-2 mb-4">
             {topFlavors.map(flavor => (
-              <span key={flavor} className="px-3 py-1 text-xs font-sans font-medium tracking-wider uppercase text-on-surface-accent border border-border-accent bg-on-surface-accent/5 rounded-full">
+              <span
+                key={flavor}
+                className="px-3 py-1 text-[10px] tracking-[0.22em] uppercase text-on-surface-accent border border-border-accent bg-on-surface-accent/5"
+                style={{ fontFamily: 'var(--font-mono)' }}
+              >
                 {flavor}
               </span>
             ))}
@@ -374,10 +390,12 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
       <div className="section-divider mt-section" />
 
       {/* Similar Liquors */}
-      <div className="space-y-8">
-        <div className="text-center mb-10">
-          <p className="micro-label text-on-surface-accent mb-2">Explore</p>
-          <h2 className="font-serif text-4xl font-normal text-on-surface">Similar Taste Profiles</h2>
+      <div className="space-y-6">
+        <SectionRule title="SIMILAR PROFILES" />
+        <div className="text-center mb-2">
+          <p className="font-serif italic text-on-surface-muted text-sm">
+            Bottles that share a flavor lineage — other pours worth chasing.
+          </p>
         </div>
         {/* Horizontal scroll on mobile, grid on desktop */}
         <div className="hidden md:grid md:grid-cols-3 gap-6">
@@ -435,25 +453,11 @@ export default function DetailView({ wantToTry, tried, toggleWantToTry, toggleTr
 
       {/* Reviews Section */}
       <div className="mt-subsection">
-        <SectionRule title="REVIEWS" align="left" />
+        <SectionRule
+          title={avgRating ? `THE JOURNAL — ${avgRating} AVG · ${reviews.length} ${reviews.length === 1 ? 'NOTE' : 'NOTES'}` : 'THE JOURNAL'}
+        />
       </div>
       <div className="space-y-10">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="micro-label text-on-surface-accent mb-2">Thoughts</p>
-            <h2 className="heading-xl text-4xl font-normal text-on-surface">Reviews</h2>
-          </div>
-          {avgRating && (
-            <div className="text-right">
-              <div className="flex gap-1 justify-end mb-1">
-                {[1, 2, 3, 4, 5].map(star => (
-                  <Star key={star} size={16} className={star <= Math.round(parseFloat(avgRating)) ? 'fill-on-surface-accent text-on-surface-accent' : 'text-on-surface-invert'} />
-                ))}
-              </div>
-              <p className="micro-label text-on-surface-muted">{avgRating} avg · {reviews.length} review{reviews.length !== 1 ? 's' : ''}</p>
-            </div>
-          )}
-        </div>
 
         {/* Review form with gold wash */}
         <div ref={reviewFormRef} className="bg-on-surface-accent/5 vintage-border p-5 sm:p-8">

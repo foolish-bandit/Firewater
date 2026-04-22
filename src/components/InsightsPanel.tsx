@@ -130,7 +130,7 @@ export default function InsightsPanel({ triedIds, wantIds, reviews, liquors }: I
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         {/* Proof Distribution */}
         <div className="surface-raised p-4 sm:p-6">
-          <h3 className="micro-label text-on-surface-accent mb-4">Proof Distribution</h3>
+          <h3 className="micro-label text-on-surface-accent mb-4"><span className="text-on-surface-accent">◆</span> Proof Distribution</h3>
           <div className="h-[180px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={proofData} layout="vertical" margin={{ top: 0, right: 10, bottom: 0, left: 0 }}>
@@ -161,7 +161,7 @@ export default function InsightsPanel({ triedIds, wantIds, reviews, liquors }: I
 
         {/* Price Breakdown */}
         <div className="surface-raised p-4 sm:p-6">
-          <h3 className="micro-label text-on-surface-accent mb-4">Price Breakdown</h3>
+          <h3 className="micro-label text-on-surface-accent mb-4"><span className="text-on-surface-accent">◆</span> Price Breakdown</h3>
           {priceStats ? (
             <div className="space-y-5 pt-2">
               <div>
@@ -191,7 +191,7 @@ export default function InsightsPanel({ triedIds, wantIds, reviews, liquors }: I
         {/* Flavor DNA */}
         {flavorDNA && (
           <div className="surface-raised p-4 sm:p-6">
-            <h3 className="micro-label text-on-surface-accent mb-4">Your Flavor DNA</h3>
+            <h3 className="micro-label text-on-surface-accent mb-4"><span className="text-on-surface-accent">◆</span> Your Flavor DNA</h3>
             <div className="h-[240px] sm:h-[280px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart cx="50%" cy="50%" outerRadius="70%" data={flavorDNA}>
@@ -207,7 +207,7 @@ export default function InsightsPanel({ triedIds, wantIds, reviews, liquors }: I
         {/* Top Distilleries */}
         {topDistilleries.length > 0 && (
           <div className="surface-raised p-4 sm:p-6">
-            <h3 className="micro-label text-on-surface-accent mb-4">Top Distilleries</h3>
+            <h3 className="micro-label text-on-surface-accent mb-4"><span className="text-on-surface-accent">◆</span> Top Distilleries</h3>
             <div className="space-y-3">
               {topDistilleries.map(([name, count], i) => (
                 <div key={name} className="flex items-center gap-3">
@@ -228,7 +228,7 @@ export default function InsightsPanel({ triedIds, wantIds, reviews, liquors }: I
       {/* Palate Profile */}
       {palateText && (
         <div className="surface-raised p-4 sm:p-6">
-          <h3 className="micro-label text-on-surface-accent mb-3">Palate Profile</h3>
+          <h3 className="micro-label text-on-surface-accent mb-3"><span className="text-on-surface-accent">◆</span> Palate Profile</h3>
           <p className="font-serif italic text-on-surface/70 text-lg leading-relaxed">{palateText}</p>
         </div>
       )}
