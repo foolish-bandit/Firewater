@@ -141,32 +141,36 @@ export default function CompareView({ liquors }: CompareViewProps) {
   return (
     <div className="flex flex-col animate-in fade-in duration-500">
       {/* Header */}
-      <div className="text-center mb-section">
-        <h1 className="font-serif text-4xl sm:text-5xl font-normal text-on-surface">Compare Liquors</h1>
+      <div className="text-center mb-section space-y-3">
+        <p className="micro-label text-on-surface-accent">
+          <span className="text-on-surface-accent">◆</span> Side-by-Side
+        </p>
+        <h1 className="heading-xl text-4xl sm:text-5xl italic font-normal text-on-surface leading-[1.05]">Compare Liquors</h1>
       </div>
 
       {/* Selection Area */}
-      <div className="surface-raised p-5 sm:p-8 space-y-4 mb-hero">
+      <div className="border border-border-subtle bg-surface-raised p-5 sm:p-7 space-y-4 mb-hero">
         {/* Selected liquor pills */}
         <div className="flex flex-wrap gap-2 min-h-[40px]">
           {selectedLiquors.map((b, i) => (
             <div
               key={b.id}
-              className="flex items-center gap-2 px-3 py-2 rounded-full text-sm font-sans font-medium tracking-wider"
+              className="flex items-center gap-2 px-3 py-1.5 text-[10px] tracking-[0.22em] uppercase"
               style={{
-                backgroundColor: `${COMPARE_COLORS[i]}15`,
-                border: `1px solid ${COMPARE_COLORS[i]}50`,
+                borderLeft: `2px solid ${COMPARE_COLORS[i]}`,
+                border: `1px solid ${COMPARE_COLORS[i]}60`,
+                borderLeftWidth: '3px',
                 color: COMPARE_COLORS[i],
+                fontFamily: 'var(--font-mono)',
               }}
             >
-              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: COMPARE_COLORS[i] }} />
-              <span className="truncate max-w-[200px]">{b.name}</span>
+              <span className="truncate max-w-[200px] normal-case" style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: '0.875rem', letterSpacing: 'normal' }}>{b.name}</span>
               <button
                 onClick={() => removeLiquor(b.id)}
                 className="hover:opacity-70 transition-opacity ml-1"
                 aria-label={`Remove ${b.name}`}
               >
-                <X size={14} />
+                <X size={12} />
               </button>
             </div>
           ))}
@@ -225,32 +229,45 @@ export default function CompareView({ liquors }: CompareViewProps) {
       {selectedLiquors.length >= 2 && (
         <div className="flex flex-col gap-subsection">
           {/* Overlaid Radar Chart */}
-          <div className="surface-raised p-4 sm:p-6">
+          <div className="border border-border-subtle bg-surface-raised p-4 sm:p-6">
             <div className="flex flex-col gap-6">
-              <div>
-                <h3 className="micro-label text-on-surface-accent mb-3">Flavor Profile Overlay</h3>
-                <p className="text-on-surface-secondary font-serif italic text-lg">
+              <div className="pb-4 border-b border-border-subtle">
+                <p className="micro-label text-on-surface-accent mb-2">
+                  <span className="text-on-surface-accent">◆</span> Flavor Profile Overlay
+                </p>
+                <p className="text-on-surface-secondary font-serif italic text-base">
                   Start with the callouts below, then use the radar to inspect the full shape of each pour.
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border border-border-subtle">
                 {comparisonHighlights.map(({ liquor, summary, leads }, index) => (
-                  <div key={liquor.id} className="bg-surface-base border border-border-subtle rounded-sm p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: COMPARE_COLORS[index] }} />
-                      <p className="text-sm font-sans font-semibold tracking-wider uppercase" style={{ color: COMPARE_COLORS[index] }}>
-                        {liquor.name}
-                      </p>
-                    </div>
-                    <p className="text-on-surface font-serif italic leading-relaxed">{summary}</p>
+                  <div
+                    key={liquor.id}
+                    className={`bg-surface-raised p-4 ${index < comparisonHighlights.length - 1 ? 'border-b md:border-b-0 md:border-r border-border-subtle' : ''}`}
+                    style={{ borderTop: `2px solid ${COMPARE_COLORS[index]}` }}
+                  >
+                    <p
+                      className="text-[10px] tracking-[0.22em] uppercase mb-2"
+                      style={{ color: COMPARE_COLORS[index], fontFamily: 'var(--font-mono)' }}
+                    >
+                      {String(index + 1).padStart(2, '0')} · {liquor.type}
+                    </p>
+                    <p className="heading-md text-lg italic text-on-surface leading-tight mb-3">
+                      {liquor.name}
+                    </p>
+                    <p className="text-on-surface-secondary font-serif italic text-sm leading-relaxed">{summary}</p>
                     {leads.length > 0 && (
                       <div className="mt-3 flex flex-wrap gap-2">
                         {leads.map((lead) => (
                           <span
                             key={`${liquor.id}-${lead.key}`}
-                            className="px-2.5 py-1 rounded-full border text-[10px] font-sans font-semibold tracking-widest uppercase"
-                            style={{ borderColor: `${COMPARE_COLORS[index]}40`, color: COMPARE_COLORS[index], backgroundColor: `${COMPARE_COLORS[index]}12` }}
+                            className="px-2 py-1 border text-[10px] tracking-[0.22em] uppercase"
+                            style={{
+                              borderColor: `${COMPARE_COLORS[index]}50`,
+                              color: COMPARE_COLORS[index],
+                              fontFamily: 'var(--font-mono)',
+                            }}
                           >
                             {formatFlavorLabel(lead.key)}
                           </span>
@@ -351,7 +368,9 @@ export default function CompareView({ liquors }: CompareViewProps) {
 
           {/* Side-by-side Stats Table */}
           <div className="border-t border-border-subtle pt-6">
-            <h3 className="micro-label text-on-surface-accent mb-4 sm:mb-6">Specifications</h3>
+            <p className="micro-label text-on-surface-accent mb-4 sm:mb-6">
+              <span className="text-on-surface-accent">◆</span> Specifications
+            </p>
 
             {/* Desktop table */}
             <div className="hidden md:block overflow-x-auto">
