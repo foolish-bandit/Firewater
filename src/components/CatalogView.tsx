@@ -327,27 +327,23 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
 
   return (
     <PageTransition><div className="space-y-8">
-      <div className="surface-raised p-4 sm:p-6 space-y-6">
-        <div className="flex flex-col xl:flex-row gap-6 xl:items-end xl:justify-between">
-          <div className="space-y-3 max-w-2xl">
+      <div className="space-y-6 border-b border-border-subtle pb-6">
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-2 max-w-2xl">
             <p className="micro-label text-on-surface-accent">
-              The Cellar &middot; {sortedLiquors.length.toLocaleString()} entries
+              <span className="text-on-surface-accent">◆</span> The Cellar &middot; {sortedLiquors.length.toLocaleString()} entries
             </p>
-            <h2 className="heading-xl text-4xl text-on-surface">Catalog</h2>
-            <p className="text-on-surface-muted font-serif italic text-base leading-relaxed">
-              Use search, scan, and filters here to narrow the shelf to the right bottle.
-            </p>
+            <h2 className="heading-xl text-4xl md:text-5xl text-on-surface italic">Catalog</h2>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
-            <button
-              type="button"
-              onClick={onOpenScanner}
-              className="inline-flex items-center justify-center gap-2 btn btn-secondary px-5 py-3"
-            >
-              <Camera size={16} /> Scan a Bottle
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={onOpenScanner}
+            className="inline-flex items-center justify-center gap-2 border border-border-subtle hover:border-border-accent-strong px-4 py-2.5 transition-colors shrink-0 text-[10px] tracking-[0.22em] uppercase text-on-surface-secondary"
+            style={{ fontFamily: 'var(--font-mono)' }}
+          >
+            <Camera size={14} /> Scan
+          </button>
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.6fr)] gap-4">
@@ -400,7 +396,7 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
 
         {/* Category tags — multi-select */}
         <div>
-          <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 sm:flex-wrap sm:overflow-visible">
+          <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 md:flex-wrap md:overflow-visible">
             {visibleCategories.map(cat => (
               <button
                 key={cat}
@@ -507,30 +503,33 @@ export default function CatalogView({ wantToTry, tried, toggleWantToTry, toggleT
           </div>
         </div>
 
-        <div className="border-t border-border-subtle pt-4 flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
-          <div className="space-y-2">
-            <p className="micro-label text-on-surface-accent">Active discovery view</p>
-            <p className="text-sm text-on-surface-secondary leading-relaxed">
-              You&apos;re {filterDescriptions.join(', ')}.
+        <div className="border-t border-border-accent pt-5 flex items-start justify-between gap-6">
+          <div className="flex-1 min-w-0 space-y-2">
+            <p className="micro-label text-on-surface-accent">
+              <span className="text-on-surface-accent">◆</span> Active discovery view
             </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {filterDescriptions.map((description) => (
-              <span
-                key={description}
-                className="badge badge-accent px-3 py-1.5 text-[10px] text-on-surface-secondary"
-              >
-                {description}
-              </span>
-            ))}
+            <p className="text-sm font-serif italic text-on-surface-secondary leading-relaxed">
+              Showing bottles {filterDescriptions.join(', ')}.
+            </p>
             {filtersActive && (
               <button
                 onClick={resetAllFilters}
-                className="text-xs font-semibold tracking-widest uppercase text-on-surface-accent hover:text-on-surface transition-colors px-2"
+                className="mt-2 text-[10px] font-semibold tracking-[0.22em] uppercase text-on-surface-accent hover:text-on-surface underline underline-offset-4 transition-colors"
+                style={{ fontFamily: 'var(--font-mono)' }}
               >
                 Reset All
               </button>
             )}
+          </div>
+          <div className="shrink-0 text-right">
+            <p
+              className="heading-xl text-5xl md:text-6xl italic text-on-surface-accent leading-none"
+            >
+              {sortedLiquors.length.toLocaleString()}
+            </p>
+            <p className="micro-label text-on-surface-muted mt-2">
+              {sortedLiquors.length === 1 ? 'Bottle' : 'Bottles'}
+            </p>
           </div>
         </div>
       </div>
