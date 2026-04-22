@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { RefreshCw, Star, CheckCircle2, Heart, Loader2, Users, Quote, GlassWater, Sparkles, Rss } from 'lucide-react';
+import { RefreshCw, Star, CheckCircle2, Heart, Users, Quote, Rss } from 'lucide-react';
 import { SignInButton } from '@clerk/react';
 import { Liquor } from '../data';
 import PageTransition from './PageTransition';
@@ -65,37 +65,19 @@ function StarRating({ rating }: { rating: number }) {
 
 const activityStyles = {
   review: {
-    label: 'Fresh Review',
+    label: 'FRESH REVIEW',
     verb: 'reviewed',
     icon: Quote,
-    shell: 'border-border-accent bg-surface-alt',
-    rail: 'bg-gradient-to-b from-on-surface-accent/60 via-on-surface-accent to-on-surface-accent/40',
-    iconWrap: 'bg-on-surface-accent/14 text-on-surface-accent border border-border-accent',
-    badge: 'bg-on-surface-accent/12 text-on-surface-accent border border-border-accent',
-    highlight: 'text-on-surface-accent',
-    panel: 'bg-on-surface-accent/8 border border-border-accent',
   },
   tried: {
-    label: 'Bottle Conquered',
+    label: 'BOTTLE CONQUERED',
     verb: 'checked in',
     icon: CheckCircle2,
-    shell: 'border-emerald-600/20 bg-surface-alt',
-    rail: 'bg-gradient-to-b from-[#9CE7C2] via-[#4FB27D] to-[#23593B]',
-    iconWrap: 'bg-emerald-500/12 text-emerald-300 border border-emerald-500/20',
-    badge: 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20',
-    highlight: 'text-emerald-200',
-    panel: 'bg-emerald-500/8 border border-emerald-500/15',
   },
   want: {
-    label: 'Wishlisted Pour',
+    label: 'WISHLISTED',
     verb: 'set sights on',
     icon: Heart,
-    shell: 'border-rose-500/20 bg-surface-alt',
-    rail: 'bg-gradient-to-b from-[#F3A6B9] via-[#D9678A] to-[#7A3245]',
-    iconWrap: 'bg-rose-500/12 text-rose-300 border border-rose-500/20',
-    badge: 'bg-rose-500/10 text-rose-300 border border-rose-500/20',
-    highlight: 'text-rose-200',
-    panel: 'bg-rose-500/8 border border-rose-500/15',
   },
 } as const;
 
@@ -161,17 +143,20 @@ export default function FeedView({ user, liquors, onOpenUserSearch }: FeedViewPr
 
   return (
     <PageTransition><div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <p className="micro-label mb-1 text-on-surface-accent">Activity</p>
-          <h1 className="font-serif text-3xl sm:text-4xl font-normal text-on-surface">Feed</h1>
+      <div className="flex items-center justify-between mb-8 pb-5 border-b border-border-subtle">
+        <div className="space-y-2">
+          <p className="micro-label text-on-surface-accent">
+            <span className="text-on-surface-accent">◆</span> The Dispatch
+          </p>
+          <h1 className="heading-xl text-3xl sm:text-4xl italic font-normal text-on-surface">Feed</h1>
         </div>
         <button
           onClick={() => fetchFeed(true)}
           disabled={refreshing}
-          className="flex items-center gap-2 text-xs font-semibold tracking-widest uppercase vintage-border hover:bg-on-surface-accent hover:text-surface-base hover:border-on-surface-accent text-on-surface-accent px-4 py-2 rounded-full transition-all duration-300 disabled:opacity-50"
+          className="inline-flex items-center gap-2 border border-border-subtle hover:border-border-accent-strong text-[10px] tracking-[0.22em] uppercase text-on-surface-secondary px-4 py-2 transition-colors disabled:opacity-50"
+          style={{ fontFamily: 'var(--font-mono)' }}
         >
-          <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} />
+          <RefreshCw size={12} className={refreshing ? 'animate-spin' : ''} />
           Refresh
         </button>
       </div>
@@ -179,10 +164,10 @@ export default function FeedView({ user, liquors, onOpenUserSearch }: FeedViewPr
       {loading ? (
         <FeedSkeleton count={4} />
       ) : activities.length === 0 ? (
-        <div className="flex flex-col items-center justify-center text-center py-16 px-4">
-          <Users size={48} className="text-on-surface-accent/30 mb-5" />
-          <h3 className="font-serif text-xl text-on-surface mb-2">Your feed is empty</h3>
-          <p className="text-on-surface-muted text-sm mb-6 max-w-xs">Follow other collectors to see their activity here.</p>
+        <div className="flex flex-col items-center justify-center text-center py-16 px-4 border border-dashed border-border-subtle">
+          <Users size={40} className="text-on-surface-accent/30 mb-5" />
+          <h3 className="heading-md text-xl italic text-on-surface mb-2">Your feed is empty</h3>
+          <p className="text-on-surface-muted font-serif italic text-sm mb-6 max-w-xs">Follow other collectors to see their activity here.</p>
           {onOpenUserSearch ? (
             <button onClick={onOpenUserSearch} className="btn btn-primary">
               Find People to Follow
@@ -194,7 +179,7 @@ export default function FeedView({ user, liquors, onOpenUserSearch }: FeedViewPr
           )}
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="border border-border-subtle">
           {activities.map((activity, index) => {
             const liquor = liquorMap.get(activity.bourbon_id);
             const liquorName = liquor?.name || activity.bourbon_id;
@@ -204,107 +189,89 @@ export default function FeedView({ user, liquors, onOpenUserSearch }: FeedViewPr
             return (
               <div
                 key={`${activity.type}-${activity.user_id}-${activity.bourbon_id}-${index}`}
-                className={`group relative overflow-hidden rounded-[28px] border p-4 sm:p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_40px_rgba(0,0,0,0.28)] ${style.shell}`}
+                className={`group relative p-5 sm:p-6 bg-surface-raised transition-colors duration-200 hover:bg-surface-alt ${index < activities.length - 1 ? 'border-b border-border-subtle' : ''}`}
               >
-                <div className={`absolute inset-y-0 left-0 w-1.5 ${style.rail}`} />
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-on-surface/14 to-transparent" />
+                <div className="flex gap-4 sm:gap-5">
+                  <div className="flex flex-col items-center gap-2 shrink-0">
+                    <span
+                      className="text-[10px] tracking-[0.22em] text-on-surface-accent"
+                      style={{ fontFamily: 'var(--font-mono)' }}
+                    >
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+                    <button
+                      onClick={() => navigate(`/profile/${activity.user_id}`)}
+                      className="shrink-0"
+                    >
+                      {activity.user_picture ? (
+                        <img
+                          src={activity.user_picture}
+                          alt={activity.user_name}
+                          className="w-10 h-10 border border-border-subtle object-cover transition-colors group-hover:border-border-accent-strong"
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 border border-border-subtle flex items-center justify-center bg-on-surface-accent/10 text-on-surface-accent font-serif text-base transition-colors group-hover:border-border-accent-strong">
+                          {activity.user_name?.charAt(0)?.toUpperCase() || '?'}
+                        </div>
+                      )}
+                    </button>
+                  </div>
 
-                <div className="flex gap-3 sm:gap-4 pl-2">
-                  <button
-                    onClick={() => navigate(`/profile/${activity.user_id}`)}
-                    className="flex-shrink-0 self-start"
-                  >
-                    {activity.user_picture ? (
-                      <img
-                        src={activity.user_picture}
-                        alt={activity.user_name}
-                        className="w-11 h-11 rounded-full border border-border-subtle object-cover transition-colors group-hover:border-on-surface-accent/60"
-                        referrerPolicy="no-referrer"
-                      />
-                    ) : (
-                      <div className="w-11 h-11 rounded-full border border-border-subtle flex items-center justify-center bg-on-surface-accent/20 text-on-surface-accent text-sm font-bold transition-colors group-hover:border-on-surface-accent/60">
-                        {activity.user_name?.charAt(0)?.toUpperCase() || '?'}
+                  <div className="flex-1 min-w-0 space-y-2">
+                    <div className="flex flex-wrap items-baseline justify-between gap-2">
+                      <p
+                        className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.22em] uppercase text-on-surface-accent"
+                        style={{ fontFamily: 'var(--font-mono)' }}
+                      >
+                        <span className="text-on-surface-accent">◆</span>
+                        <Icon size={11} />
+                        {style.label}
+                      </p>
+                      <span
+                        className="text-[10px] tracking-[0.22em] uppercase text-on-surface-muted"
+                        style={{ fontFamily: 'var(--font-mono)' }}
+                      >
+                        {relativeTime(activity.created_at)}
+                      </span>
+                    </div>
+
+                    <p className="text-sm sm:text-base text-on-surface-secondary leading-relaxed font-serif">
+                      <button
+                        onClick={() => navigate(`/profile/${activity.user_id}`)}
+                        className="text-on-surface hover:text-on-surface-accent transition-colors not-italic"
+                      >
+                        {activity.user_name}
+                      </button>
+                      <span className="text-on-surface-muted italic"> {style.verb} </span>
+                      <button
+                        onClick={() => navigate(`/liquor/${activity.bourbon_id}`)}
+                        className="heading-md italic text-on-surface hover:text-on-surface-accent transition-colors text-lg"
+                      >
+                        {liquorName}
+                      </button>
+                    </p>
+
+                    {liquor && (
+                      <p
+                        className="text-[10px] tracking-[0.22em] uppercase text-on-surface-muted"
+                        style={{ fontFamily: 'var(--font-mono)' }}
+                      >
+                        {liquor.distillery} &middot; {liquor.type} &middot; {liquor.proof} PR
+                      </p>
+                    )}
+
+                    {activity.type === 'review' && activity.rating && (
+                      <div className="flex items-center gap-2 pt-1">
+                        <StarRating rating={activity.rating} />
                       </div>
                     )}
-                  </button>
 
-                  <div className="flex-1 min-w-0 space-y-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0 space-y-2">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-semibold tracking-[0.28em] uppercase ${style.badge}`}>
-                            <Icon size={12} />
-                            {style.label}
-                          </span>
-                          <span className="text-[10px] text-on-surface-muted tracking-[0.28em] uppercase">{relativeTime(activity.created_at)}</span>
-                        </div>
-
-                        <div className="space-y-2">
-                          <p className="text-sm sm:text-[15px] text-on-surface/88 leading-relaxed">
-                            <button
-                              onClick={() => navigate(`/profile/${activity.user_id}`)}
-                              className="font-semibold text-on-surface hover:text-on-surface-accent transition-colors"
-                            >
-                              {activity.user_name}
-                            </button>
-                            <span className="text-on-surface-muted"> {style.verb} </span>
-                            <button
-                              onClick={() => navigate(`/liquor/${activity.bourbon_id}`)}
-                              className={`font-display text-lg leading-none transition-colors ${style.highlight}`}
-                            >
-                              {liquorName}
-                            </button>
-                          </p>
-
-                          <div className={`rounded-[22px] px-4 py-3 ${style.panel}`}>
-                            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                              <div className="inline-flex items-center gap-2 text-on-surface-secondary">
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${style.iconWrap}`}>
-                                  <Icon size={15} />
-                                </div>
-                                <div>
-                                  <p className="text-[10px] tracking-[0.28em] uppercase text-on-surface-muted">Bottle story</p>
-                                  <p className="font-serif text-base text-on-surface leading-tight">{liquor?.distillery || 'Community bottle'}</p>
-                                </div>
-                              </div>
-
-                              {liquor && (
-                                <div className="text-[11px] tracking-[0.22em] uppercase text-on-surface-muted">
-                                  {liquor.type} · {liquor.proof} proof
-                                </div>
-                              )}
-
-                              {activity.type === 'review' && activity.rating && (
-                                <div className="flex items-center gap-2 sm:ml-auto">
-                                  <span className="text-[10px] tracking-[0.28em] uppercase text-on-surface-muted">Score</span>
-                                  <StarRating rating={activity.rating} />
-                                </div>
-                              )}
-                            </div>
-
-                            {activity.type === 'review' && activity.text && (
-                              <p className="mt-3 text-sm sm:text-[15px] text-on-surface-secondary font-serif italic leading-relaxed line-clamp-3">
-                                “{activity.text}”
-                              </p>
-                            )}
-
-                            {activity.type === 'tried' && (
-                              <p className="mt-3 flex items-center gap-2 text-sm text-emerald-100/85 font-serif italic">
-                                <GlassWater size={14} className="text-emerald-300" />
-                                Added to their tasted shelf.
-                              </p>
-                            )}
-
-                            {activity.type === 'want' && (
-                              <p className="mt-3 flex items-center gap-2 text-sm text-rose-100/85 font-serif italic">
-                                <Sparkles size={14} className="text-rose-300" />
-                                A future pour now on their radar.
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    {activity.type === 'review' && activity.text && (
+                      <p className="mt-2 text-sm sm:text-base text-on-surface-secondary font-serif italic leading-relaxed line-clamp-3 border-l-2 border-border-accent pl-3">
+                        “{activity.text}”
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
