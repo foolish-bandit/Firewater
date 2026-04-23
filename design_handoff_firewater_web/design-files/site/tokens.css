@@ -1,0 +1,173 @@
+/* Firewater web — shared tokens for Dusk (dark) and Sundown (light) */
+
+:root {
+  /* Dusk — dark */
+  --bg: #141210;
+  --surf: #1C1815;
+  --surf-alt: #231E19;
+  --ink: #EAE4D9;
+  --ink-2: rgba(234,228,217,0.68);
+  --ink-3: rgba(234,228,217,0.42);
+  --line: rgba(234,228,217,0.12);
+  --line-strong: rgba(234,228,217,0.22);
+  --accent: #E0B868;
+  --accent-soft: rgba(224,184,104,0.14);
+  --paper: #141210;
+
+  --font-display: 'DM Serif Display', serif;
+  --font-body: 'Cormorant', Georgia, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+body.light {
+  /* Sundown — bone paper */
+  --bg: #F2ECDF;
+  --surf: #E8E0CF;
+  --surf-alt: #DDD2BB;
+  --ink: #231D16;
+  --ink-2: rgba(35,29,22,0.68);
+  --ink-3: rgba(35,29,22,0.42);
+  --line: rgba(35,29,22,0.2);
+  --line-strong: rgba(35,29,22,0.35);
+  --accent: #B24A2C;
+  --accent-soft: rgba(178,74,44,0.12);
+  --paper: #FAF4E4;
+
+  --font-display: 'Old Standard TT', serif;
+  --font-body: 'Tenor Sans', serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px; line-height: 1.55;
+  transition: background 0.4s ease, color 0.4s ease;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Typography utilities */
+.display {
+  font-family: var(--font-display);
+  font-weight: 400; line-height: 1.02;
+  letter-spacing: -0.01em;
+}
+body.light .display { font-weight: 700; letter-spacing: -0.005em; }
+.italic { font-style: italic; }
+body.light .display.italic { font-style: normal; } /* Old Standard italic feels off; keep upright */
+
+.mono {
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+}
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+.kicker.accent { color: var(--accent); }
+.lede {
+  font-family: var(--font-body);
+  font-size: 22px; line-height: 1.5;
+  color: var(--ink-2);
+}
+
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; }
+
+/* Common layout */
+.wrap { max-width: 1320px; margin: 0 auto; padding: 0 48px; }
+@media (max-width: 900px) { .wrap { padding: 0 24px; } }
+
+.hr { height: 1px; background: var(--line); border: 0; }
+.hr-strong { height: 1px; background: var(--line-strong); border: 0; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 14px 22px;
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  cursor: pointer; border: 0;
+  transition: 0.18s ease;
+}
+.btn-primary { background: var(--accent); color: var(--paper); }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-ghost { background: transparent; color: var(--ink); border: 1px solid var(--line-strong); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Chips / pills */
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px;
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  border: 1px solid var(--line-strong); color: var(--ink-2);
+  cursor: pointer; background: transparent;
+}
+.chip.on { background: var(--accent); color: var(--paper); border-color: var(--accent); }
+.chip:hover:not(.on) { border-color: var(--accent); color: var(--accent); }
+
+/* Section rule — ornamental header */
+.rule {
+  display: flex; align-items: center; gap: 16px; padding: 12px 0;
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: 0.24em; text-transform: uppercase; color: var(--ink-2);
+}
+.rule .line { flex: 1; height: 1px; background: var(--line); }
+.rule .diamond { color: var(--accent); }
+
+/* Hairline frame for boxed elements */
+.frame { border: 1px solid var(--line); background: var(--surf); }
+body.light .frame { border-color: var(--line-strong); background: var(--surf); }
+
+/* Placeholder bottle/image blocks */
+.ph-bottle {
+  background:
+    radial-gradient(ellipse at 50% 20%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 60%),
+    linear-gradient(180deg, var(--surf-alt), var(--surf) 60%, var(--surf-alt));
+  border: 1px solid var(--line);
+  position: relative; overflow: hidden;
+}
+.ph-bottle::after {
+  content: ''; position: absolute; inset: 0;
+  background-image: radial-gradient(circle at 50% 75%, color-mix(in srgb, var(--accent) 10%, transparent) 0%, transparent 35%);
+}
+.ph-bottle svg { position: relative; z-index: 1; }
+
+.ph-photo {
+  background:
+    linear-gradient(135deg, var(--surf-alt), var(--surf)),
+    radial-gradient(ellipse at 30% 30%, rgba(224,184,104,0.15), transparent 60%);
+  border: 1px solid var(--line);
+}
+
+/* Grain overlay (subtle on light mode) */
+.grain {
+  position: relative;
+}
+.grain::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9'/></filter><rect width='200' height='200' filter='url(%23n)' opacity='0.45'/></svg>");
+  opacity: 0.035;
+  mix-blend-mode: multiply;
+}
+body.light .grain::before { opacity: 0.06; }
+
+/* Scrollbars — subtle */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 0; }
+
+/* Page transitions */
+@keyframes fw-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-enter {
+  animation: fw-fade-in 0.42s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}

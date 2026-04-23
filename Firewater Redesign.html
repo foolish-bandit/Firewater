@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Firewater — Redesign</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Cormorant:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;600&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=Tenor+Sans&display=swap" rel="stylesheet">
+<template id="__bundler_thumbnail">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+    <rect width="400" height="400" fill="#151211"/>
+    <g transform="translate(200 200)">
+      <circle r="130" fill="none" stroke="#E0B868" stroke-width="1" opacity="0.4"/>
+      <circle r="100" fill="none" stroke="#E0B868" stroke-width="0.6" opacity="0.3"/>
+      <path d="M0 -120 L14 0 L0 120 L-14 0 Z" fill="#E0B868"/>
+      <path d="M-120 0 L0 -12 L120 0 L0 12 Z" fill="#E0B868" opacity="0.5"/>
+      <text y="56" text-anchor="middle" font-family="'DM Serif Display', serif" font-style="italic" font-size="32" fill="#EAE4D9">Firewater</text>
+    </g>
+  </svg>
+</template>
+<style>
+  :root {
+    --page: #151211;
+    --page-ink: #EAE4D9;
+    --muted: rgba(234,228,217,0.55);
+  }
+  html, body {
+    margin: 0; padding: 0; min-height: 100vh;
+    background: var(--page); color: var(--page-ink);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    transition: background 0.4s ease, color 0.4s ease;
+  }
+  body[data-mode="light"] {
+    --page: #E8DFC9;
+    --page-ink: #231D16;
+    --muted: rgba(35,29,22,0.55);
+  }
+  * { box-sizing: border-box; }
+
+  /* canvas chrome */
+  .chrome {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; gap: 18px;
+    padding: 14px 24px;
+    background: rgba(21,18,17,0.92);
+    backdrop-filter: blur(14px) saturate(1.2);
+    border-bottom: 1px solid rgba(234,228,217,0.08);
+    transition: background 0.4s ease, border-color 0.4s ease;
+  }
+  body[data-mode="light"] .chrome {
+    background: rgba(232,223,201,0.92);
+    border-bottom: 1px solid rgba(35,29,22,0.15);
+  }
+  .chrome .mark { font-family: 'DM Serif Display', serif; font-size: 22px; letter-spacing: 0.01em; }
+  body[data-mode="light"] .chrome .mark { font-family: 'Old Standard TT', serif; font-weight: 700; }
+  .chrome .mark em { font-style: italic; color: #E0B868; }
+  body[data-mode="light"] .chrome .mark em { color: #B24A2C; font-style: normal; }
+  .chrome .sep { width: 1px; height: 22px; background: rgba(234,228,217,0.12); }
+  body[data-mode="light"] .chrome .sep { background: rgba(35,29,22,0.18); }
+  .chrome .label { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+
+  .screens { display: flex; gap: 6px; flex-wrap: wrap; }
+  .screens button {
+    background: transparent; color: var(--page-ink);
+    border: 1px solid rgba(234,228,217,0.15);
+    padding: 7px 11px; font: inherit; font-size: 10px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    cursor: pointer; border-radius: 2px; transition: 0.15s all;
+  }
+  body[data-mode="light"] .screens button { border-color: rgba(35,29,22,0.2); }
+  .screens button:hover { border-color: var(--accent-ui); color: var(--accent-ui); }
+  .screens button.active { background: var(--accent-ui); color: var(--page); border-color: var(--accent-ui); }
+
+  .spacer { flex: 1; }
+
+  /* theme toggle */
+  .mode-toggle {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 10px; border: 1px solid rgba(234,228,217,0.18);
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    cursor: pointer; background: transparent; color: var(--page-ink);
+    font-family: inherit; border-radius: 2px;
+  }
+  body[data-mode="light"] .mode-toggle { border-color: rgba(35,29,22,0.25); }
+  .mode-toggle .dot {
+    width: 8px; height: 8px; border-radius: 999px;
+    background: var(--accent-ui);
+  }
+
+  /* stage */
+  .stage {
+    display: flex; justify-content: center; align-items: flex-start;
+    padding: 48px 24px 100px;
+    min-height: calc(100vh - 60px);
+  }
+  .device-wrap { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+  .mode-caption {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 0.24em; text-transform: uppercase; color: var(--muted);
+  }
+  .mode-caption b { color: var(--accent-ui); font-weight: 600; }
+
+  /* TWEAKS PANEL */
+  .tweaks {
+    position: fixed; right: 18px; bottom: 18px; z-index: 200;
+    display: none; width: 280px;
+    background: #1a1816; border: 1px solid rgba(234,228,217,0.18);
+    box-shadow: 0 18px 50px rgba(0,0,0,0.5);
+    color: #EAE4D9; font-family: 'JetBrains Mono', monospace;
+    border-radius: 6px; overflow: hidden;
+  }
+  .tweaks.on { display: block; }
+  .tweaks header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 14px; border-bottom: 1px solid rgba(234,228,217,0.12);
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+  }
+  .tweaks .body { padding: 14px; display: flex; flex-direction: column; gap: 14px; }
+  .tweak { display: flex; flex-direction: column; gap: 6px; }
+  .tweak label { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(234,228,217,0.6); }
+  .tweak .opts { display: flex; gap: 4px; flex-wrap: wrap; }
+  .tweak .opts button {
+    flex: 1; min-width: 0; background: transparent; color: #EAE4D9;
+    border: 1px solid rgba(234,228,217,0.15);
+    padding: 6px 8px; font: inherit; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    cursor: pointer; border-radius: 2px;
+  }
+  .tweak .opts button.on { background: #E0B868; color: #151211; border-color: #E0B868; }
+</style>
+</head>
+<body data-mode="dark" style="--accent-ui: #C89B3C;">
+
+<div class="chrome">
+  <div class="mark">Fire<em>water</em></div>
+  <div class="sep"></div>
+  <div class="label">Redesign · v2</div>
+  <div class="sep"></div>
+  <div class="screens" id="screens">
+    <button data-screen="onboarding">Onboarding</button>
+    <button data-screen="home" class="active">Discover</button>
+    <button data-screen="catalog">Catalog</button>
+    <button data-screen="detail">Detail</button>
+    <button data-screen="profile">Profile</button>
+  </div>
+  <div class="spacer"></div>
+  <button class="mode-toggle" id="modeToggle">
+    <span class="dot"></span>
+    <span id="modeLabel">Dusk · Dark</span>
+  </button>
+</div>
+
+<div class="stage">
+  <div class="device-wrap">
+    <div id="device"></div>
+    <div class="mode-caption" id="modeCaption">
+      <b>Dusk</b> — espresso & brass · tap the toggle to switch to <span style="opacity:0.7">Sundown</span>
+    </div>
+  </div>
+</div>
+
+<div class="tweaks" id="tweaks">
+  <header><span>Tweaks</span><span style="opacity:0.6">Firewater</span></header>
+  <div class="body">
+    <div class="tweak">
+      <label>Accent — Dusk (dark)</label>
+      <div class="opts" data-tweak="accentA">
+        <button data-val="#C89B3C">Brass</button>
+        <button data-val="#B85C3A">Ember</button>
+        <button data-val="#D6B26B">Oat</button>
+      </div>
+    </div>
+    <div class="tweak">
+      <label>Accent — Sundown (light)</label>
+      <div class="opts" data-tweak="accentB">
+        <button data-val="#B24A2C">Terracotta</button>
+        <button data-val="#6F7E5B">Sagebrush</button>
+        <button data-val="#8A5A2B">Saddle</button>
+      </div>
+    </div>
+    <div class="tweak">
+      <label>Card density</label>
+      <div class="opts" data-tweak="density">
+        <button data-val="airy">Airy</button>
+        <button data-val="packed">Packed</button>
+      </div>
+    </div>
+    <div class="tweak">
+      <label>Grain / texture</label>
+      <div class="opts" data-tweak="grain">
+        <button data-val="off">None</button>
+        <button data-val="soft">Soft</button>
+        <button data-val="grit">Grit</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="frames/ios-frame.jsx"></script>
+<script type="text/babel" src="screens/DuskScreens.jsx"></script>
+<script type="text/babel" src="screens/SundownScreens.jsx"></script>
+<script type="text/babel" src="screens/app.jsx"></script>
+
+<script>
+  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+    "accentA": "#C89B3C",
+    "accentB": "#B24A2C",
+    "density": "airy",
+    "grain": "soft",
+    "mode": "light"
+  }/*EDITMODE-END*/;
+
+  window.__fw = { ...TWEAK_DEFAULTS };
+  const savedMode = localStorage.getItem('fw_mode') || window.__fw.mode || 'dark';
+  window.__fw.mode = savedMode;
+
+  function applyMode() {
+    const m = window.__fw.mode;
+    document.body.setAttribute('data-mode', m);
+    const accentUI = m === 'dark' ? window.__fw.accentA : window.__fw.accentB;
+    document.body.style.setProperty('--accent-ui', accentUI);
+    document.getElementById('modeLabel').textContent = m === 'dark' ? 'Dusk · Dark' : 'Sundown · Light';
+    document.getElementById('modeCaption').innerHTML = m === 'dark'
+      ? '<b>Dusk</b> — espresso & brass · tap the toggle to switch to <span style="opacity:0.7">Sundown</span>'
+      : '<b>Sundown</b> — bone paper & terracotta · tap the toggle to switch to <span style="opacity:0.7">Dusk</span>';
+  }
+
+  function broadcast() {
+    applyMode();
+    window.dispatchEvent(new CustomEvent('fw-tweak', { detail: { ...window.__fw } }));
+    document.documentElement.style.setProperty('--accentA', window.__fw.accentA);
+    document.documentElement.style.setProperty('--accentB', window.__fw.accentB);
+  }
+  broadcast();
+
+  document.getElementById('modeToggle').addEventListener('click', () => {
+    window.__fw.mode = window.__fw.mode === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('fw_mode', window.__fw.mode);
+    broadcast();
+    try { window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { mode: window.__fw.mode } }, '*'); } catch(e) {}
+  });
+
+  function paintTweakButtons() {
+    document.querySelectorAll('.tweaks .opts').forEach(group => {
+      const key = group.getAttribute('data-tweak');
+      group.querySelectorAll('button').forEach(b => {
+        b.classList.toggle('on', b.getAttribute('data-val') === String(window.__fw[key]));
+      });
+    });
+  }
+  document.querySelectorAll('.tweaks .opts').forEach(group => {
+    const key = group.getAttribute('data-tweak');
+    group.querySelectorAll('button').forEach(b => {
+      b.addEventListener('click', () => {
+        const val = b.getAttribute('data-val');
+        window.__fw[key] = val;
+        paintTweakButtons();
+        broadcast();
+        try { window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { [key]: val } }, '*'); } catch(e) {}
+      });
+    });
+  });
+  paintTweakButtons();
+
+  window.addEventListener('message', (e) => {
+    if (!e.data || typeof e.data !== 'object') return;
+    if (e.data.type === '__activate_edit_mode') document.getElementById('tweaks').classList.add('on');
+    else if (e.data.type === '__deactivate_edit_mode') document.getElementById('tweaks').classList.remove('on');
+  });
+  try { window.parent.postMessage({ type: '__edit_mode_available' }, '*'); } catch(e) {}
+
+  const screens = document.getElementById('screens');
+  const LS_KEY = 'fw_redesign_screen';
+  let current = localStorage.getItem(LS_KEY) || 'home';
+  function setScreen(s) {
+    current = s;
+    localStorage.setItem(LS_KEY, s);
+    screens.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.getAttribute('data-screen') === s));
+    window.dispatchEvent(new CustomEvent('fw-screen', { detail: s }));
+  }
+  screens.querySelectorAll('button').forEach(b => {
+    b.addEventListener('click', () => setScreen(b.getAttribute('data-screen')));
+  });
+  setTimeout(() => setScreen(current), 0);
+</script>
+
+</body>
+</html>

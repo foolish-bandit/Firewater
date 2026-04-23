@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Firewater — Web</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Cormorant:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;600&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=Tenor+Sans&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --chrome-bg: #151211;
+    --chrome-ink: #EAE4D9;
+    --chrome-muted: rgba(234,228,217,0.55);
+    --chrome-line: rgba(234,228,217,0.14);
+    --chrome-accent: #E0B868;
+  }
+  body[data-mode="light"] {
+    --chrome-bg: #151211;  /* keep dark chrome for contrast with Sundown paper */
+    --chrome-ink: #EAE4D9;
+    --chrome-muted: rgba(234,228,217,0.55);
+    --chrome-line: rgba(234,228,217,0.14);
+    --chrome-accent: #E0B868;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; min-height: 100vh;
+    background: var(--chrome-bg); color: var(--chrome-ink);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  .chrome {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; gap: 24px;
+    padding: 14px 28px;
+    background: rgba(21,18,17,0.94);
+    backdrop-filter: blur(14px) saturate(1.2);
+    border-bottom: 1px solid var(--chrome-line);
+  }
+  .chrome .mark { font-family: 'DM Serif Display', serif; font-size: 22px; font-style: italic; }
+  .chrome .mark em { color: var(--chrome-accent); font-style: normal; }
+  .chrome .sep { width: 1px; height: 22px; background: var(--chrome-line); }
+  .chrome .label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--chrome-muted); }
+  .chrome .spacer { flex: 1; }
+
+  .pages { display: flex; gap: 4px; flex-wrap: wrap; }
+  .pages button {
+    background: transparent; color: var(--chrome-ink);
+    border: 1px solid var(--chrome-line);
+    padding: 7px 11px; font: inherit; font-size: 10px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    cursor: pointer; border-radius: 0;
+  }
+  .pages button:hover { border-color: var(--chrome-accent); color: var(--chrome-accent); }
+  .pages button.on { background: var(--chrome-accent); color: #151211; border-color: var(--chrome-accent); }
+
+  .viewports { display: flex; gap: 4px; }
+  .viewports button {
+    background: transparent; color: var(--chrome-ink);
+    border: 1px solid var(--chrome-line);
+    padding: 7px 12px; font: inherit; font-size: 10px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    cursor: pointer; display: flex; align-items: center; gap: 6px;
+  }
+  .viewports button.on { background: var(--chrome-accent); color: #151211; border-color: var(--chrome-accent); }
+
+  .mode-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 12px; border: 1px solid var(--chrome-line);
+    background: transparent; color: var(--chrome-ink);
+    font: inherit; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    cursor: pointer;
+  }
+  .mode-btn .dot { width: 8px; height: 8px; border-radius: 999px; background: var(--chrome-accent); }
+
+  .stage {
+    padding: 40px; min-height: calc(100vh - 60px);
+    display: flex; justify-content: center;
+    background:
+      radial-gradient(circle at 1px 1px, rgba(234,228,217,0.04) 1px, transparent 0) 0 0 / 28px 28px,
+      var(--chrome-bg);
+  }
+  .frame-wrap {
+    background: #0c0a09; padding: 12px; border: 1px solid var(--chrome-line);
+    box-shadow: 0 30px 70px rgba(0,0,0,0.6);
+    transition: width 0.3s ease;
+  }
+  .frame-wrap .dots { display: flex; gap: 6px; padding: 4px 6px 10px; }
+  .frame-wrap .dot { width: 10px; height: 10px; border-radius: 999px; background: #2a2520; }
+  .frame-wrap .dot:nth-child(1) { background: #7a4038; }
+  .frame-wrap .dot:nth-child(2) { background: #7a6238; }
+  .frame-wrap .dot:nth-child(3) { background: #3a5438; }
+  .frame-wrap iframe {
+    border: 0; display: block; background: #F2ECDF;
+    transition: width 0.3s ease, height 0.3s ease;
+  }
+  .caption {
+    text-align: center; margin-top: 16px;
+    font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--chrome-muted);
+  }
+  .caption b { color: var(--chrome-accent); font-weight: 500; }
+</style>
+</head>
+<body data-mode="dark">
+
+<div class="chrome">
+  <div class="mark">Fire<em>water</em></div>
+  <div class="sep"></div>
+  <div class="label">Web · Redesign</div>
+  <div class="sep"></div>
+  <div class="pages" id="pages">
+    <button data-page="landing" class="on">Landing</button>
+    <button data-page="discover">Discover</button>
+    <button data-page="catalog">Catalog</button>
+    <button data-page="detail">Detail</button>
+    <button data-page="profile">Profile</button>
+    <button data-page="shelf">My Shelf</button>
+    <button data-page="dispatch">Dispatch</button>
+    <button data-page="article">Article</button>
+    <button data-page="download">Download</button>
+    <button data-page="about">About</button>
+    <button data-page="signin">Sign In</button>
+  </div>
+  <div class="spacer"></div>
+  <div class="viewports" id="viewports">
+    <button data-vp="1440" class="on">Desktop · 1440</button>
+    <button data-vp="1024">Tablet · 1024</button>
+    <button data-vp="390">Mobile · 390</button>
+  </div>
+  <div class="sep"></div>
+  <button class="mode-btn" id="modeBtn">
+    <span class="dot"></span>
+    <span id="modeLabel">Dusk · Dark</span>
+  </button>
+</div>
+
+<div class="stage">
+  <div>
+    <div class="frame-wrap" id="frameWrap">
+      <div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+      <iframe id="frame" src="site/index.html" width="1320" height="900"></iframe>
+    </div>
+    <div class="caption" id="caption"><b>Dusk · Dark</b> — Espresso paper, brass accents</div>
+  </div>
+</div>
+
+<script>
+  const VIEWPORTS = {
+    '1440': { w: 1320, h: 900 },
+    '1024': { w: 1000, h: 900 },
+    '390':  { w: 390, h: 780 },
+  };
+
+  const state = {
+    page: 'landing',
+    vp: '1440',
+    mode: localStorage.getItem('fw_web_mode') || 'dark',
+  };
+
+  const frame = document.getElementById('frame');
+  const frameWrap = document.getElementById('frameWrap');
+  const caption = document.getElementById('caption');
+  const modeLabel = document.getElementById('modeLabel');
+
+  // Expose state for iframe to read on initial load
+  window.__fw_mode = state.mode;
+  window.__fw_page = state.page;
+
+  function applyVp() {
+    const { w, h } = VIEWPORTS[state.vp];
+    frame.width = w;
+    frame.height = h;
+    frameWrap.style.width = (w + 24) + 'px';
+  }
+  function applyMode() {
+    document.body.setAttribute('data-mode', state.mode);
+    modeLabel.textContent = state.mode === 'dark' ? 'Dusk · Dark' : 'Sundown · Light';
+    caption.innerHTML = state.mode === 'dark'
+      ? '<b>Dusk · Dark</b> — Espresso paper, brass accents, DM Serif'
+      : '<b>Sundown · Light</b> — Bone paper, terracotta, Old Standard';
+  }
+  function send(msg) {
+    try { frame.contentWindow.postMessage(msg, '*'); } catch(e) {}
+  }
+  function setPage(p) {
+    state.page = p;
+    window.__fw_page = p;
+    document.querySelectorAll('.pages button').forEach(b => b.classList.toggle('on', b.dataset.page === p));
+    send({ type: 'fw-set-page', page: p });
+  }
+  function setVp(vp) {
+    state.vp = vp;
+    document.querySelectorAll('.viewports button').forEach(b => b.classList.toggle('on', b.dataset.vp === vp));
+    applyVp();
+  }
+  function setMode(m) {
+    state.mode = m;
+    window.__fw_mode = m;
+    localStorage.setItem('fw_web_mode', m);
+    applyMode();
+    send({ type: 'fw-set-mode', mode: m });
+  }
+
+  document.querySelectorAll('.pages button').forEach(b => b.addEventListener('click', () => setPage(b.dataset.page)));
+  document.querySelectorAll('.viewports button').forEach(b => b.addEventListener('click', () => setVp(b.dataset.vp)));
+  document.getElementById('modeBtn').addEventListener('click', () => setMode(state.mode === 'dark' ? 'light' : 'dark'));
+
+  // Listen for iframe back-messages (e.g. in-page link clicks updating our page pill)
+  window.addEventListener('message', (e) => {
+    if (!e.data || typeof e.data !== 'object') return;
+    if (e.data.type === 'fw-ready') {
+      send({ type: 'fw-set-mode', mode: state.mode });
+      send({ type: 'fw-set-page', page: state.page });
+    }
+    if (e.data.type === 'fw-page-changed') {
+      state.page = e.data.page;
+      document.querySelectorAll('.pages button').forEach(b => b.classList.toggle('on', b.dataset.page === e.data.page));
+    }
+    if (e.data.type === 'fw-mode-changed') {
+      state.mode = e.data.mode;
+      localStorage.setItem('fw_web_mode', e.data.mode);
+      applyMode();
+    }
+  });
+
+  applyVp();
+  applyMode();
+</script>
+
+</body>
+</html>
